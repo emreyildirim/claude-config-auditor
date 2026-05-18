@@ -1,5 +1,7 @@
 # claude-config-auditor
 
+[![tests](https://github.com/emreyildirim/claude-config-auditor/actions/workflows/tests.yml/badge.svg)](https://github.com/emreyildirim/claude-config-auditor/actions/workflows/tests.yml)
+
 A read-only linter for `.claude/` and `CLAUDE.md`. Measures the **token cost** your Claude Code config pays on every session, and audits **agent / skill quality** (missing descriptions, overlapping routes, broken YAML).
 
 Think of it as ESLint for your context window.
