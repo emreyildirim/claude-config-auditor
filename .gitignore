@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Build artifacts
+build/
+dist/
+*.whl
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Defensive — the auditor itself targets these. Do not commit the
+# repo author's personal Claude config from the project root.
+# Test fixtures under tests/fixtures/ are nested and intentionally tracked.
+/.claude/
+/CLAUDE.md

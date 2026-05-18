@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "claude-config-auditor"
+version = "0.1.0"
+description = "Read-only linter for .claude/ and CLAUDE.md — measures token budget and audits agent/skill quality."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+    { name = "Emre Yildirim" }
+]
+keywords = ["claude", "claude-code", "linter", "tokens", "context", "audit"]
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Quality Assurance",
+    "Topic :: Utilities",
+]
+dependencies = []
+
+[project.optional-dependencies]
+# Better token estimation. Without this, the tool falls back to a
+# character-based heuristic and clearly reports the fallback.
+tokenizer = ["tiktoken>=0.5.0"]
+# Color output. Without this, the tool prints plain text.
+color = ["colorama>=0.4.6"]
+dev = ["pytest>=7", "tiktoken>=0.5.0", "colorama>=0.4.6"]
+
+[project.scripts]
+claude-audit = "claude_config_auditor.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/emreyildirim/claude-config-auditor"
+Issues = "https://github.com/emreyildirim/claude-config-auditor/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

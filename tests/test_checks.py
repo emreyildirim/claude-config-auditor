@@ -1,0 +1,69 @@
+"""End-to-end checks on the good and broken fixtures."""
+
+from pathlib import Path
+
+from claude_config_auditor.checks import agents as agents_check
+from claude_config_auditor.checks import budget as budget_check
+from claude_config_auditor.checks import health as health_check
+from claude_config_auditor.checks import skills as skills_check
+from claude_config_auditor.scanner import scan
+from claude_config_auditor.tokens import get_estimator
+
+FIXTURES = Path(__file__).parent / "fixtures"
+
+
+def test_good_fixture_has_no_errors():
+    result = scan(FIXTURES / "good")
+    est = get_estimator()
+    budget = budget_check.compute(result, est)
+
+    findings = []
+    findings.extend(agents_check.audit(result.agents, est).findings)
+    findings.extend(skills_check.audit(result.skills, est).findings)
+    findings.extend(health_check.audit(result, budget, claude_md_budget=5000))
+
+    errors = [f for f in findings if f.severity == "error"]
+    assert errors == [], f"unexpected errors in good fixture: {errors}"
+
+
+def test_broken_fixture_surfaces_expected_errors():
+    result = scan(FIXTURES / "broken")
+    est = get_estimator()
+    budget = budget_check.compute(result, est)
+
+    findings = []
+    findings.extend(agents_check.audit(result.agents, est).findings)
+    findings.extend(skills_check.audit(result.skills, est).findings)
+    findings.extend(health_check.audit(result, budget, claude_md_budget=5000))
+
+    codes = {f.code for f in findings}
+    assert "AGT001" in codes  # bad yaml
+    assert "AGT003" in codes  # missing description (no-description.md)
+    assert "AGT008" in codes  # description overlap
+    assert "SKL001" in codes or "SKL002" in codes  # broken skill
+
+
+def test_budget_headline_is_nonzero_on_good_fixture():
+    result = scan(FIXTURES / "good")
+    est = get_estimator()
+    budget = budget_check.compute(result, est)
+    assert budget.session_start_total > 0
+    assert 0.0 <= budget.percent_of_window < 100.0
+
+
+def test_budget_files_sorted_largest_first():
+    result = scan(FIXTURES / "good")
+    est = get_estimator()
+    budget = budget_check.compute(result, est)
+    token_counts = [f.tokens for f in budget.files]
+    assert token_counts == sorted(token_counts, reverse=True)
+
+
+def test_empty_dir_produces_zero_budget():
+    result = scan(FIXTURES / "empty")
+    est = get_estimator()
+    budget = budget_check.compute(result, est)
+    assert budget.session_start_total == 0
+    findings = health_check.audit(result, budget, claude_md_budget=5000)
+    codes = {f.code for f in findings}
+    assert "HLT006" in codes
