@@ -17,7 +17,12 @@ from datetime import datetime
 from typing import IO
 
 from claude_config_auditor import __version__
-from claude_config_auditor.checks.budget import BudgetReport, CategoryTotal, FileTokens
+from claude_config_auditor.checks.budget import (
+    TOP_FILES,
+    BudgetReport,
+    CategoryTotal,
+    FileTokens,
+)
 from claude_config_auditor.findings import Finding
 
 
@@ -358,13 +363,13 @@ def _consumers_table(files: list[FileTokens]) -> str:
         </thead>
     '''
 
-    top = files[:20]
-    rest = files[20:]
+    top = files[:TOP_FILES]
+    rest = files[TOP_FILES:]
     top_rows = "".join(_row(i, f) for i, f in enumerate(top, 1))
 
     rest_block = ""
     if rest:
-        rest_rows = "".join(_row(i, f) for i, f in enumerate(rest, 21))
+        rest_rows = "".join(_row(i, f) for i, f in enumerate(rest, TOP_FILES + 1))
         rest_block = f'''
           <details class="expand">
             <summary class="expand-summary">

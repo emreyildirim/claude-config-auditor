@@ -13,16 +13,27 @@ from claude_config_auditor.scanner import Scan
 
 DEFAULT_CLAUDE_MD_BUDGET_TOKENS = 5_000
 
+# Thresholds for session-start total vs context window.
+WINDOW_WARN_PERCENT = 10      # session-start ≥ this percent → warning
+WINDOW_INFO_PERCENT = 5       # session-start ≥ this percent → info
 
-def audit(scan: Scan, budget: BudgetReport, claude_md_budget: int) -> list[Finding]:
+# Imbalance heuristics.
+LARGE_CLAUDE_MD_TOKENS = 4_000      # "big CLAUDE.md without agents/skills"
+AGENT_OR_SKILL_FLOOR = 5            # ≥ this many agents/skills without CLAUDE.md
+                                    # → suggest project-level guidance
+
+
+def audit(
+    scan: Scan,
+    budget: BudgetReport,
+    claude_md_budget: int,
+    tokens_by_path: dict[str, int],
+) -> list[Finding]:
     findings: list[Finding] = []
 
     # CLAUDE.md per-file budget.
     for rec in scan.claude_md_files:
-        tokens = next(
-            (f.tokens for f in budget.files if f.relpath == rec.relpath),
-            0,
-        )
+        tokens = tokens_by_path.get(rec.relpath, 0)
         if tokens > claude_md_budget:
             findings.append(
                 Finding(
@@ -39,7 +50,7 @@ def audit(scan: Scan, budget: BudgetReport, claude_md_budget: int) -> list[Findi
 
     # Session-start total budget vs reference window.
     pct = budget.percent_of_window
-    if pct >= 10:
+    if pct >= WINDOW_WARN_PERCENT:
         findings.append(
             Finding(
                 severity="warning",
@@ -52,7 +63,7 @@ def audit(scan: Scan, budget: BudgetReport, claude_md_budget: int) -> list[Findi
                 hint="Trim CLAUDE.md and prune unused agents/skills.",
             )
         )
-    elif pct >= 5:
+    elif pct >= WINDOW_INFO_PERCENT:
         findings.append(
             Finding(
                 severity="info",
@@ -68,7 +79,7 @@ def audit(scan: Scan, budget: BudgetReport, claude_md_budget: int) -> list[Findi
     claude_md_tokens = sum(
         f.tokens for f in budget.files if f.category == "claude.md"
     )
-    if claude_md_tokens > 4_000 and not scan.agents and not scan.skills:
+    if claude_md_tokens > LARGE_CLAUDE_MD_TOKENS and not scan.agents and not scan.skills:
         findings.append(
             Finding(
                 severity="info",
@@ -79,7 +90,7 @@ def audit(scan: Scan, budget: BudgetReport, claude_md_budget: int) -> list[Findi
                 ),
             )
         )
-    if (len(scan.agents) + len(scan.skills)) >= 5 and not scan.has_claude_md:
+    if (len(scan.agents) + len(scan.skills)) >= AGENT_OR_SKILL_FLOOR and not scan.has_claude_md:
         findings.append(
             Finding(
                 severity="info",

@@ -93,11 +93,12 @@ def main(argv: list[str] | None = None) -> int:
     scan_result = scan(target)
 
     budget = budget_check.compute(scan_result, estimator)
+    tokens_by_path = budget.tokens_by_path
 
     findings: list[Finding] = []
-    findings.extend(agents_check.audit(scan_result.agents, estimator).findings)
-    findings.extend(skills_check.audit(scan_result.skills, estimator).findings)
-    findings.extend(health_check.audit(scan_result, budget, args.budget))
+    findings.extend(agents_check.audit(scan_result.agents, tokens_by_path).findings)
+    findings.extend(skills_check.audit(scan_result.skills, tokens_by_path).findings)
+    findings.extend(health_check.audit(scan_result, budget, args.budget, tokens_by_path))
 
     if args.html:
         html_path = Path(args.html).resolve()

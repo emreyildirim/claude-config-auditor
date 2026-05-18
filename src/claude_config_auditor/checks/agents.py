@@ -15,7 +15,6 @@ from dataclasses import dataclass
 
 from claude_config_auditor.findings import Finding
 from claude_config_auditor.scanner import FileRecord
-from claude_config_auditor.tokens import Estimator
 
 
 # Thresholds. Tuned to be opinionated but not noisy.
@@ -37,7 +36,13 @@ class AgentReport:
     findings: list[Finding]
 
 
-def audit(agents: list[FileRecord], estimator: Estimator) -> AgentReport:
+def audit(agents: list[FileRecord], tokens_by_path: dict[str, int]) -> AgentReport:
+    """Lint agent definitions.
+
+    `tokens_by_path` maps `FileRecord.relpath` to the pre-computed token cost
+    of the file (built once by the caller from BudgetReport). The check
+    reuses it rather than invoking the tokenizer again.
+    """
     findings: list[Finding] = []
 
     # Per-agent checks.
@@ -109,7 +114,7 @@ def audit(agents: list[FileRecord], estimator: Estimator) -> AgentReport:
                     )
                 )
 
-        token_cost = estimator.count(rec.raw)
+        token_cost = tokens_by_path.get(rec.relpath, 0)
         if token_cost > AGENT_TOKEN_BLOAT:
             findings.append(
                 Finding(

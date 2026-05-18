@@ -12,7 +12,6 @@ from dataclasses import dataclass
 
 from claude_config_auditor.findings import Finding
 from claude_config_auditor.scanner import FileRecord
-from claude_config_auditor.tokens import Estimator
 
 SKILL_DESCRIPTION_MIN_CHARS = 40
 SKILL_DESCRIPTION_LONG_CHARS = 800
@@ -24,7 +23,8 @@ class SkillReport:
     findings: list[Finding]
 
 
-def audit(skills: list[FileRecord], estimator: Estimator) -> SkillReport:
+def audit(skills: list[FileRecord], tokens_by_path: dict[str, int]) -> SkillReport:
+    """Lint skill definitions; see agents.audit for the tokens_by_path contract."""
     findings: list[Finding] = []
 
     for rec in skills:
@@ -74,7 +74,7 @@ def audit(skills: list[FileRecord], estimator: Estimator) -> SkillReport:
                     )
                 )
 
-        token_cost = estimator.count(rec.raw)
+        token_cost = tokens_by_path.get(rec.relpath, 0)
         if token_cost > SKILL_TOKEN_BLOAT:
             findings.append(
                 Finding(

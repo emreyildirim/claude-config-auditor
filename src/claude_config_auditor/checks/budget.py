@@ -20,6 +20,10 @@ from claude_config_auditor.tokens import Estimator
 REFERENCE_WINDOW_TOKENS = 200_000
 REFERENCE_WINDOW_LABEL = "200k (typical Claude Code default)"
 
+# How many "largest files" to surface in the terminal and HTML reports.
+# HTML provides an expand-to-see-rest control for everything beyond this.
+TOP_FILES = 20
+
 
 @dataclass
 class FileTokens:
@@ -51,6 +55,11 @@ class BudgetReport:
         if self.reference_window_tokens <= 0:
             return 0.0
         return 100.0 * self.session_start_total / self.reference_window_tokens
+
+    @property
+    def tokens_by_path(self) -> dict[str, int]:
+        """Lookup table so downstream checks don't reinvoke the tokenizer."""
+        return {f.relpath: f.tokens for f in self.files}
 
 
 def compute(scan: Scan, estimator: Estimator) -> BudgetReport:

@@ -16,11 +16,12 @@ def test_good_fixture_has_no_errors():
     result = scan(FIXTURES / "good")
     est = get_estimator()
     budget = budget_check.compute(result, est)
+    tbp = budget.tokens_by_path
 
     findings = []
-    findings.extend(agents_check.audit(result.agents, est).findings)
-    findings.extend(skills_check.audit(result.skills, est).findings)
-    findings.extend(health_check.audit(result, budget, claude_md_budget=5000))
+    findings.extend(agents_check.audit(result.agents, tbp).findings)
+    findings.extend(skills_check.audit(result.skills, tbp).findings)
+    findings.extend(health_check.audit(result, budget, 5000, tbp))
 
     errors = [f for f in findings if f.severity == "error"]
     assert errors == [], f"unexpected errors in good fixture: {errors}"
@@ -30,11 +31,12 @@ def test_broken_fixture_surfaces_expected_errors():
     result = scan(FIXTURES / "broken")
     est = get_estimator()
     budget = budget_check.compute(result, est)
+    tbp = budget.tokens_by_path
 
     findings = []
-    findings.extend(agents_check.audit(result.agents, est).findings)
-    findings.extend(skills_check.audit(result.skills, est).findings)
-    findings.extend(health_check.audit(result, budget, claude_md_budget=5000))
+    findings.extend(agents_check.audit(result.agents, tbp).findings)
+    findings.extend(skills_check.audit(result.skills, tbp).findings)
+    findings.extend(health_check.audit(result, budget, 5000, tbp))
 
     codes = {f.code for f in findings}
     assert "AGT001" in codes  # bad yaml
@@ -64,6 +66,19 @@ def test_empty_dir_produces_zero_budget():
     est = get_estimator()
     budget = budget_check.compute(result, est)
     assert budget.session_start_total == 0
-    findings = health_check.audit(result, budget, claude_md_budget=5000)
+    findings = health_check.audit(result, budget, 5000, budget.tokens_by_path)
     codes = {f.code for f in findings}
     assert "HLT006" in codes
+
+
+def test_tokens_by_path_matches_files():
+    """BudgetReport.tokens_by_path should be the single source of truth."""
+    result = scan(FIXTURES / "good")
+    est = get_estimator()
+    budget = budget_check.compute(result, est)
+    tbp = budget.tokens_by_path
+    # Same set of paths
+    assert set(tbp.keys()) == {f.relpath for f in budget.files}
+    # Same token counts
+    for f in budget.files:
+        assert tbp[f.relpath] == f.tokens

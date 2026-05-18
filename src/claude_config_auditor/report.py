@@ -14,7 +14,7 @@ import sys
 from dataclasses import asdict
 from typing import IO
 
-from claude_config_auditor.checks.budget import BudgetReport
+from claude_config_auditor.checks.budget import TOP_FILES, BudgetReport
 from claude_config_auditor.findings import Finding
 
 
@@ -82,13 +82,13 @@ def render_terminal(
 
     # --- Per-file (top N) -----------------------------------------------
     if budget.files:
-        write(f"{s.BOLD}Largest files (top 15){s.RESET}\n")
-        for ft in budget.files[:15]:
+        write(f"{s.BOLD}Largest files (top {TOP_FILES}){s.RESET}\n")
+        for ft in budget.files[:TOP_FILES]:
             write(
                 f"  ~{ft.tokens:>6,} tok  {s.DIM}{ft.category:<10}{s.RESET}  {ft.relpath}\n"
             )
-        if len(budget.files) > 15:
-            write(f"  {s.DIM}... and {len(budget.files) - 15} more{s.RESET}\n")
+        if len(budget.files) > TOP_FILES:
+            write(f"  {s.DIM}... and {len(budget.files) - TOP_FILES} more{s.RESET}\n")
         write("\n")
 
     # --- Findings -------------------------------------------------------

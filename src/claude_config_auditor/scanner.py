@@ -58,6 +58,36 @@ class Scan:
 _SKIP_NAMES = {".DS_Store"}
 _SKIP_SUFFIXES = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".pdf", ".zip"}
 
+# Directories we don't recurse into when looking for CLAUDE.md.
+# Covers common build artifacts, dependency vendor trees, IDE state, and
+# language-specific output dirs across Python, JS/TS, Rust, Go, Ruby, PHP,
+# iOS, Android, and infrastructure tooling.
+_SKIP_DIRS = {
+    # VCS
+    ".git", ".hg", ".svn",
+    # Editor / IDE
+    ".idea", ".vscode",
+    # Python
+    ".venv", "venv", "env", "__pycache__", ".tox", ".nox",
+    ".pytest_cache", ".mypy_cache", ".ruff_cache",
+    # JS/TS
+    "node_modules", ".next", ".nuxt", ".turbo", ".svelte-kit",
+    # Build outputs (multi-language)
+    "build", "dist", "out", "target",
+    # Test coverage
+    "coverage", ".coverage", ".nyc_output",
+    # Caches
+    ".cache", ".parcel-cache",
+    # Ruby / PHP / Go
+    "vendor",
+    # iOS / macOS
+    "Pods",
+    # Android / JVM
+    ".gradle", ".mvn",
+    # Infra
+    ".terraform",
+}
+
 
 def scan(root: Path) -> Scan:
     """Walk the target directory and collect everything Claude would load."""
@@ -88,8 +118,8 @@ def scan(root: Path) -> Scan:
     skills_dir = claude_dir / "skills"
     if skills_dir.is_dir():
         # A skill is a folder containing SKILL.md (plus optional assets).
-        # We collect SKILL.md as the canonical file but track skill-folder
-        # total size separately via _read_skill_folder below.
+        # We treat SKILL.md as the canonical file — that is what Claude reads
+        # at session start to decide when to invoke the skill.
         for skill_md in sorted(skills_dir.rglob("SKILL.md")):
             rec = _read_file(skill_md, root)
             if rec is None:
@@ -108,12 +138,11 @@ def scan(root: Path) -> Scan:
 
 
 def _find_claude_mds(root: Path) -> list[Path]:
-    """Root CLAUDE.md + nested ones, skipping .git and node_modules-style dirs."""
+    """Root CLAUDE.md + nested ones, skipping build/vendor/IDE dirs."""
     found: list[Path] = []
-    skip_dirs = {".git", "node_modules", ".venv", "venv", "__pycache__", "dist", "build"}
     for path in root.rglob("CLAUDE.md"):
-        # Skip if any ancestor segment is in skip_dirs.
-        if any(part in skip_dirs for part in path.relative_to(root).parts):
+        # Skip if any ancestor segment is in _SKIP_DIRS.
+        if any(part in _SKIP_DIRS for part in path.relative_to(root).parts):
             continue
         found.append(path)
     return sorted(found)
