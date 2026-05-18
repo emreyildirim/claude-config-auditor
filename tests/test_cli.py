@@ -5,7 +5,7 @@ import json
 import sys
 from pathlib import Path
 
-from claude_config_auditor.cli import main
+from claude_config_auditor.cli import _should_use_color, build_parser, main
 
 FIXTURES = Path(__file__).parent / "fixtures"
 
@@ -78,3 +78,42 @@ def test_cli_html_refuses_path_inside_target(tmp_path, capsys):
     capsys.readouterr()
     assert rc == 2
     assert not out_file.exists()
+
+
+# --- color resolution (--no-color flag + NO_COLOR env) ---------------------
+
+def _ns(*argv):
+    """Parse argv to an argparse.Namespace, including the target positional."""
+    return build_parser().parse_args([".", *argv])
+
+
+def test_color_on_by_default():
+    assert _should_use_color(_ns(), {}) is True
+
+
+def test_no_color_flag_disables_color():
+    assert _should_use_color(_ns("--no-color"), {}) is False
+
+
+def test_no_color_env_disables_color():
+    assert _should_use_color(_ns(), {"NO_COLOR": "1"}) is False
+    # Per the no-color.org convention, the value does not matter — any
+    # non-empty string disables color.
+    assert _should_use_color(_ns(), {"NO_COLOR": "yes"}) is False
+    assert _should_use_color(_ns(), {"NO_COLOR": "anything"}) is False
+
+
+def test_empty_no_color_does_not_disable_color():
+    # An empty NO_COLOR is treated as unset.
+    assert _should_use_color(_ns(), {"NO_COLOR": ""}) is True
+
+
+def test_no_color_env_works_through_full_cli(monkeypatch, capsys):
+    """End-to-end: NO_COLOR in os.environ should suppress ANSI codes
+    in terminal output even without the --no-color flag."""
+    monkeypatch.setenv("NO_COLOR", "1")
+    rc = main([str(FIXTURES / "good")])
+    out = capsys.readouterr().out
+    assert rc == 0
+    # ANSI CSI escape sequences should not appear in output.
+    assert "\x1b[" not in out

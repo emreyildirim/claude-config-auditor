@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import argparse
+import os
 import sys
+from collections.abc import Mapping
 from pathlib import Path
 
 from claude_config_auditor import __version__
@@ -59,7 +61,10 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument(
         "--no-color",
         action="store_true",
-        help="Disable ANSI color in terminal output.",
+        help=(
+            "Disable ANSI color in terminal output. The NO_COLOR "
+            "environment variable (no-color.org) has the same effect."
+        ),
     )
     p.add_argument(
         "--fail-on",
@@ -76,6 +81,21 @@ def build_parser() -> argparse.ArgumentParser:
         version=f"claude-config-auditor {__version__}",
     )
     return p
+
+
+def _should_use_color(args: argparse.Namespace, env: Mapping[str, str]) -> bool:
+    """Decide whether to emit ANSI color in terminal output.
+
+    Honors both the explicit `--no-color` flag and the informal
+    `NO_COLOR` environment variable (https://no-color.org/). Per that
+    convention, *any* non-empty value of NO_COLOR disables color; an
+    empty string or an unset variable does not.
+    """
+    if args.no_color:
+        return False
+    if env.get("NO_COLOR"):
+        return False
+    return True
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -126,7 +146,7 @@ def main(argv: list[str] | None = None) -> int:
             target=str(target),
             budget=budget,
             findings=findings,
-            use_color=not args.no_color,
+            use_color=_should_use_color(args, os.environ),
         )
 
     if args.fail_on == "error" and any(f.severity == "error" for f in findings):
