@@ -31,18 +31,30 @@ The ecosystem has a lot of "session handoff" and "state management" tools. It do
 
 ## Install
 
+Requires Python 3.10+. The package is currently developed from source.
+
 ```bash
-pip install claude-config-auditor
-# Optional: install the tiktoken-based estimator for closer token counts.
-pip install 'claude-config-auditor[tokenizer]'
+git clone <this-repo-url>
+cd claude-config-auditor
+
+python3 -m venv .venv
+source .venv/bin/activate
+
+# Install with the recommended tiktoken-based token estimator.
+pip install -e '.[tokenizer]'
+
+# Or, if you don't want tiktoken — the tool will fall back to a
+# character-based heuristic (and clearly label it as such).
+# pip install -e .
 ```
 
-Or run from source without installing:
+`claude-audit` is now on your `PATH` for as long as the venv is active.
+
+To run the test suite while developing:
 
 ```bash
-git clone https://github.com/emreyildirim/claude-config-auditor
-cd claude-config-auditor
-PYTHONPATH=src python -m claude_config_auditor /path/to/your/project
+pip install -e '.[dev]'
+pytest
 ```
 
 ## Use
