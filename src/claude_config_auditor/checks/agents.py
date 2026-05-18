@@ -138,24 +138,45 @@ def audit(agents: list[FileRecord], tokens_by_path: dict[str, int]) -> AgentRepo
         if len(words) >= 4:  # too short to compare meaningfully
             sigs.append((rec, desc, words))
 
+    # Jaccard is a symmetric measure (J(A,B) == J(B,A)) so the overlap
+    # itself applies to *both* agents in a colliding pair. We emit a
+    # finding against each side so neither file appears clean when the
+    # user filters or scans by path.
     for i in range(len(sigs)):
         rec_a, _, words_a = sigs[i]
         for j in range(i + 1, len(sigs)):
             rec_b, _, words_b = sigs[j]
             j_score = _jaccard(words_a, words_b)
-            if j_score >= OVERLAP_JACCARD_THRESHOLD:
-                findings.append(
-                    Finding(
-                        severity="warning",
-                        code="AGT008",
-                        message=(
-                            f"description overlaps with `{rec_b.relpath}` "
-                            f"(word-overlap {j_score:.0%})"
-                        ),
-                        file=rec_a.relpath,
-                        hint="Overlapping descriptions cause Claude to pick the wrong agent. Make each description's trigger condition disjoint.",
-                    )
+            if j_score < OVERLAP_JACCARD_THRESHOLD:
+                continue
+            hint = (
+                "Overlapping descriptions cause Claude to pick the wrong "
+                "agent. Make each description's trigger condition disjoint."
+            )
+            findings.append(
+                Finding(
+                    severity="warning",
+                    code="AGT008",
+                    message=(
+                        f"description overlaps with `{rec_b.relpath}` "
+                        f"(word-overlap {j_score:.0%})"
+                    ),
+                    file=rec_a.relpath,
+                    hint=hint,
                 )
+            )
+            findings.append(
+                Finding(
+                    severity="warning",
+                    code="AGT008",
+                    message=(
+                        f"description overlaps with `{rec_a.relpath}` "
+                        f"(word-overlap {j_score:.0%})"
+                    ),
+                    file=rec_b.relpath,
+                    hint=hint,
+                )
+            )
 
     return AgentReport(findings=findings)
 

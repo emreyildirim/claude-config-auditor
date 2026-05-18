@@ -71,6 +71,27 @@ def test_empty_dir_produces_zero_budget():
     assert "HLT006" in codes
 
 
+def test_agent_overlap_is_bidirectional():
+    """Both sides of an overlapping description pair should be flagged.
+
+    The broken fixture has `overlap-a.md` and `overlap-b.md`, hand-crafted
+    to score well above the Jaccard threshold. A finding must be emitted
+    against each — not just one of them.
+    """
+    result = scan(FIXTURES / "broken")
+    est = get_estimator()
+    budget = budget_check.compute(result, est)
+    findings = agents_check.audit(result.agents, budget.tokens_by_path).findings
+
+    overlap = [f for f in findings if f.code == "AGT008"]
+    flagged_files = {f.file or "" for f in overlap}
+    assert any("overlap-a" in p for p in flagged_files), flagged_files
+    assert any("overlap-b" in p for p in flagged_files), flagged_files
+
+    # Symmetric pair → exactly 2 AGT008 findings, not 1 and not 4.
+    assert len(overlap) == 2, overlap
+
+
 def test_tokens_by_path_matches_files():
     """BudgetReport.tokens_by_path should be the single source of truth."""
     result = scan(FIXTURES / "good")
