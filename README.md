@@ -83,7 +83,10 @@ claude-audit --budget 3000
 
 ## Example output
 
-See [`examples/sample-report.md`](examples/sample-report.md) for full output from both a clean and a deliberately broken fixture. Quick taste:
+- **Terminal:** [`examples/sample-report.md`](examples/sample-report.md) — annotated terminal output from clean and broken fixtures.
+- **HTML dashboard:** [`examples/sample-audit.html`](examples/sample-audit.html) — full HTML report (download to open offline, or view raw on GitHub). Light/dark theme, expandable file list, severity-coloured findings.
+
+Quick terminal taste:
 
 ```
 Session-start fixed cost
