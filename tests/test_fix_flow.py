@@ -17,6 +17,7 @@ from pathlib import Path
 import pytest
 
 from claude_config_auditor.fixes import Proposal, apply_proposals, run_fix_flow
+from claude_config_auditor.fixes.flow import FileChange
 from claude_config_auditor.backup import (
     BACKUP_DIR_NAME,
     load_session,
@@ -36,49 +37,62 @@ def _setup_project(tmp_path: Path) -> Path:
     return target
 
 
-# --- Proposal model -------------------------------------------------------
+# --- Proposal / FileChange model -----------------------------------------
 
-def test_proposal_refuses_to_empty_a_file(tmp_path: Path):
+def test_filechange_refuses_to_empty_a_file(tmp_path: Path):
     """Phase 2 never deletes content. Empty `after` is a programmer
     error in the fix module — fail loud."""
     with pytest.raises(ValueError, match="never deletes"):
-        Proposal(
-            path=tmp_path / "f.md",
-            before="something",
-            after="",
-            title="bad",
-            rationale="should not be allowed",
-        )
+        FileChange(path=tmp_path / "f.md", before="something", after="")
 
 
-def test_proposal_label_is_relative_to_cwd_when_possible(tmp_path: Path,
-                                                         monkeypatch):
+def test_proposal_requires_at_least_one_change():
+    with pytest.raises(ValueError, match="at least one"):
+        Proposal(title="t", rationale="r", changes=[])
+
+
+def test_filechange_label_is_relative_to_cwd_when_possible(tmp_path: Path,
+                                                            monkeypatch):
     f = tmp_path / "x.md"
     monkeypatch.chdir(tmp_path)
-    p = Proposal(path=f, before="a", after="b", title="t", rationale="r")
-    assert p.label == "x.md"
+    ch = FileChange(path=f, before="a", after="b")
+    assert ch.label == "x.md"
 
 
-def test_proposal_label_falls_back_to_absolute_for_outside_cwd(tmp_path: Path,
-                                                                monkeypatch):
-    elsewhere = tmp_path / "outside.md"
-    monkeypatch.chdir(tmp_path / "irrelevant" if False else tmp_path)
-    p = Proposal(path=Path("/tmp/somewhere/x.md"),
-                 before="a", after="b", title="t", rationale="r")
-    # On macOS/Linux this is an absolute path that doesn't share a prefix
-    # with tmp_path's cwd, so we expect the absolute string.
-    assert p.label.startswith("/")
+def test_filechange_label_falls_back_to_absolute_for_outside_cwd(tmp_path: Path,
+                                                                  monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    ch = FileChange(path=Path("/tmp/somewhere/x.md"), before="a", after="b")
+    assert ch.label.startswith("/")
 
 
-def test_proposal_flags_new_file(tmp_path: Path):
-    p = Proposal(
-        path=tmp_path / "new.md",
-        before="",
-        after="generated\n",
-        title="create archive",
-        rationale="moves a section",
+def test_filechange_flags_new_file(tmp_path: Path):
+    ch = FileChange(path=tmp_path / "new.md", before="", after="generated\n")
+    assert ch.is_new_file is True
+
+
+def test_proposal_edit_convenience_constructor(tmp_path: Path):
+    """Proposal.edit(...) builds a single-change Proposal."""
+    p = Proposal.edit(
+        path=tmp_path / "x.md", before="a", after="b",
+        title="t", rationale="r",
     )
-    assert p.is_new_file is True
+    assert len(p.changes) == 1
+    assert p.changes[0].before == "a"
+    assert p.changes[0].after == "b"
+
+
+def test_proposal_paths_returns_every_change_path(tmp_path: Path):
+    a = tmp_path / "a.md"
+    b = tmp_path / "b.md"
+    p = Proposal(
+        title="multi", rationale="r",
+        changes=[
+            FileChange(a, "1", "2"),
+            FileChange(b, "", "new"),
+        ],
+    )
+    assert p.paths == [a, b]
 
 
 # --- run_fix_flow: empty / no-op cases -----------------------------------
@@ -100,8 +114,8 @@ def test_run_with_no_proposals_prints_clean_message(tmp_path: Path):
 
 def _prop(path: Path, *, title="edit", before="x\n", after="X\n",
           rationale="why") -> Proposal:
-    return Proposal(path=path, before=before, after=after,
-                    title=title, rationale=rationale)
+    return Proposal.edit(path=path, before=before, after=after,
+                         title=title, rationale=rationale)
 
 
 def test_yes_applies_and_writes_backup(tmp_path: Path):
@@ -137,7 +151,7 @@ def test_no_skips_without_writing(tmp_path: Path):
     )
 
     assert outcome.applied == []
-    assert outcome.skipped and outcome.skipped[0].path == f
+    assert outcome.skipped and outcome.skipped[0].changes[0].path == f
     assert f.read_text() == original
     # No session should be created if nothing is applied.
     assert outcome.session_dir is None
@@ -151,7 +165,7 @@ def test_all_promotes_remaining_to_auto_yes(tmp_path: Path):
     calls = []
 
     def prompter(p, rendered):
-        calls.append(p.path.name)
+        calls.append(p.changes[0].path.name)
         return "a"  # first prompt says "yes to all"
 
     outcome = run_fix_flow(
@@ -339,3 +353,70 @@ def test_session_manifest_records_each_applied_change(tmp_path: Path):
     new_entry = next(f for f in payload["files"]
                      if f["relative_path"].endswith("new-agent.md"))
     assert new_entry["existed_before"] is False
+
+
+# --- Multi-change proposals (e.g. archive moves) -------------------------
+
+def test_multi_change_proposal_applies_all_changes_atomically(tmp_path: Path):
+    """A single Proposal with two FileChange entries (e.g. an archive
+    operation: source edit + new archive file) must either apply both
+    changes or none — a single yes covers the whole proposal."""
+    target = _setup_project(tmp_path)
+    source = target / "CLAUDE.md"
+    archive = target / "CLAUDE.archive.md"
+    source_before = source.read_text()
+
+    p = Proposal(
+        title="Archive a section",
+        rationale="Moves a section out of CLAUDE.md into a sibling file.",
+        changes=[
+            FileChange(path=archive, before="",
+                       after="# Archived\n\n" + source_before),
+            FileChange(path=source, before=source_before,
+                       after="# CLAUDE.md\nSee CLAUDE.archive.md.\n"),
+        ],
+        source_code="HLT001",
+    )
+
+    outcome = run_fix_flow(
+        target, [p],
+        prompter=lambda p, r: "y",
+        out=io.StringIO(),
+        use_color=False,
+    )
+
+    assert len(outcome.applied) == 1
+    assert archive.read_text().startswith("# Archived")
+    assert "See CLAUDE.archive.md" in source.read_text()
+
+    # Revert restores BOTH: archive deleted, source back to original.
+    revert_session(outcome.session_dir)
+    assert not archive.exists()
+    assert source.read_text() == source_before
+
+
+def test_multi_change_proposal_rendered_lists_each_file(tmp_path: Path):
+    """The terminal preview for a multi-change proposal should mention
+    every affected file before showing the diffs."""
+    target = _setup_project(tmp_path)
+    source = target / "CLAUDE.md"
+    archive = target / "CLAUDE.archive.md"
+    src_before = source.read_text()
+
+    p = Proposal(
+        title="Archive section",
+        rationale="r",
+        changes=[
+            FileChange(path=archive, before="", after="archived\n"),
+            FileChange(path=source, before=src_before, after="trimmed\n"),
+        ],
+    )
+
+    out = io.StringIO()
+    run_fix_flow(target, [p],
+                 prompter=lambda p, r: "n",
+                 out=out, use_color=False)
+    text = out.getvalue()
+    assert "affects 2 file(s)" in text
+    assert "CLAUDE.archive.md" in text
+    assert "CLAUDE.md" in text

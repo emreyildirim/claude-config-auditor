@@ -30,44 +30,27 @@ from claude_config_auditor.diff import make_diff, render_diff, summarise_diff
 
 
 @dataclass
-class Proposal:
-    """One concrete change a fix module wants to apply.
+class FileChange:
+    """One file-level edit inside a Proposal.
 
-    A proposal can:
+    A FileChange can:
       - edit an existing file (before != "", after != "")
       - create a new file   (before == "", after != "")
 
-    It cannot delete a file. The brief forbids deletion outright; if a
-    fix wants to "move" content somewhere else, it emits two proposals
-    (one create, one edit) inside the same fix run.
-
-    Attributes:
-        path:    absolute path the proposal targets. Must be inside the
-                 audit target — the applier verifies this.
-        before:  current content of `path` ("" if the file does not exist)
-        after:   desired content of `path` ("" is forbidden — fixes do
-                 not delete files)
-        title:   short, human-readable name of the change ("Rewrite
-                 agent description", "Archive CLAUDE.md section")
-        rationale: 1–3 sentence "why" shown alongside the diff
-        source_code: optional finding code that produced this proposal
-                 (e.g. "AGT008") — lets the report tie a fix back to
-                 the audit finding the user already saw
+    It cannot delete a file. `after == ""` is rejected — Phase 2 never
+    empties files. A fix that wants to "move" content emits two
+    FileChange instances inside the same Proposal (one create, one edit).
     """
 
     path: Path
     before: str
     after: str
-    title: str
-    rationale: str
-    source_code: str | None = None
 
     def __post_init__(self) -> None:
         if self.after == "":
             raise ValueError(
-                "proposals cannot leave a file empty — Phase 2 never "
-                "deletes content. Build two proposals if you mean to "
-                "archive."
+                "FileChange cannot leave a file empty — Phase 2 never "
+                "deletes content."
             )
 
     @property
@@ -82,6 +65,52 @@ class Proposal:
             return str(self.path.relative_to(Path.cwd()))
         except ValueError:
             return str(self.path)
+
+
+@dataclass
+class Proposal:
+    """One reviewable change set. Approved or rejected as a whole.
+
+    A proposal carries one or more `FileChange` entries. Single-file
+    fixes (e.g. annotating an agent's description) use the
+    `Proposal.edit(...)` convenience constructor. Multi-file fixes
+    (e.g. archiving a CLAUDE.md section into a sibling file) populate
+    `changes` directly — the apply step writes them under one backup
+    session so accepting the proposal commits all changes or none.
+
+    Attributes:
+        title:       short, human-readable name of the change
+        rationale:   1–3 sentence "why" shown alongside the diff
+        changes:     one or more FileChange instances; non-empty
+        source_code: optional finding code that produced this proposal
+                     (e.g. "AGT008", "HLT001") — ties a fix back to the
+                     audit finding the user already saw in the report
+    """
+
+    title: str
+    rationale: str
+    changes: list[FileChange]
+    source_code: str | None = None
+
+    def __post_init__(self) -> None:
+        if not self.changes:
+            raise ValueError("Proposal must contain at least one FileChange")
+
+    @classmethod
+    def edit(cls, path: Path, before: str, after: str, *,
+             title: str, rationale: str,
+             source_code: str | None = None) -> Proposal:
+        """Convenience constructor for the common single-file case."""
+        return cls(
+            title=title,
+            rationale=rationale,
+            changes=[FileChange(path=path, before=before, after=after)],
+            source_code=source_code,
+        )
+
+    @property
+    def paths(self) -> list[Path]:
+        return [c.path for c in self.changes]
 
 
 # A prompter takes the rendered proposal block and returns the user's
@@ -221,52 +250,77 @@ def apply_proposals(
 
 
 def apply_proposal(p: Proposal, session: Session, target: Path) -> None:
-    """Apply a single proposal under an open backup session.
+    """Apply every FileChange in `p` under an open backup session.
 
-    Snapshots the target file (recording existed_before either way), then
-    writes the new content via temp + rename for per-file atomicity.
-    The session captures sha_after when `close()` is later called.
+    Each change is snapshotted (recording existed_before) before being
+    written via temp + rename for per-file atomicity. All changes share
+    the same session, so either accept-all-or-revert-all is available
+    if anything later goes wrong.
     """
-    abs_path = p.path.resolve()
-    try:
-        abs_path.relative_to(target.resolve())
-    except ValueError as exc:
-        raise ValueError(
-            f"proposal target {abs_path} is outside audit target {target}"
-        ) from exc
+    target_resolved = target.resolve()
+    for change in p.changes:
+        abs_path = change.path.resolve()
+        try:
+            abs_path.relative_to(target_resolved)
+        except ValueError as exc:
+            raise ValueError(
+                f"proposal target {abs_path} is outside audit target "
+                f"{target_resolved}"
+            ) from exc
 
-    session.snapshot(abs_path)
-    abs_path.parent.mkdir(parents=True, exist_ok=True)
-    tmp = abs_path.with_suffix(abs_path.suffix + ".cca-fix.tmp")
-    tmp.write_text(p.after, encoding="utf-8")
-    tmp.replace(abs_path)
+        session.snapshot(abs_path)
+        abs_path.parent.mkdir(parents=True, exist_ok=True)
+        tmp = abs_path.with_suffix(abs_path.suffix + ".cca-fix.tmp")
+        tmp.write_text(change.after, encoding="utf-8")
+        tmp.replace(abs_path)
 
 
 # --- Rendering ------------------------------------------------------------
 
 def _render_proposal(p: Proposal, idx: int, total: int,
                      *, use_color: bool) -> str:
-    """One proposal block: header + rationale + diff."""
+    """One proposal block: header + rationale + per-file summary +
+    one unified diff per file. Multi-file proposals (e.g. archive
+    operations) get one section per FileChange so the user can read
+    them side by side before deciding."""
     header = f"[{idx}/{total}] {p.title}"
     if p.source_code:
         header += f"  ({p.source_code})"
     sep = "─" * max(8, min(len(header), 78))
 
-    parts = [
+    parts: list[str] = [
         _bold(header, use_color) + "\n",
         _dim(sep, use_color) + "\n",
-        f"  file:      {p.label}\n",
         f"  rationale: {p.rationale}\n",
     ]
 
-    diff_text = make_diff(p.label, p.before, p.after)
-    if diff_text:
-        adds, rems = summarise_diff(diff_text)
-        parts.append(
-            _dim(f"  change:    +{adds} / -{rems} line(s)\n", use_color)
-        )
+    if len(p.changes) == 1:
+        ch = p.changes[0]
+        parts.append(f"  file:      {ch.label}\n")
+    else:
+        parts.append(f"  affects {len(p.changes)} file(s):\n")
+        for ch in p.changes:
+            diff_text = make_diff(ch.label, ch.before, ch.after)
+            adds, rems = summarise_diff(diff_text) if diff_text else (0, 0)
+            tag = "new " if ch.is_new_file else "edit"
+            parts.append(_dim(
+                f"    {tag} {ch.label}  (+{adds} / -{rems})\n",
+                use_color,
+            ))
+
+    # Per-file diff blocks.
+    for ch in p.changes:
+        diff_text = make_diff(ch.label, ch.before, ch.after)
+        if not diff_text:
+            continue
+        if len(p.changes) == 1:
+            adds, rems = summarise_diff(diff_text)
+            parts.append(_dim(
+                f"  change:    +{adds} / -{rems} line(s)\n", use_color,
+            ))
         parts.append("\n")
         parts.append(render_diff(diff_text, use_color=use_color))
+
     parts.append("\n")
     return "".join(parts)
 

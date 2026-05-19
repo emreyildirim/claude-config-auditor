@@ -31,6 +31,16 @@ from claude_config_auditor.tokens import get_estimator
 from claude_config_auditor.backup import revert_session
 
 
+def _after(p):
+    """Convenience: a single-change Proposal's after-content."""
+    return p.changes[0].after
+
+
+def _path(p):
+    """Convenience: a single-change Proposal's target path."""
+    return p.changes[0].path
+
+
 # --- Helpers -------------------------------------------------------------
 
 def _write_agent(target: Path, name: str, raw: str) -> Path:
@@ -94,10 +104,10 @@ def test_agt003_inserts_a_placeholder_description(tmp_path: Path):
     assert len(proposals) == 1
     p = proposals[0]
     assert "AGT003" in p.source_code
-    assert "description: TODO (claude-audit, AGT003)" in p.after
+    assert "description: TODO (claude-audit, AGT003)" in _after(p)
     # Original `name:` and body are still there.
-    assert "name: needs-desc" in p.after
-    assert "body" in p.after
+    assert "name: needs-desc" in _after(p)
+    assert "body" in _after(p)
 
 
 def test_agt003_placeholder_is_inside_frontmatter(tmp_path: Path):
@@ -106,7 +116,7 @@ def test_agt003_placeholder_is_inside_frontmatter(tmp_path: Path):
     agents, findings, _ = _scan_and_audit(target)
     p = propose_description_fixes(agents, findings)[0]
 
-    fm = p.after.split("---", 2)[1]  # text between first two '---'
+    fm = _after(p).split("---", 2)[1]  # text between first two '---'
     assert "description: TODO" in fm
 
 
@@ -124,7 +134,7 @@ def test_agt004_inserts_todo_comment_above_description(tmp_path: Path):
     p = proposals[0]
     assert "AGT004" in p.source_code
     # Comment lines must precede the description line, all prefixed by `#`.
-    after_lines = p.after.splitlines()
+    after_lines = _after(p).splitlines()
     desc_idx = next(i for i, l in enumerate(after_lines)
                     if l.lstrip().startswith("description:"))
     assert desc_idx >= 2
@@ -147,9 +157,9 @@ def test_agt006_inserts_trim_hint(tmp_path: Path):
     assert len(proposals) == 1
     p = proposals[0]
     assert "AGT006" in p.source_code
-    assert "TODO (claude-audit, AGT006)" in p.after
+    assert "TODO (claude-audit, AGT006)" in _after(p)
     # The original (unmodified) description line must still be present.
-    assert long_desc in p.after
+    assert long_desc in _after(p)
 
 
 # --- AGT008: overlap (bidirectional) ------------------------------------
@@ -177,11 +187,11 @@ def test_agt008_annotates_both_overlapping_files(tmp_path: Path):
     proposals = propose_description_fixes(agents, findings)
 
     # Both agents should each get a proposal.
-    paths = {p.path.name for p in proposals}
+    paths = {_path(p).name for p in proposals}
     assert paths == {"a.md", "b.md"}
     for p in proposals:
         assert "AGT008" in p.source_code
-        assert "TODO (claude-audit, AGT008)" in p.after
+        assert "TODO (claude-audit, AGT008)" in _after(p)
 
 
 # --- Skip rules ---------------------------------------------------------
@@ -263,7 +273,7 @@ def test_after_content_still_parses_as_yaml(tmp_path: Path):
 
     agents, findings, _ = _scan_and_audit(target)
     [p] = propose_description_fixes(agents, findings)
-    agent_path.write_text(p.after)
+    agent_path.write_text(_after(p))
 
     # Re-scan: should still parse cleanly.
     result2 = scan(target)

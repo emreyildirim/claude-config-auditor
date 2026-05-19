@@ -133,7 +133,7 @@ def _build_proposal(rec: FileRecord, findings: list[Finding]) -> Proposal | None
         "file's frontmatter still parses; agent behaviour is unchanged "
         "until you act on the hints."
     )
-    return Proposal(
+    return Proposal.edit(
         path=rec.path,
         before=rec.raw,
         after=after,
