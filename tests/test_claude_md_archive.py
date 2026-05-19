@@ -58,11 +58,32 @@ def test_protected_headings_never_archive_even_when_long(tmp_path: Path):
 
 # --- Selection: archivable by heading ------------------------------------
 
+def _changelog_body() -> str:
+    """A realistically-sized changelog body that clears the min-size guard."""
+    entries = [
+        f"- 2026-{m:02d}-01: release {m}. Lots of small fixes and "
+        "improvements documented in the release notes for this month."
+        for m in range(1, 9)
+    ]
+    return "\n".join(entries)
+
+
+def _examples_body() -> str:
+    """Realistic examples block — several worked examples, each a
+    paragraph long, well above the 5-line / 150-token min."""
+    return "\n\n".join(
+        f"### Example {i}\n\nThe quick brown fox jumps over the lazy dog. "
+        "Sample text here describes a worked example in enough detail "
+        "to make the section meaningful."
+        for i in range(1, 5)
+    )
+
+
 def test_changelog_heading_is_archived(tmp_path: Path):
     _claude_md(tmp_path / "p", (
         "# Project\n\n"
         "## Rules\n\n- Use type hints.\n\n"
-        "## Changelog\n\n- 2026-01-01: initial.\n- 2026-02-01: update.\n"
+        f"## Changelog\n\n{_changelog_body()}\n"
     ))
     result = scan(tmp_path / "p")
     [proposal] = propose_claude_md_archive_fixes(result.claude_md_files)
@@ -78,13 +99,59 @@ def test_examples_heading_is_archived(tmp_path: Path):
     _claude_md(tmp_path / "p", (
         "# Project\n\n"
         "## Rules\n\n- Foo.\n\n"
-        "## Examples\n\nExample A.\nExample B.\n"
+        f"## Examples\n\n{_examples_body()}\n"
     ))
     result = scan(tmp_path / "p")
     [proposal] = propose_claude_md_archive_fixes(result.claude_md_files)
     archive_change = next(c for c in proposal.changes
                           if c.path.name == "CLAUDE.archive.md")
     assert "Examples" in archive_change.after
+
+
+# --- Conservatism: false-positive guards from real-world testing --------
+
+def test_reference_section_with_load_bearing_body_is_not_archived(tmp_path: Path):
+    """Real-world bug: a `## Engine Reference` section whose body says
+    "Always check here before using any engine API" should NOT be
+    archived. The heading keyword matches but the body is operational
+    ("always", "before using") — load-bearing on every session.
+    """
+    _claude_md(tmp_path / "p", (
+        "# Project\n\n"
+        "## Engine Reference\n\n"
+        "Version-pinned engine API snapshots. **Always check here before "
+        "using any engine API** — the LLM's training data predates the "
+        "pinned engine version.\n\n"
+        "## Rules\n\n- Foo.\n"
+    ))
+    result = scan(tmp_path / "p")
+    assert propose_claude_md_archive_fixes(result.claude_md_files) == []
+
+
+def test_short_reference_stub_is_not_archived(tmp_path: Path):
+    """A `## Reference` section that is just one line (a pointer to
+    another file) is too small to archive. Reviewing the proposal
+    costs more than the saved tokens."""
+    _claude_md(tmp_path / "p", (
+        "# Project\n\n"
+        "## Engine Version Reference\n\n"
+        "@docs/engine-reference/unity/VERSION.md\n\n"
+        "## Rules\n\n- Foo.\n"
+    ))
+    result = scan(tmp_path / "p")
+    assert propose_claude_md_archive_fixes(result.claude_md_files) == []
+
+
+def test_body_with_must_phrase_blocks_archive(tmp_path: Path):
+    """Operational language anywhere in the body protects the section."""
+    body = "Version pinning matters here. " + ("Detail. " * 80)
+    _claude_md(tmp_path / "p", (
+        f"# Project\n\n"
+        f"## Reference\n\n{body}\n**You must run setup before using.**\n\n"
+        f"## Rules\n\n- Foo.\n"
+    ))
+    result = scan(tmp_path / "p")
+    assert propose_claude_md_archive_fixes(result.claude_md_files) == []
 
 
 # --- Selection: archivable by sheer length -------------------------------
@@ -113,7 +180,7 @@ def test_source_keeps_a_pointer_to_the_archive(tmp_path: Path):
     _claude_md(tmp_path / "p", (
         "# Project\n\n"
         "## Rules\n\n- Foo.\n\n"
-        "## Changelog\n\n- 2026-01-01: init.\n"
+        f"## Changelog\n\n{_changelog_body()}\n"
     ))
     result = scan(tmp_path / "p")
     [proposal] = propose_claude_md_archive_fixes(result.claude_md_files)
@@ -124,14 +191,14 @@ def test_source_keeps_a_pointer_to_the_archive(tmp_path: Path):
     # And a pointer to the archive replaces the body.
     assert "CLAUDE.archive.md" in source_change.after
     # The original body content is gone from the source.
-    assert "2026-01-01: init." not in source_change.after
+    assert "2026-01-01: release 1" not in source_change.after
 
 
 def test_unrelated_sections_are_untouched(tmp_path: Path):
     _claude_md(tmp_path / "p", (
         "# Project\n\n"
         "## Rules\n\n- Use type hints.\n- Run tests.\n\n"
-        "## Changelog\n\n- entry 1\n- entry 2\n"
+        f"## Changelog\n\n{_changelog_body()}\n"
     ))
     result = scan(tmp_path / "p")
     [proposal] = propose_claude_md_archive_fixes(result.claude_md_files)
@@ -169,7 +236,7 @@ def test_proposal_applies_and_reverts_cleanly(tmp_path: Path):
     source = _claude_md(target, (
         "# Project\n\n"
         "## Rules\n\n- Foo.\n\n"
-        "## Changelog\n\n- 2026-01-01: init.\n- 2026-02-01: update.\n"
+        f"## Changelog\n\n{_changelog_body()}\n"
     ))
     archive = target / "CLAUDE.archive.md"
     src_before = source.read_text()
@@ -189,7 +256,7 @@ def test_proposal_applies_and_reverts_cleanly(tmp_path: Path):
     # Source still has Rules but no longer carries the changelog body.
     after_source = source.read_text()
     assert "- Foo." in after_source
-    assert "init." not in after_source
+    assert "release 1." not in after_source
 
     # Revert restores both sides exactly.
     revert_session(outcome.session_dir)
@@ -201,8 +268,9 @@ def test_archive_is_appended_when_one_already_exists(tmp_path: Path):
     """If a CLAUDE.archive.md already exists from a previous run, new
     archived sections append rather than overwrite."""
     target = tmp_path / "p"
-    source = _claude_md(target, (
-        "# Project\n\n## Rules\n\n- Foo.\n\n## Changelog\n\n- entry 1\n"
+    _claude_md(target, (
+        "# Project\n\n## Rules\n\n- Foo.\n\n"
+        f"## Changelog\n\n{_changelog_body()}\n"
     ))
     archive = target / "CLAUDE.archive.md"
     archive.write_text("# CLAUDE archive\n\nOld content from a previous run.\n",

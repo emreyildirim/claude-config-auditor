@@ -31,6 +31,6 @@ dist/
 /.claude/
 /CLAUDE.md
 
-# Sandbox copies of real projects used for manual end-to-end testing —
-# never commit (may contain private project content).
+# Sandbox copies of real projects used for manual end-to-end testing
+# (audit + fix flows). Never tracked — may contain private content.
 /example-repo/

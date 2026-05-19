@@ -46,6 +46,11 @@ from claude_config_auditor.scanner import FileRecord
 
 LONG_SECTION_LINES = 40           # heading + this many body lines → candidate
 LONG_SECTION_TOKENS = 600         # OR ≈ this many tokens (chars/3.7)
+# Don't bother proposing archives for tiny sections — the review cost is
+# not worth the savings, and short "Reference" stubs are often pointers
+# the user explicitly wants visible every session.
+MIN_SECTION_TOKENS = 150
+MIN_SECTION_LINES = 5
 ARCHIVE_FILENAME = "CLAUDE.archive.md"
 
 # Heading words that we treat as STRONG signals the section is
@@ -81,6 +86,22 @@ _PROTECTED_HEADING_PATTERNS = [
     r"\bcontract\b",
     r"\bcommands?\b",
     r"\bworkflow\b",
+]
+
+# Phrases in a section's BODY that strongly suggest the content is
+# operational / load-bearing — the user wants Claude to see it every
+# session. If any of these appear, we refuse to archive the section
+# even if its heading matches an archivable keyword.
+_LOAD_BEARING_BODY_PATTERNS = [
+    r"\balways\b",
+    r"\bnever\b",
+    r"\bmust\b",
+    r"\bdon'?t\b",
+    r"\bdo not\b",
+    r"\bbefore using\b",
+    r"\bcritical\b",
+    r"\brequired\b",
+    r"\bload-bearing\b",
 ]
 
 
@@ -260,13 +281,35 @@ def _split_into_sections(content: str) -> list[_Section]:
 
 def _pick_candidates(sections: list[_Section]) -> list[_Candidate]:
     """Apply the heuristics in §5.2 and return the sections worth
-    proposing to archive, each carrying its human-readable reasons."""
+    proposing to archive, each carrying its human-readable reasons.
+
+    Selection ladder (each rule can VETO a candidate):
+
+      1. Protected headings (Rules / Conventions / etc.) → skip.
+      2. Body contains load-bearing operational phrases ("always",
+         "must", "before using", …) → skip even if the heading looks
+         archivable. The user wrote those words on purpose.
+      3. Section is below MIN_SECTION_TOKENS and MIN_SECTION_LINES →
+         skip. Reviewing a one-liner archive is not worth the cost.
+      4. At least one positive signal (archivable heading keyword OR
+         length over thresholds) → candidate, with human-readable
+         reasons attached.
+    """
     candidates: list[_Candidate] = []
     for s in sections:
         heading_text = s.heading.lstrip("#").strip().lower()
         if any(re.search(p, heading_text)
                for p in _PROTECTED_HEADING_PATTERNS):
             continue  # never touch project rules / conventions
+
+        body_lower = s.body.lower()
+        if any(re.search(p, body_lower)
+               for p in _LOAD_BEARING_BODY_PATTERNS):
+            continue  # body says "always" / "must" / etc. — load-bearing
+
+        if (s.token_estimate < MIN_SECTION_TOKENS
+                and s.line_count < MIN_SECTION_LINES):
+            continue  # too small to be worth archiving at all
 
         reasons: list[str] = []
         if any(re.search(p, heading_text)
