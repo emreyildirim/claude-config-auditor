@@ -5,7 +5,12 @@ import json
 import sys
 from pathlib import Path
 
-from claude_config_auditor.cli import _should_use_color, build_parser, main
+from claude_config_auditor.cli import (
+    _normalise_argv,
+    _should_use_color,
+    build_parser,
+    main,
+)
 
 FIXTURES = Path(__file__).parent / "fixtures"
 
@@ -90,8 +95,9 @@ def test_cli_html_refuses_path_inside_target(tmp_path, capsys):
 # --- color resolution (--no-color flag + NO_COLOR env) ---------------------
 
 def _ns(*argv):
-    """Parse argv to an argparse.Namespace, including the target positional."""
-    return build_parser().parse_args([".", *argv])
+    """Parse argv to an argparse.Namespace, going through the same
+    default-subcommand normalisation that `main` does."""
+    return build_parser().parse_args(_normalise_argv([".", *argv]))
 
 
 def test_color_on_by_default():
