@@ -756,6 +756,100 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
   .f-code { grid-column: 2; }
   .colophon { grid-template-columns: 1fr; }
 }
+
+/* ============ Info tooltips ============
+   Tiny ⓘ button next to KPI labels and panel titles. Reveals a
+   tooltip on hover, keyboard focus, or tap (data-open is toggled by
+   the inline script). Tooltip colours invert the page palette so
+   the bubble stands out in both themes. */
+.info {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  margin-left: 6px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--ink-4);
+  background: transparent;
+  color: var(--ink-3);
+  font-family: var(--sans);
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: help;
+  user-select: none;
+  vertical-align: middle;
+  transition: color 0.12s, border-color 0.12s, background 0.12s;
+}
+.info:hover,
+.info:focus-visible,
+.info[data-open="true"] {
+  color: var(--ink-1);
+  border-color: var(--ink-1);
+  background: var(--surface);
+  outline: none;
+}
+.info-mark { pointer-events: none; }
+
+.info-tip {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: -6px;
+  z-index: 50;
+  width: 260px;
+  padding: 10px 12px;
+  background: var(--ink-1);
+  color: var(--surface);
+  border-radius: 4px;
+  font-family: var(--sans);
+  font-size: 11.5px;
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: 0;
+  text-transform: none;
+  text-align: left;
+  cursor: default;
+  opacity: 0;
+  transform: translateY(-2px);
+  pointer-events: none;
+  transition: opacity 0.14s ease, transform 0.14s ease;
+  box-shadow: 0 6px 20px -6px rgba(0, 0, 0, 0.25);
+  /* Small triangle pointing back at the icon. */
+}
+.info-tip::before {
+  content: "";
+  position: absolute;
+  top: -5px;
+  right: 8px;
+  width: 0; height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 5px solid var(--ink-1);
+}
+.info:hover .info-tip,
+.info:focus-visible .info-tip,
+.info[data-open="true"] .info-tip {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* Some hosts (KPI label, panel h2) are uppercase tracked — undo that
+   inside tooltip text so the prose reads naturally. */
+.info-tip {
+  letter-spacing: normal;
+  font-weight: 400;
+}
+
+/* Make the KPI label a flex row so the button doesn't blow out spacing. */
+.kpi-label {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
 </style>
 </head>
 <body>
@@ -769,7 +863,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
     <code class="topbar-path">~/example-project</code>
     <div class="topbar-meta">
       <span><strong>v0.1.0</strong></span>
-      <span>2026-05-18 · 22:25</span>
+      <span>2026-05-19 · 11:57</span>
       <span>id <strong>BEF72AD1</strong></span>
       <button class="theme-toggle" id="theme-toggle"
               type="button" aria-label="Cycle color theme"
@@ -779,28 +873,40 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
 
   <section class="kpis">
       <article class="kpi kpi--neutral">
-        <header class="kpi-label">Session-start cost</header>
+        <header class="kpi-label">
+          <span>Session-start cost</span>
+          <button class="info" type="button" aria-label="Tokens Claude Code loads into memory the instant a session opens in this project — CLAUDE.md plus every agent, skill, and rule. You pay this on every single session before you type a word." data-info="session_start_cost"><span class="info-mark" aria-hidden="true">?</span><span class="info-tip" role="tooltip">Tokens Claude Code loads into memory the instant a session opens in this project — CLAUDE.md plus every agent, skill, and rule. You pay this on every single session before you type a word.</span></button>
+        </header>
         <div class="kpi-value">241<span class="kpi-unit">tok</span></div>
         <div class="kpi-sub">paid on every Claude Code session</div>
         <div class="kpi-strip"></div>
       </article>
     
       <article class="kpi kpi--ok">
-        <header class="kpi-label">Window occupation</header>
+        <header class="kpi-label">
+          <span>Window occupation</span>
+          <button class="info" type="button" aria-label="How much of Claude&#x27;s 200,000-token context window your config consumes just to start. Below 25% is healthy; above 100% means there is no room left for the conversation, code, or files you actually want to work with." data-info="window_occupation"><span class="info-mark" aria-hidden="true">?</span><span class="info-tip" role="tooltip">How much of Claude&#x27;s 200,000-token context window your config consumes just to start. Below 25% is healthy; above 100% means there is no room left for the conversation, code, or files you actually want to work with.</span></button>
+        </header>
         <div class="kpi-value">0.1<span class="kpi-unit">%</span></div>
         <div class="kpi-sub">199,759 tokens of headroom</div>
         <div class="kpi-strip"></div>
       </article>
     
       <article class="kpi kpi--neutral">
-        <header class="kpi-label">Files tracked</header>
+        <header class="kpi-label">
+          <span>Files tracked</span>
+          <button class="info" type="button" aria-label="Total configuration files the auditor read, broken down by type. Skills, agents, and rules live under .claude/; CLAUDE.md files can sit at the project root or nested inside subprojects." data-info="files_tracked"><span class="info-mark" aria-hidden="true">?</span><span class="info-tip" role="tooltip">Total configuration files the auditor read, broken down by type. Skills, agents, and rules live under .claude/; CLAUDE.md files can sit at the project root or nested inside subprojects.</span></button>
+        </header>
         <div class="kpi-value">7</div>
         <div class="kpi-sub">1 claude.md, 5 agent, 1 skill</div>
         <div class="kpi-strip"></div>
       </article>
     
       <article class="kpi kpi--critical">
-        <header class="kpi-label">Issues</header>
+        <header class="kpi-label">
+          <span>Issues</span>
+          <button class="info" type="button" aria-label="Quality findings the auditor surfaced. Errors are blocking — Claude cannot use these correctly. Warnings cause routing or budget problems. Advisories are worth considering but not urgent." data-info="issues"><span class="info-mark" aria-hidden="true">?</span><span class="info-tip" role="tooltip">Quality findings the auditor surfaced. Errors are blocking — Claude cannot use these correctly. Warnings cause routing or budget problems. Advisories are worth considering but not urgent.</span></button>
+        </header>
         <div class="kpi-value">6</div>
         <div class="kpi-sub"><span class="sev sev-error">3</span> error · <span class="sev sev-warning">3</span> warning · <span class="sev sev-info">0</span> advisory</div>
         <div class="kpi-strip"></div>
@@ -809,7 +915,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
   
     <section class="panel">
       <header class="panel-h">
-        <h2>Window utilization</h2>
+        <h2>Window utilization<button class="info" type="button" aria-label="Shows how each configuration category contributes to your context-window load. The dashed line at 100% is the window limit; any segment past that line is config that will not fit alongside your actual work." data-info="window_utilization"><span class="info-mark" aria-hidden="true">?</span><span class="info-tip" role="tooltip">Shows how each configuration category contributes to your context-window load. The dashed line at 100% is the window limit; any segment past that line is config that will not fit alongside your actual work.</span></button></h2>
         <span class="panel-sub">
           stacked contribution to the 200,000-token reference window
         </span>
@@ -859,7 +965,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
   
     <section class="panel">
       <header class="panel-h">
-        <h2>Categories</h2>
+        <h2>Categories<button class="info" type="button" aria-label="Token breakdown by configuration source. &#x27;Share&#x27; is the percentage each type contributes to your total session-start cost — useful for spotting where to trim first." data-info="categories"><span class="info-mark" aria-hidden="true">?</span><span class="info-tip" role="tooltip">Token breakdown by configuration source. &#x27;Share&#x27; is the percentage each type contributes to your total session-start cost — useful for spotting where to trim first.</span></button></h2>
         <span class="panel-sub">token share by configuration source</span>
       </header>
       <table class="dt">
@@ -915,7 +1021,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
   
     <section class="panel">
       <header class="panel-h">
-        <h2>Top consumers</h2>
+        <h2>Top consumers<button class="info" type="button" aria-label="The single files costing you the most tokens, sorted largest to smallest. These are usually the best places to start when you need to claw context-window space back." data-info="top_consumers"><span class="info-mark" aria-hidden="true">?</span><span class="info-tip" role="tooltip">The single files costing you the most tokens, sorted largest to smallest. These are usually the best places to start when you need to claw context-window space back.</span></button></h2>
         <span class="panel-sub">
           largest files by estimated token cost · 7 file(s) total
         </span>
@@ -1017,7 +1123,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
   
     <section class="panel">
       <header class="panel-h">
-        <h2>Findings</h2>
+        <h2>Findings<button class="info" type="button" aria-label="Quality issues the auditor detected, grouped by severity. Each finding has a stable code (AGT001, SKL002, HLT003, etc.) so you can grep for it or look it up later." data-info="findings"><span class="info-mark" aria-hidden="true">?</span><span class="info-tip" role="tooltip">Quality issues the auditor detected, grouped by severity. Each finding has a stable code (AGT001, SKL002, HLT003, etc.) so you can grep for it or look it up later.</span></button></h2>
         <span class="panel-sub">
           3 error · 3 warning · 0 advisory
         </span>
@@ -1113,7 +1219,7 @@ could not find expected &#x27;:&#x27;
       <div class="colophon-row"><dt>Report ID</dt><dd>BEF72AD1</dd></div>
     </div>
     <div class="colophon-block">
-      <div class="colophon-row"><dt>Generated</dt><dd>2026-05-18 · 22:25</dd></div>
+      <div class="colophon-row"><dt>Generated</dt><dd>2026-05-19 · 11:57</dd></div>
       <div class="colophon-row"><dt>Tokenizer</dt><dd>tiktoken-cl100k_base</dd></div>
     </div>
     <p class="colophon-note">
@@ -1155,6 +1261,34 @@ could not find expected &#x27;:&#x27;
     var next = ORDER[(i + 1) % ORDER.length];
     try { localStorage.setItem(KEY, next); } catch (e) {}
     apply(next);
+  });
+})();
+
+/* Info tooltips: tap-to-toggle for touch devices that have no hover
+   state. Desktop users still get the CSS hover behaviour for free. */
+(function () {
+  var openTip = null;
+  function close(b) { if (b) b.removeAttribute("data-open"); }
+  document.querySelectorAll(".info").forEach(function (btn) {
+    btn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      if (openTip && openTip !== btn) close(openTip);
+      if (btn.dataset.open === "true") {
+        close(btn);
+        openTip = null;
+      } else {
+        btn.setAttribute("data-open", "true");
+        openTip = btn;
+      }
+    });
+  });
+  // Clicking anywhere else closes the open tooltip.
+  document.addEventListener("click", function () {
+    if (openTip) { close(openTip); openTip = null; }
+  });
+  // Esc also closes — keyboard-friendly.
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && openTip) { close(openTip); openTip = null; }
   });
 })();
 </script>

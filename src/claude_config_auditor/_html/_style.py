@@ -753,4 +753,98 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
   .f-code { grid-column: 2; }
   .colophon { grid-template-columns: 1fr; }
 }
+
+/* ============ Info tooltips ============
+   Tiny ⓘ button next to KPI labels and panel titles. Reveals a
+   tooltip on hover, keyboard focus, or tap (data-open is toggled by
+   the inline script). Tooltip colours invert the page palette so
+   the bubble stands out in both themes. */
+.info {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  margin-left: 6px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--ink-4);
+  background: transparent;
+  color: var(--ink-3);
+  font-family: var(--sans);
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: help;
+  user-select: none;
+  vertical-align: middle;
+  transition: color 0.12s, border-color 0.12s, background 0.12s;
+}
+.info:hover,
+.info:focus-visible,
+.info[data-open="true"] {
+  color: var(--ink-1);
+  border-color: var(--ink-1);
+  background: var(--surface);
+  outline: none;
+}
+.info-mark { pointer-events: none; }
+
+.info-tip {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: -6px;
+  z-index: 50;
+  width: 260px;
+  padding: 10px 12px;
+  background: var(--ink-1);
+  color: var(--surface);
+  border-radius: 4px;
+  font-family: var(--sans);
+  font-size: 11.5px;
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: 0;
+  text-transform: none;
+  text-align: left;
+  cursor: default;
+  opacity: 0;
+  transform: translateY(-2px);
+  pointer-events: none;
+  transition: opacity 0.14s ease, transform 0.14s ease;
+  box-shadow: 0 6px 20px -6px rgba(0, 0, 0, 0.25);
+  /* Small triangle pointing back at the icon. */
+}
+.info-tip::before {
+  content: "";
+  position: absolute;
+  top: -5px;
+  right: 8px;
+  width: 0; height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 5px solid var(--ink-1);
+}
+.info:hover .info-tip,
+.info:focus-visible .info-tip,
+.info[data-open="true"] .info-tip {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* Some hosts (KPI label, panel h2) are uppercase tracked — undo that
+   inside tooltip text so the prose reads naturally. */
+.info-tip {
+  letter-spacing: normal;
+  font-weight: 400;
+}
+
+/* Make the KPI label a flex row so the button doesn't blow out spacing. */
+.kpi-label {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
 """

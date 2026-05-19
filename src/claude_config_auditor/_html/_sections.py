@@ -19,6 +19,73 @@ from claude_config_auditor.checks.budget import (
 from claude_config_auditor.findings import Finding
 
 
+# Plain-language explanations attached as hover tooltips. Kept here so
+# the words live next to the section they describe — easier to keep
+# them honest as the implementation changes.
+_TIPS = {
+    "session_start_cost": (
+        "Tokens Claude Code loads into memory the instant a session opens "
+        "in this project — CLAUDE.md plus every agent, skill, and rule. "
+        "You pay this on every single session before you type a word."
+    ),
+    "window_occupation": (
+        "How much of Claude's 200,000-token context window your config "
+        "consumes just to start. Below 25% is healthy; above 100% means "
+        "there is no room left for the conversation, code, or files you "
+        "actually want to work with."
+    ),
+    "files_tracked": (
+        "Total configuration files the auditor read, broken down by type. "
+        "Skills, agents, and rules live under .claude/; CLAUDE.md files "
+        "can sit at the project root or nested inside subprojects."
+    ),
+    "issues": (
+        "Quality findings the auditor surfaced. Errors are blocking — "
+        "Claude cannot use these correctly. Warnings cause routing or "
+        "budget problems. Advisories are worth considering but not urgent."
+    ),
+    "window_utilization": (
+        "Shows how each configuration category contributes to your "
+        "context-window load. The dashed line at 100% is the window "
+        "limit; any segment past that line is config that will not fit "
+        "alongside your actual work."
+    ),
+    "categories": (
+        "Token breakdown by configuration source. 'Share' is the "
+        "percentage each type contributes to your total session-start "
+        "cost — useful for spotting where to trim first."
+    ),
+    "top_consumers": (
+        "The single files costing you the most tokens, sorted largest "
+        "to smallest. These are usually the best places to start when "
+        "you need to claw context-window space back."
+    ),
+    "findings": (
+        "Quality issues the auditor detected, grouped by severity. Each "
+        "finding has a stable code (AGT001, SKL002, HLT003, etc.) so "
+        "you can grep for it or look it up later."
+    ),
+}
+
+
+def _info(tip_key: str) -> str:
+    """Render a small ⓘ button that reveals a tooltip on hover/focus/tap.
+
+    Implemented as a `<button>` so it is reachable by keyboard. The
+    actual show/hide is driven by CSS for hover and `:focus-visible`;
+    the inline `<script>` near the page footer toggles a `data-open`
+    attribute on tap (for touch devices that have no hover state).
+    """
+    text = _TIPS[tip_key]
+    return (
+        f'<button class="info" type="button" '
+        f'aria-label="{html.escape(text)}" data-info="{html.escape(tip_key)}">'
+        f'<span class="info-mark" aria-hidden="true">?</span>'
+        f'<span class="info-tip" role="tooltip">{html.escape(text)}</span>'
+        f'</button>'
+    )
+
+
 def _kpis(budget: BudgetReport, counts: dict) -> str:
     pct = budget.percent_of_window
     over = budget.session_start_total - budget.reference_window_tokens
@@ -37,6 +104,7 @@ def _kpis(budget: BudgetReport, counts: dict) -> str:
         unit="tok",
         sub="paid on every Claude Code session",
         sev="neutral",
+        tip="session_start_cost",
     )
 
     # KPI 2 — window occupation, severity-coloured.
@@ -59,6 +127,7 @@ def _kpis(budget: BudgetReport, counts: dict) -> str:
         unit="%",
         sub=sub,
         sev=sev,
+        tip="window_occupation",
     )
 
     # KPI 3 — inventory. Always neutral.
@@ -68,6 +137,7 @@ def _kpis(budget: BudgetReport, counts: dict) -> str:
         unit="",
         sub=inventory or "no configuration files found",
         sev="neutral",
+        tip="files_tracked",
     )
 
     # KPI 4 — findings. Severity from highest present.
@@ -92,20 +162,25 @@ def _kpis(budget: BudgetReport, counts: dict) -> str:
         sub=issues_breakdown,
         sev=fsev,
         sub_is_html=True,
+        tip="issues",
     )
 
     return f'<section class="kpis">{kpi_cost}{kpi_window}{kpi_files}{kpi_issues}</section>'
 
 
 def _kpi(*, label: str, value: str, unit: str, sub: str, sev: str,
-         sub_is_html: bool = False) -> str:
+         sub_is_html: bool = False, tip: str | None = None) -> str:
     unit_html = (
         f'<span class="kpi-unit">{html.escape(unit)}</span>' if unit else ""
     )
     sub_html = sub if sub_is_html else html.escape(sub)
+    info_button = _info(tip) if tip else ""
     return f'''
       <article class="kpi kpi--{sev}">
-        <header class="kpi-label">{html.escape(label)}</header>
+        <header class="kpi-label">
+          <span>{html.escape(label)}</span>
+          {info_button}
+        </header>
         <div class="kpi-value">{html.escape(value)}{unit_html}</div>
         <div class="kpi-sub">{sub_html}</div>
         <div class="kpi-strip"></div>
@@ -216,7 +291,7 @@ def _utilization(budget: BudgetReport) -> str:
     return f'''
     <section class="panel">
       <header class="panel-h">
-        <h2>Window utilization</h2>
+        <h2>Window utilization{_info("window_utilization")}</h2>
         <span class="panel-sub">
           stacked contribution to the {window_tok:,}-token reference window
         </span>
@@ -265,7 +340,7 @@ def _categories_table(budget: BudgetReport) -> str:
     return f'''
     <section class="panel">
       <header class="panel-h">
-        <h2>Categories</h2>
+        <h2>Categories{_info("categories")}</h2>
         <span class="panel-sub">token share by configuration source</span>
       </header>
       <table class="dt">
@@ -343,7 +418,7 @@ def _consumers_table(files: list[FileTokens]) -> str:
     return f'''
     <section class="panel">
       <header class="panel-h">
-        <h2>Top consumers</h2>
+        <h2>Top consumers{_info("top_consumers")}</h2>
         <span class="panel-sub">
           largest files by estimated token cost · {len(files)} file(s) total
         </span>
@@ -361,10 +436,10 @@ def _consumers_table(files: list[FileTokens]) -> str:
 
 def _findings_section(findings: list[Finding], counts: dict) -> str:
     if not findings:
-        return '''
+        return f'''
         <section class="panel">
           <header class="panel-h">
-            <h2>Findings</h2>
+            <h2>Findings{_info("findings")}</h2>
             <span class="panel-sub">no issues detected</span>
           </header>
           <div class="all-clear">
@@ -428,7 +503,7 @@ def _findings_section(findings: list[Finding], counts: dict) -> str:
     return f'''
     <section class="panel">
       <header class="panel-h">
-        <h2>Findings</h2>
+        <h2>Findings{_info("findings")}</h2>
         <span class="panel-sub">
           {counts['error']} error · {counts['warning']} warning · {counts['info']} advisory
         </span>

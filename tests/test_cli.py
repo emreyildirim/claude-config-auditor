@@ -65,6 +65,10 @@ def test_cli_html_output_is_self_contained(tmp_path, capsys):
     # Theme support
     assert "prefers-color-scheme: dark" in content
     assert "theme-toggle" in content
+    # Info tooltips: 4 KPI cards + 4 panel headers = 8 ⓘ buttons.
+    assert content.count('class="info"') == 8
+    # Each tooltip carries its plain-language explanation, not jargon.
+    assert "context window" in content.lower()
     # No external network deps — the file should open offline.
     assert "http://" not in content
     assert "https://" not in content

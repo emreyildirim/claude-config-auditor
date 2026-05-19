@@ -83,6 +83,34 @@ _PAGE = """<!doctype html>
     apply(next);
   }});
 }})();
+
+/* Info tooltips: tap-to-toggle for touch devices that have no hover
+   state. Desktop users still get the CSS hover behaviour for free. */
+(function () {{
+  var openTip = null;
+  function close(b) {{ if (b) b.removeAttribute("data-open"); }}
+  document.querySelectorAll(".info").forEach(function (btn) {{
+    btn.addEventListener("click", function (e) {{
+      e.stopPropagation();
+      if (openTip && openTip !== btn) close(openTip);
+      if (btn.dataset.open === "true") {{
+        close(btn);
+        openTip = null;
+      }} else {{
+        btn.setAttribute("data-open", "true");
+        openTip = btn;
+      }}
+    }});
+  }});
+  // Clicking anywhere else closes the open tooltip.
+  document.addEventListener("click", function () {{
+    if (openTip) {{ close(openTip); openTip = null; }}
+  }});
+  // Esc also closes — keyboard-friendly.
+  document.addEventListener("keydown", function (e) {{
+    if (e.key === "Escape" && openTip) {{ close(openTip); openTip = null; }}
+  }});
+}})();
 </script>
 </body>
 </html>
