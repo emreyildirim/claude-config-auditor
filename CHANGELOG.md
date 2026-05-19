@@ -18,7 +18,7 @@ adheres to [Semantic Versioning](https://semver.org/).
   fail-on-AGT008 for CI) plus a Python snippet for jq-less setups.
 - `pipx install` documented as the primary install path, so
   `claude-audit` works from any directory regardless of which project
-  venv is active. Tracked TODO entry marked done.
+  venv is active.
 
 ### Changed (BREAKING — headline metric semantics)
 - The headline "Session-start cost" was renamed to **"Always loaded"** and
