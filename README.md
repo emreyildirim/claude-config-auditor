@@ -27,11 +27,12 @@ The ecosystem has a lot of "session handoff" and "state management" tools. It do
 - Outputs a human-readable terminal report, JSON (`--json`), or a self-contained HTML report with charts (`--html`).
 - **Never modifies any files.** Phase 1 is strictly read-only.
 
-## What it does *not* do (yet)
+## What it does *not* do
 
-- It does not rewrite or shorten anything for you — that's Phase 2.
-- It does not call the Claude API. Phase 1 runs fully offline.
+- It does not call the Claude API. Everything is offline.
 - It does not hook into a live session.
+- It does not silently modify your files. `audit` is read-only; `fix`
+  is opt-in and prompts before every change.
 
 ## Install
 
@@ -73,6 +74,12 @@ claude-audit --help         # verify it works
 
 ## Use
 
+The tool has three subcommands. The first two — `audit` (default) and
+any of the flag-only invocations — are **strictly read-only**. The
+third — `fix` — is **opt-in** and asks before every change.
+
+### `audit` — read-only report
+
 ```bash
 # Audit the current directory.
 claude-audit
@@ -92,6 +99,87 @@ claude-audit --fail-on warning
 # Custom CLAUDE.md token budget (default 5000).
 claude-audit --budget 3000
 ```
+
+`audit` never modifies any file. The default behaviour stays this way
+forever — Phase 2 was deliberately put behind an explicit subcommand.
+
+### `fix` — propose and apply changes (Phase 2, opt-in)
+
+Walks you through fixable findings. For each one you see:
+
+- a one-line rationale,
+- a unified diff of what would change (red for removals, green for adds),
+- a per-file +/- summary,
+- and an explicit prompt: `[y]es / [n]o / [a]ll-remaining / [q]uit`.
+
+Everything applied is backed up under
+`.claude-config-auditor/backups/<timestamp>/` inside the target. Revert
+is one command away.
+
+```bash
+# Preview without prompting or writing anything (safest first step).
+claude-audit fix . --dry-run
+
+# Interactive: see diff, answer y/n/a/q per change.
+claude-audit fix .
+
+# Batch approval (still prints every diff, just skips the per-change
+# prompt). Required when stdin is not an interactive terminal (CI).
+claude-audit fix . --apply-all
+
+# Put backups somewhere else (default is inside the target).
+claude-audit fix . --backup-dir ~/backups/
+```
+
+What `fix` can currently propose:
+
+- **Annotate weak / overlapping agent descriptions** (codes
+  `AGT003` – `AGT008`). Inserts `# TODO (claude-audit, AGTxxx)` YAML
+  comments above the `description:` field. Claude ignores these at
+  load time, so behaviour is unchanged the moment the fix applies; the
+  TODO marks where you need to revise.
+- **Move stale CLAUDE.md sections into a sibling archive** (code
+  `HLT001`). Conservative heuristics: protected headings (Rules,
+  Conventions, …) and sections with operational language ("always",
+  "must", "before using", …) are never archived. Each moved section
+  leaves a pointer in the source so the outline survives.
+
+Example dry-run output is at
+[`examples/sample-fix-output.md`](examples/sample-fix-output.md).
+
+### `revert` — undo a fix run
+
+```bash
+# Enumerate backup sessions for a target.
+claude-audit revert . --list
+
+# Restore the most recent session.
+claude-audit revert .
+
+# Restore a specific session by id.
+claude-audit revert . 2026-05-19T11-56-05Z-7ee17f
+
+# If you've hand-edited the fix's output and want to overwrite anyway.
+claude-audit revert . --force
+```
+
+`revert` checks each file's SHA-256 against what was on disk when the
+fix completed. If a file has drifted (you edited it between apply and
+revert), the revert is refused — your later edits are not silently
+destroyed. `--force` opts out of this check.
+
+### Safety guarantees (still true with `fix` in the picture)
+
+- `audit` never touches a file. The automated test
+  `test_auditor_does_not_modify_target` snapshots every file's mtime
+  and size before and after a full run and asserts they're identical.
+- `fix` never empties or deletes a file. Proposals can edit existing
+  files or create new ones; an "empty after" is rejected at the data
+  model.
+- Every applied change is backed up plain-text and discoverable.
+  `.claude-config-auditor/backups/<id>/manifest.json` lists every file
+  touched, with SHA-256 before and after.
+- The HTML report writer refuses to write inside the audited target.
 
 ## Example output
 
@@ -228,19 +316,27 @@ caches.
 
 ### Will the auditor modify any of my files?
 
-**No.** Phase 1 — the only mode currently shipping — is strictly
-read-only. There is an automated test (`test_auditor_does_not_modify_target`)
-that snapshots every file's mtime and size before and after a full
-audit run; the suite fails if anything changes.
+**Only if you explicitly run `claude-audit fix`.** The default invocation
+(`claude-audit`, `claude-audit --json`, `claude-audit --html …`) is
+strictly read-only — the automated test
+`test_auditor_does_not_modify_target` snapshots every file's mtime and
+size before and after a full audit run and fails the suite if anything
+changes. The HTML report writer also refuses to write inside the
+audited target directory; you must pass an output path elsewhere.
 
-The HTML report writer refuses to write inside the audited target
-directory at all; you have to pass it an output path elsewhere. The
-auditor itself never creates files in the project being audited.
+The Phase 2 `fix` subcommand (opt-in, never the default) can modify
+files, but only after:
 
-Phase 2 (planned) will add an opt-in `fix` mode that can modify files —
-but only after showing every change as a diff, taking your explicit
-confirmation, and backing up the original. That work lives on a
-separate branch and is not part of any release yet.
+1. Showing each change as a unified diff with a per-file +/- summary.
+2. Asking for explicit `[y]es / [n]o / [a]ll-remaining / [q]uit`
+   approval per proposal. `--apply-all` batches the approval but
+   still prints every diff first; nothing is ever applied silently.
+3. Writing a full backup with SHA-256 manifests under
+   `.claude-config-auditor/backups/<session>/`, so `claude-audit
+   revert` can restore the project to its pre-fix state.
+
+If you never type the literal word `fix`, no file in your project is
+ever written to.
 
 ### Why are the token counts called "estimates"?
 
@@ -268,8 +364,13 @@ suitable for offline use, we'll wire it in and the numbers will sharpen.
 
 ## Roadmap
 
-- **Phase 1 — current:** read-only analysis and reporting.
-- **Phase 2 — planned:** suggested fixes and opt-in `CLAUDE.md` rewriting.
+- **Phase 1 — shipped:** read-only `audit` for `.claude/` and CLAUDE.md.
+- **Phase 2 — shipped:** opt-in `fix` mode (annotates weak agent
+  descriptions, archives stale CLAUDE.md sections) and `revert` with
+  drift detection.
+- **Phase 3 — not planned yet:** Anthropic-API-assisted rewriting of
+  descriptions and sections. Privacy and cost trade-offs make this a
+  separate conversation.
 
 ## License
 

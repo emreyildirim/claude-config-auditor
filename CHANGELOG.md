@@ -6,6 +6,38 @@ adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added — Phase 2: opt-in `fix` mode
+- New `fix` subcommand walks the user through fixable findings one by
+  one. Each proposal shows a rationale, a unified diff (red removals,
+  green additions), a per-file +/- summary, and an explicit prompt
+  (y / n / a / q). Nothing is written without consent.
+- New `revert` subcommand restores a previous backup session. With no
+  arguments it reverts the most recent session; `--list` enumerates,
+  and a session id targets a specific one. Drift detection compares
+  each file's SHA-256 against the state recorded at fix time and
+  refuses to overwrite hand-edited files unless `--force` is set.
+- `--dry-run` previews every proposal without prompting or writing.
+- `--apply-all` batches approval for non-interactive contexts (CI),
+  still printing every diff before applying.
+- Phase 2 proposers shipped:
+  - **agent_description** annotates frontmatter with TODO YAML comments
+    for AGT003 through AGT008. Comments are inert at Claude load time;
+    behaviour is unchanged the moment the fix applies.
+  - **claude_md_archive** moves stale CLAUDE.md sections into a
+    sibling `CLAUDE.archive.md`. Heuristics are conservative: a four-
+    step veto ladder skips protected headings (Rules, Conventions,
+    Workflow, …), sections with operational language ("always",
+    "must", "before using", …), and tiny sections below the
+    150-token / 5-line minimum.
+- Per-file atomic writes (temp + rename) and a single backup session
+  around every accepted proposal set. Backups land at
+  `<target>/.claude-config-auditor/backups/<id>/` with a plain-text
+  manifest listing each file's SHA-256 before and after.
+- `examples/sample-fix-output.md` walks through a dry-run and the
+  surrounding interactive / revert flow.
+- README gained a Phase 2 "Use" section and a safety-guarantees note;
+  the roadmap is updated to mark Phase 2 as shipped.
+
 ### Changed — `tiktoken` is now a hard dependency (default tokenizer)
 
 `tiktoken` (with the `cl100k_base` encoding) moved from
