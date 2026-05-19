@@ -34,30 +34,43 @@ The ecosystem has a lot of "session handoff" and "state management" tools. It do
 
 ## Install
 
-Requires Python 3.10+. The package is currently developed from source.
+Requires Python 3.10+ on the machine running the auditor. The target
+project can be in any language — the auditor only reads Markdown and
+YAML, never executes target code (see [FAQ](#faq) below).
+
+### Recommended: pipx (one-time install, works everywhere)
+
+[pipx](https://pipx.pypa.io/) installs Python CLI tools into isolated
+virtual environments and puts the executables on your `PATH`. The
+`claude-audit` command then works from any directory, regardless of
+which project venv you happen to have active.
 
 ```bash
-git clone <this-repo-url>
+# One-time: install pipx itself if you don't have it.
+brew install pipx        # macOS
+# or:  python3 -m pip install --user pipx  &&  pipx ensurepath
+
+# Install the auditor:
+pipx install git+https://github.com/emreyildirim/claude-config-auditor.git
+
+# Optional: closer token estimates via tiktoken.
+pipx inject claude-config-auditor tiktoken
+```
+
+After that, `claude-audit --help` works from any project directory.
+
+### From source (for contributing)
+
+```bash
+git clone https://github.com/emreyildirim/claude-config-auditor.git
 cd claude-config-auditor
 
 python3 -m venv .venv
 source .venv/bin/activate
+pip install -e '.[dev]'    # editable install + pytest + tiktoken
 
-# Install with the recommended tiktoken-based token estimator.
-pip install -e '.[tokenizer]'
-
-# Or, if you don't want tiktoken — the tool will fall back to a
-# character-based heuristic (and clearly label it as such).
-# pip install -e .
-```
-
-`claude-audit` is now on your `PATH` for as long as the venv is active.
-
-To run the test suite while developing:
-
-```bash
-pip install -e '.[dev]'
-pytest
+pytest                      # run the test suite
+claude-audit --help         # verify it works
 ```
 
 ## Use
@@ -181,14 +194,65 @@ for f in big:
     print(f["tokens"], f["relpath"])
 ```
 
-## Honest notes on token counting
+## FAQ
 
-Anthropic does not publish the Claude 3+ tokenizer's vocabulary, so any fully-offline count is an approximation. This tool uses:
+### Does this work on non-Python projects? React, Vue, Go, Ruby, Rust…?
 
-1. **tiktoken `cl100k_base`** when available (OpenAI's GPT-4 tokenizer, empirically within ~10–15 % of Anthropic's count for English/Markdown), or
-2. **a character-based heuristic** as a fallback.
+**Yes — any project, any stack.** The auditor only reads Markdown
+(`CLAUDE.md`) and YAML (the frontmatter inside `.claude/agents/*.md`
+and `.claude/skills/*/SKILL.md`). It never executes the target
+project's code, never invokes `npm` / `cargo` / `go` / `bundle`, never
+parses application source files.
 
-Either way, the report names the method it used. Treat numbers as estimates, not exact counts.
+The only requirement is that **the machine running the auditor** has
+Python 3.10+ available. If you install via `pipx`, that Python lives
+inside the pipx-managed venv and does not interact with whatever
+runtime your project uses.
+
+Concrete examples — all work without any extra setup:
+
+```
+my-react-app/    ← npm/Vite project; node_modules/ and .next/ are skipped
+my-go-api/       ← go.mod project; vendor/ is skipped
+rails-monolith/  ← Ruby on Rails; vendor/, tmp/ are not traversed
+rust-cli/        ← Cargo project; target/ is skipped
+iOS-app/         ← Xcode project; Pods/, Library/ are skipped
+```
+
+The scanner's directory skip-list covers Rust (`target`), Go/Ruby/PHP
+(`vendor`), JS/TS (`node_modules`, `.next`, `.nuxt`, `.turbo`,
+`.svelte-kit`), iOS (`Pods`), Android (`.gradle`, `.mvn`), Terraform
+(`.terraform`), IDE state (`.idea`, `.vscode`), and the usual Python
+caches.
+
+### Will the auditor modify any of my files?
+
+**No.** Phase 1 — the only mode currently shipping — is strictly
+read-only. There is an automated test (`test_auditor_does_not_modify_target`)
+that snapshots every file's mtime and size before and after a full
+audit run; the suite fails if anything changes.
+
+The HTML report writer refuses to write inside the audited target
+directory at all; you have to pass it an output path elsewhere. The
+auditor itself never creates files in the project being audited.
+
+Phase 2 (planned) will add an opt-in `fix` mode that can modify files —
+but only after showing every change as a diff, taking your explicit
+confirmation, and backing up the original. That work lives on a
+separate branch and is not part of any release yet.
+
+### Why are the token counts called "estimates"?
+
+Anthropic does not publish the Claude 3+/4 tokenizer's vocabulary, so
+no fully-offline tool can compute an exact count. The auditor uses
+either `tiktoken` with the `cl100k_base` encoding (OpenAI's GPT-4
+tokenizer — empirically within ~10-15% of Anthropic's count for
+English / Markdown) or a character-based heuristic as a fallback. The
+report explicitly names which method was used so the uncertainty is
+visible.
+
+If Anthropic publishes a vendored tokenizer or a `count_tokens` model
+suitable for offline use, we'll wire it in and the numbers will sharpen.
 
 ## Roadmap
 

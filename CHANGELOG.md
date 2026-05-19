@@ -6,6 +6,20 @@ adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+- README "FAQ" section answering the three most common questions
+  visitors ask: does this work on non-Python projects (yes, any
+  stack — the auditor only reads Markdown and YAML), will it modify
+  files (no, Phase 1 is read-only and the test suite proves it), and
+  why are token counts estimates (Anthropic does not publish the
+  Claude 3+/4 tokenizer).
+- README "Working with the JSON output" section: practical `jq`
+  one-liners (top-N biggest files, errors only, count by code,
+  fail-on-AGT008 for CI) plus a Python snippet for jq-less setups.
+- `pipx install` documented as the primary install path, so
+  `claude-audit` works from any directory regardless of which project
+  venv is active. Tracked TODO entry marked done.
+
 ### Changed (BREAKING — headline metric semantics)
 - The headline "Session-start cost" was renamed to **"Always loaded"** and
   now reflects what Claude Code actually pulls into the main session at
