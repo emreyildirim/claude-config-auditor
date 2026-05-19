@@ -6,6 +6,24 @@ adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed (BREAKING — headline metric semantics)
+- The headline "Session-start cost" was renamed to **"Always loaded"** and
+  now reflects what Claude Code actually pulls into the main session at
+  startup: the full `CLAUDE.md`, the full `rules/`, plus only the YAML
+  frontmatter of each agent and skill. Agent and skill *bodies* are
+  reported separately as **"On-demand"** weight — they only enter
+  context when invoked (sub-agents run in their own session; skills
+  load body at use time). The previous metric overstated the real
+  session-start load by roughly 8× on typical projects and is being
+  retired. `Window occupation` is now driven by the always-loaded
+  figure, so the percentage actually reflects what competes for the
+  context window at startup.
+- The Categories panel in the HTML report now shows the eager/on-demand
+  split per source, and the JSON output exposes `eager_load_total_tokens`,
+  `on_demand_total_tokens`, and `total_config_tokens` (the legacy
+  `session_start_total_tokens` field is retained as an alias of the
+  eager total).
+
 ### Added
 - GitHub Actions CI: runs the pytest suite on Python 3.10, 3.11, and 3.12
   for every push to `main` and every pull request. Status badge in the README.

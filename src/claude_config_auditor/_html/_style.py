@@ -847,4 +847,9 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
   align-items: center;
   gap: 2px;
 }
+
+.t-num-dim {
+  color: var(--ink-4);
+  font-family: var(--mono);
+}
 """

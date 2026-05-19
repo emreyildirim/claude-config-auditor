@@ -62,21 +62,27 @@ def render_terminal(
     # --- Headline -------------------------------------------------------
     pct = budget.percent_of_window
     pct_color = s.GREEN if pct < 5 else (s.YELLOW if pct < 15 else s.RED)
-    write(f"{s.BOLD}Session-start fixed cost{s.RESET}\n")
+    write(f"{s.BOLD}Always-loaded session footprint{s.RESET}\n")
     write(
-        f"  ~{s.BOLD}{budget.session_start_total:,}{s.RESET} tokens  "
+        f"  ~{s.BOLD}{budget.eager_load_total:,}{s.RESET} tokens  "
         f"({pct_color}{pct:.1f}%{s.RESET} of {budget.reference_window_label})\n"
     )
-    write(f"  {s.DIM}This is paid on every Claude Code session in this project.{s.RESET}\n\n")
+    if budget.on_demand_total > 0:
+        write(
+            f"  {s.DIM}+ ~{budget.on_demand_total:,} tokens on-demand "
+            f"(agent/skill bodies, loaded when invoked){s.RESET}\n"
+        )
+    write(f"  {s.DIM}The always-loaded figure is paid on every Claude Code session.{s.RESET}\n\n")
 
     # --- Per-category --------------------------------------------------
-    write(f"{s.BOLD}By category{s.RESET}\n")
+    write(f"{s.BOLD}By category{s.RESET}  {s.DIM}(eager / on-demand / total){s.RESET}\n")
     for cat in budget.categories:
         if cat.file_count == 0 and cat.total_tokens == 0:
             continue
+        lazy_disp = f"~{cat.lazy_tokens:,}" if cat.lazy_tokens else "—"
         write(
             f"  {cat.name:<10} {cat.file_count:>3} file(s)   "
-            f"~{cat.total_tokens:,} tokens\n"
+            f"~{cat.eager_tokens:>7,} / {lazy_disp:>10} / ~{cat.total_tokens:,}\n"
         )
     write("\n")
 
@@ -141,7 +147,13 @@ def render_json(
             "tokens": budget.reference_window_tokens,
             "label": budget.reference_window_label,
         },
-        "session_start_total_tokens": budget.session_start_total,
+        # Headline metrics: what Claude actually loads at session start.
+        "eager_load_total_tokens": budget.eager_load_total,
+        "on_demand_total_tokens": budget.on_demand_total,
+        "total_config_tokens": budget.total_config_tokens,
+        "percent_of_window": round(budget.percent_of_window, 3),
+        # Legacy aliases kept for backward compat with older consumers.
+        "session_start_total_tokens": budget.eager_load_total,
         "session_start_percent_of_window": round(budget.percent_of_window, 3),
         "categories": [asdict(c) for c in budget.categories],
         "files": [asdict(f) for f in budget.files],

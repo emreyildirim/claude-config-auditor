@@ -850,6 +850,11 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
   align-items: center;
   gap: 2px;
 }
+
+.t-num-dim {
+  color: var(--ink-4);
+  font-family: var(--mono);
+}
 </style>
 </head>
 <body>
@@ -863,7 +868,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
     <code class="topbar-path">~/example-project</code>
     <div class="topbar-meta">
       <span><strong>v0.1.0</strong></span>
-      <span>2026-05-19 · 11:57</span>
+      <span>2026-05-19 · 12:34</span>
       <span>id <strong>BEF72AD1</strong></span>
       <button class="theme-toggle" id="theme-toggle"
               type="button" aria-label="Cycle color theme"
@@ -874,21 +879,21 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
   <section class="kpis">
       <article class="kpi kpi--neutral">
         <header class="kpi-label">
-          <span>Session-start cost</span>
-          <button class="info" type="button" aria-label="Tokens Claude Code loads into memory the instant a session opens in this project — CLAUDE.md plus every agent, skill, and rule. You pay this on every single session before you type a word." data-info="session_start_cost"><span class="info-mark" aria-hidden="true">?</span><span class="info-tip" role="tooltip">Tokens Claude Code loads into memory the instant a session opens in this project — CLAUDE.md plus every agent, skill, and rule. You pay this on every single session before you type a word.</span></button>
+          <span>Always loaded</span>
+          <button class="info" type="button" aria-label="Tokens Claude Code pulls into the main session at startup, every time you open this project: the full CLAUDE.md, the full rules/, plus the frontmatter (name + description) of every agent and skill. Agent and skill bodies are NOT in this number — they load on demand and are reported separately." data-info="always_loaded"><span class="info-mark" aria-hidden="true">?</span><span class="info-tip" role="tooltip">Tokens Claude Code pulls into the main session at startup, every time you open this project: the full CLAUDE.md, the full rules/, plus the frontmatter (name + description) of every agent and skill. Agent and skill bodies are NOT in this number — they load on demand and are reported separately.</span></button>
         </header>
-        <div class="kpi-value">241<span class="kpi-unit">tok</span></div>
-        <div class="kpi-sub">paid on every Claude Code session</div>
+        <div class="kpi-value">110<span class="kpi-unit">tok</span></div>
+        <div class="kpi-sub">+ 131 tok on-demand</div>
         <div class="kpi-strip"></div>
       </article>
     
       <article class="kpi kpi--ok">
         <header class="kpi-label">
           <span>Window occupation</span>
-          <button class="info" type="button" aria-label="How much of Claude&#x27;s 200,000-token context window your config consumes just to start. Below 25% is healthy; above 100% means there is no room left for the conversation, code, or files you actually want to work with." data-info="window_occupation"><span class="info-mark" aria-hidden="true">?</span><span class="info-tip" role="tooltip">How much of Claude&#x27;s 200,000-token context window your config consumes just to start. Below 25% is healthy; above 100% means there is no room left for the conversation, code, or files you actually want to work with.</span></button>
+          <button class="info" type="button" aria-label="Always-loaded tokens as a percentage of the 200,000-token context window. Below 25% leaves comfortable room for your conversation, files, and Claude&#x27;s responses; near or above 100% means the session is choking on its own config before you have typed a word." data-info="window_occupation"><span class="info-mark" aria-hidden="true">?</span><span class="info-tip" role="tooltip">Always-loaded tokens as a percentage of the 200,000-token context window. Below 25% leaves comfortable room for your conversation, files, and Claude&#x27;s responses; near or above 100% means the session is choking on its own config before you have typed a word.</span></button>
         </header>
         <div class="kpi-value">0.1<span class="kpi-unit">%</span></div>
-        <div class="kpi-sub">199,759 tokens of headroom</div>
+        <div class="kpi-sub">199,890 tokens of headroom</div>
         <div class="kpi-strip"></div>
       </article>
     
@@ -915,7 +920,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
   
     <section class="panel">
       <header class="panel-h">
-        <h2>Window utilization<button class="info" type="button" aria-label="Shows how each configuration category contributes to your context-window load. The dashed line at 100% is the window limit; any segment past that line is config that will not fit alongside your actual work." data-info="window_utilization"><span class="info-mark" aria-hidden="true">?</span><span class="info-tip" role="tooltip">Shows how each configuration category contributes to your context-window load. The dashed line at 100% is the window limit; any segment past that line is config that will not fit alongside your actual work.</span></button></h2>
+        <h2>Window utilization<button class="info" type="button" aria-label="Shows how each category contributes to the always-loaded session footprint. Bar segments reflect eager tokens only — on-demand weight (agent/skill bodies) is not shown here because it does not compete for window space at startup." data-info="window_utilization"><span class="info-mark" aria-hidden="true">?</span><span class="info-tip" role="tooltip">Shows how each category contributes to the always-loaded session footprint. Bar segments reflect eager tokens only — on-demand weight (agent/skill bodies) is not shown here because it does not compete for window space at startup.</span></button></h2>
         <span class="panel-sub">
           stacked contribution to the 200,000-token reference window
         </span>
@@ -931,7 +936,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
       </text>
     
           
-          <rect x="40.0" y="60" width="0.1" height="40" class="util-seg util-seg--claude-md"/><rect x="40.1" y="60" width="0.7" height="40" class="util-seg util-seg--agent"/><rect x="40.7" y="60" width="0.1" height="40" class="util-seg util-seg--skill"/>
+          <rect x="40.0" y="60" width="0.1" height="40" class="util-seg util-seg--claude-md"/><rect x="40.1" y="60" width="0.3" height="40" class="util-seg util-seg--agent"/>
           <line x1="40" y1="100" x2="940" y2="100" class="util-baseline"/>
         </svg>
       </div>
@@ -940,7 +945,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
             <span class="leg-swatch leg-swatch--claude-md"></span>
             <span class="leg-name">claude.md</span>
             <span class="leg-files">1 files</span>
-            <span class="leg-pct">7.9%</span>
+            <span class="leg-pct">17.3%</span>
             <span class="leg-tok">19</span>
           </div>
         
@@ -948,16 +953,8 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
             <span class="leg-swatch leg-swatch--agent"></span>
             <span class="leg-name">agent</span>
             <span class="leg-files">5 files</span>
-            <span class="leg-pct">79.3%</span>
-            <span class="leg-tok">191</span>
-          </div>
-        
-          <div class="leg-row">
-            <span class="leg-swatch leg-swatch--skill"></span>
-            <span class="leg-name">skill</span>
-            <span class="leg-files">1 files</span>
-            <span class="leg-pct">12.9%</span>
-            <span class="leg-tok">31</span>
+            <span class="leg-pct">82.7%</span>
+            <span class="leg-tok">91</span>
           </div>
         </div>
     </section>
@@ -965,17 +962,18 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
   
     <section class="panel">
       <header class="panel-h">
-        <h2>Categories<button class="info" type="button" aria-label="Token breakdown by configuration source. &#x27;Share&#x27; is the percentage each type contributes to your total session-start cost — useful for spotting where to trim first." data-info="categories"><span class="info-mark" aria-hidden="true">?</span><span class="info-tip" role="tooltip">Token breakdown by configuration source. &#x27;Share&#x27; is the percentage each type contributes to your total session-start cost — useful for spotting where to trim first.</span></button></h2>
-        <span class="panel-sub">token share by configuration source</span>
+        <h2>Categories<button class="info" type="button" aria-label="Token breakdown by configuration source. The &#x27;Eager&#x27; column is what Claude actually loads at session start; &#x27;On-demand&#x27; is what waits to be invoked. Total = eager + on-demand." data-info="categories"><span class="info-mark" aria-hidden="true">?</span><span class="info-tip" role="tooltip">Token breakdown by configuration source. The &#x27;Eager&#x27; column is what Claude actually loads at session start; &#x27;On-demand&#x27; is what waits to be invoked. Total = eager + on-demand.</span></button></h2>
+        <span class="panel-sub">eager / on-demand split per configuration source</span>
       </header>
       <table class="dt">
         <thead>
           <tr>
             <th class="t-cat">Source</th>
             <th class="t-num">Files</th>
-            <th class="t-bar">Share</th>
-            <th class="t-num t-num-pct">%</th>
-            <th class="t-num t-num-tok">Tokens</th>
+            <th class="t-bar">Total weight</th>
+            <th class="t-num t-num-tok">Eager</th>
+            <th class="t-num t-num-tok">On-demand</th>
+            <th class="t-num t-num-tok">Total</th>
           </tr>
         </thead>
         <tbody>
@@ -988,7 +986,8 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
             <td class="t-bar">
               <span class="row-bar row-bar--claude-md" style="width:9.9%"></span>
             </td>
-            <td class="t-num t-num-pct">7.9%</td>
+            <td class="t-num t-num-tok">19</td>
+            <td class="t-num t-num-tok"><span class="t-num-dim">—</span></td>
             <td class="t-num t-num-tok">19</td>
           </tr>
           <tr>
@@ -1000,7 +999,8 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
             <td class="t-bar">
               <span class="row-bar row-bar--agent" style="width:100.0%"></span>
             </td>
-            <td class="t-num t-num-pct">79.3%</td>
+            <td class="t-num t-num-tok">91</td>
+            <td class="t-num t-num-tok">100</td>
             <td class="t-num t-num-tok">191</td>
           </tr>
           <tr>
@@ -1012,7 +1012,8 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
             <td class="t-bar">
               <span class="row-bar row-bar--skill" style="width:16.2%"></span>
             </td>
-            <td class="t-num t-num-pct">12.9%</td>
+            <td class="t-num t-num-tok">0</td>
+            <td class="t-num t-num-tok">31</td>
             <td class="t-num t-num-tok">31</td>
           </tr></tbody>
       </table>
@@ -1021,7 +1022,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
   
     <section class="panel">
       <header class="panel-h">
-        <h2>Top consumers<button class="info" type="button" aria-label="The single files costing you the most tokens, sorted largest to smallest. These are usually the best places to start when you need to claw context-window space back." data-info="top_consumers"><span class="info-mark" aria-hidden="true">?</span><span class="info-tip" role="tooltip">The single files costing you the most tokens, sorted largest to smallest. These are usually the best places to start when you need to claw context-window space back.</span></button></h2>
+        <h2>Top consumers<button class="info" type="button" aria-label="The single files costing you the most tokens, sorted largest to smallest. These are usually the best places to start when you need to claw context space back — even on-demand files fire often enough to matter." data-info="top_consumers"><span class="info-mark" aria-hidden="true">?</span><span class="info-tip" role="tooltip">The single files costing you the most tokens, sorted largest to smallest. These are usually the best places to start when you need to claw context space back — even on-demand files fire often enough to matter.</span></button></h2>
         <span class="panel-sub">
           largest files by estimated token cost · 7 file(s) total
         </span>
@@ -1219,7 +1220,7 @@ could not find expected &#x27;:&#x27;
       <div class="colophon-row"><dt>Report ID</dt><dd>BEF72AD1</dd></div>
     </div>
     <div class="colophon-block">
-      <div class="colophon-row"><dt>Generated</dt><dd>2026-05-19 · 11:57</dd></div>
+      <div class="colophon-row"><dt>Generated</dt><dd>2026-05-19 · 12:34</dd></div>
       <div class="colophon-row"><dt>Tokenizer</dt><dd>tiktoken-cl100k_base</dd></div>
     </div>
     <p class="colophon-note">

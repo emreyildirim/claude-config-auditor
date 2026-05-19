@@ -14,7 +14,7 @@ def test_cli_runs_on_good_fixture(capsys):
     rc = main([str(FIXTURES / "good"), "--no-color"])
     out = capsys.readouterr().out
     assert rc == 0
-    assert "Session-start fixed cost" in out
+    assert "Always-loaded session footprint" in out
     assert "read-only" in out
 
 
@@ -58,7 +58,7 @@ def test_cli_html_output_is_self_contained(tmp_path, capsys):
     # Must be a real HTML document.
     assert content.startswith("<!doctype html>")
     # Critical pieces from the report.
-    assert "Session-start cost" in content
+    assert "Always loaded" in content
     assert "Window utilization" in content
     assert "<svg" in content
     assert "claude-config-auditor" in content
@@ -69,6 +69,9 @@ def test_cli_html_output_is_self_contained(tmp_path, capsys):
     assert content.count('class="info"') == 8
     # Each tooltip carries its plain-language explanation, not jargon.
     assert "context window" in content.lower()
+    # The eager/on-demand split must be visible in the Categories table.
+    assert "On-demand" in content
+    assert "Eager" in content
     # No external network deps — the file should open offline.
     assert "http://" not in content
     assert "https://" not in content

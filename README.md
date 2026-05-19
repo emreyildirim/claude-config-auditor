@@ -19,7 +19,8 @@ The ecosystem has a lot of "session handoff" and "state management" tools. It do
 ## What it does (Phase 1)
 
 - Counts tokens for `CLAUDE.md`, every agent, every skill, every rule.
-- Reports the **session-start fixed cost** and what % of a typical 200k context window it occupies.
+- Splits the cost into **always-loaded** (full CLAUDE.md + full rules + agent/skill *frontmatter*) and **on-demand** (agent/skill *bodies*, loaded when the agent runs or the skill is invoked). The always-loaded number is what actually competes for context-window space at session start.
+- Reports both numbers and the always-loaded share of a typical 200k window.
 - Lints agent and skill frontmatter (missing fields, descriptions that are too short or too long, malformed YAML).
 - Detects overlapping agent `description` fields by simple word-overlap.
 - Outputs a human-readable terminal report, JSON (`--json`), or a self-contained HTML report with charts (`--html`).
@@ -84,19 +85,20 @@ claude-audit --budget 3000
 ## Example output
 
 - **Terminal:** [`examples/sample-report.md`](examples/sample-report.md) — annotated terminal output from clean and broken fixtures.
-- **HTML dashboard:** [`examples/sample-audit.html`](examples/sample-audit.html) — full HTML report (download to open offline, or view raw on GitHub). Light/dark theme, expandable file list, severity-coloured findings.
+- **HTML dashboard:** [`examples/sample-audit.html`](examples/sample-audit.html) — full HTML report (download to open offline, or view raw on GitHub). Light/dark theme, expandable file list, severity-coloured findings, hover tooltips on every metric.
 
 Quick terminal taste:
 
 ```
-Session-start fixed cost
-  ~410 tokens  (0.2% of 200k (typical Claude Code default))
-  This is paid on every Claude Code session in this project.
+Always-loaded session footprint
+  ~256 tokens  (0.1% of 200k (typical Claude Code default))
+  + ~154 tokens on-demand (agent/skill bodies, loaded when invoked)
+  The always-loaded figure is paid on every Claude Code session.
 
-By category
-  claude.md    1 file(s)   ~80 tokens
-  agent        2 file(s)   ~225 tokens
-  skill        1 file(s)   ~105 tokens
+By category  (eager / on-demand / total)
+  claude.md    1 file(s)   ~80 / — / ~80
+  agent        2 file(s)   ~117 / ~108 / ~225
+  skill        1 file(s)   ~59 / ~46 / ~105
 
 Findings  0 error  0 warning  0 info
   No issues found.

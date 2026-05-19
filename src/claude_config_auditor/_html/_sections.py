@@ -23,16 +23,19 @@ from claude_config_auditor.findings import Finding
 # the words live next to the section they describe — easier to keep
 # them honest as the implementation changes.
 _TIPS = {
-    "session_start_cost": (
-        "Tokens Claude Code loads into memory the instant a session opens "
-        "in this project — CLAUDE.md plus every agent, skill, and rule. "
-        "You pay this on every single session before you type a word."
+    "always_loaded": (
+        "Tokens Claude Code pulls into the main session at startup, "
+        "every time you open this project: the full CLAUDE.md, the full "
+        "rules/, plus the frontmatter (name + description) of every "
+        "agent and skill. Agent and skill bodies are NOT in this number — "
+        "they load on demand and are reported separately."
     ),
     "window_occupation": (
-        "How much of Claude's 200,000-token context window your config "
-        "consumes just to start. Below 25% is healthy; above 100% means "
-        "there is no room left for the conversation, code, or files you "
-        "actually want to work with."
+        "Always-loaded tokens as a percentage of the 200,000-token "
+        "context window. Below 25% leaves comfortable room for your "
+        "conversation, files, and Claude's responses; near or above "
+        "100% means the session is choking on its own config before "
+        "you have typed a word."
     ),
     "files_tracked": (
         "Total configuration files the auditor read, broken down by type. "
@@ -45,20 +48,21 @@ _TIPS = {
         "budget problems. Advisories are worth considering but not urgent."
     ),
     "window_utilization": (
-        "Shows how each configuration category contributes to your "
-        "context-window load. The dashed line at 100% is the window "
-        "limit; any segment past that line is config that will not fit "
-        "alongside your actual work."
+        "Shows how each category contributes to the always-loaded session "
+        "footprint. Bar segments reflect eager tokens only — on-demand "
+        "weight (agent/skill bodies) is not shown here because it does "
+        "not compete for window space at startup."
     ),
     "categories": (
-        "Token breakdown by configuration source. 'Share' is the "
-        "percentage each type contributes to your total session-start "
-        "cost — useful for spotting where to trim first."
+        "Token breakdown by configuration source. The 'Eager' column is "
+        "what Claude actually loads at session start; 'On-demand' is "
+        "what waits to be invoked. Total = eager + on-demand."
     ),
     "top_consumers": (
         "The single files costing you the most tokens, sorted largest "
         "to smallest. These are usually the best places to start when "
-        "you need to claw context-window space back."
+        "you need to claw context space back — even on-demand files "
+        "fire often enough to matter."
     ),
     "findings": (
         "Quality issues the auditor detected, grouped by severity. Each "
@@ -88,7 +92,7 @@ def _info(tip_key: str) -> str:
 
 def _kpis(budget: BudgetReport, counts: dict) -> str:
     pct = budget.percent_of_window
-    over = budget.session_start_total - budget.reference_window_tokens
+    over = budget.eager_load_total - budget.reference_window_tokens
     total_findings = sum(counts.values())
     file_count = len(budget.files)
     inventory = ", ".join(
@@ -97,29 +101,35 @@ def _kpis(budget: BudgetReport, counts: dict) -> str:
         if c.file_count > 0
     )
 
-    # KPI 1 — session-start cost. Severity neutral; it's just the number.
+    # KPI 1 — what Claude actually pulls into the session at startup.
+    on_demand_label = (
+        f"+ {budget.on_demand_total:,} tok on-demand"
+        if budget.on_demand_total > 0
+        else "no on-demand weight"
+    )
     kpi_cost = _kpi(
-        label="Session-start cost",
-        value=f"{budget.session_start_total:,}",
+        label="Always loaded",
+        value=f"{budget.eager_load_total:,}",
         unit="tok",
-        sub="paid on every Claude Code session",
+        sub=on_demand_label,
         sev="neutral",
-        tip="session_start_cost",
+        tip="always_loaded",
     )
 
     # KPI 2 — window occupation, severity-coloured.
+    headroom = budget.reference_window_tokens - budget.eager_load_total
     if pct >= 100:
         sev = "critical"
         sub = f"+{over:,} tokens over the {budget.reference_window_tokens:,} window"
     elif pct >= 25:
         sev = "warning"
-        sub = f"{budget.reference_window_tokens - budget.session_start_total:,} tokens of headroom"
+        sub = f"{headroom:,} tokens of headroom"
     elif pct >= 10:
         sev = "info"
-        sub = f"{budget.reference_window_tokens - budget.session_start_total:,} tokens of headroom"
+        sub = f"{headroom:,} tokens of headroom"
     else:
         sev = "ok"
-        sub = f"{budget.reference_window_tokens - budget.session_start_total:,} tokens of headroom"
+        sub = f"{headroom:,} tokens of headroom"
 
     kpi_window = _kpi(
         label="Window occupation",
@@ -191,15 +201,14 @@ def _kpi(*, label: str, value: str, unit: str, sub: str, sev: str,
 # --- Utilization chart ------------------------------------------------------
 
 def _utilization(budget: BudgetReport) -> str:
-    """Stacked horizontal bar showing how each category fills the window.
+    """Stacked horizontal bar of the always-loaded session footprint.
 
-    The 100% mark is a real visual wall; bars continue past it into a red
-    overflow zone when the configuration is over budget. The point is that
-    overrun is unmissable, while still showing the contribution of each
-    category.
+    Bar segments use each category's *eager* token contribution, since
+    those are the tokens that actually compete for context-window space
+    at session start. Overrun past the 100% wall is highlighted in red.
     """
     window_tok = budget.reference_window_tokens
-    total = budget.session_start_total
+    eager_total = budget.eager_load_total
     pct_total = budget.percent_of_window
 
     # Geometry: viewBox 1000 wide. x=40 is bar start, x=740 is 100%, max bar
@@ -216,10 +225,10 @@ def _utilization(budget: BudgetReport) -> str:
     categories = [c for c in budget.categories if c.file_count > 0]
 
     for cat in categories:
-        if cat.total_tokens == 0:
+        if cat.eager_tokens == 0:
             continue
-        seg_pct_of_window = 100.0 * cat.total_tokens / window_tok
-        seg_pct_of_total = 100.0 * cat.total_tokens / max(total, 1)
+        seg_pct_of_window = 100.0 * cat.eager_tokens / window_tok
+        seg_pct_of_total = 100.0 * cat.eager_tokens / max(eager_total, 1)
 
         # Compute pixel span; split into in-window and over-window portions.
         start_pct = cum_pct
@@ -256,7 +265,7 @@ def _utilization(budget: BudgetReport) -> str:
             <span class="leg-name">{html.escape(cat.name)}</span>
             <span class="leg-files">{cat.file_count} files</span>
             <span class="leg-pct">{seg_pct_of_total:.1f}%</span>
-            <span class="leg-tok">{cat.total_tokens:,}</span>
+            <span class="leg-tok">{cat.eager_tokens:,}</span>
           </div>
         ''')
 
@@ -317,13 +326,17 @@ def _categories_table(budget: BudgetReport) -> str:
     cats = [c for c in budget.categories if c.file_count > 0]
     if not cats:
         return ""
-    total = sum(c.total_tokens for c in cats) or 1
+    eager_total = sum(c.eager_tokens for c in cats) or 1
     max_tok = max(c.total_tokens for c in cats)
     rows = []
     for c in cats:
         slug = c.name.replace(".", "-")
-        share = 100 * c.total_tokens / total
+        share_eager = 100 * c.eager_tokens / eager_total
         bar = 100 * c.total_tokens / max_tok
+        lazy_cell = (
+            f'{c.lazy_tokens:,}' if c.lazy_tokens > 0
+            else '<span class="t-num-dim">—</span>'
+        )
         rows.append(f'''
           <tr>
             <td class="t-cat">
@@ -334,23 +347,25 @@ def _categories_table(budget: BudgetReport) -> str:
             <td class="t-bar">
               <span class="row-bar row-bar--{slug}" style="width:{bar:.1f}%"></span>
             </td>
-            <td class="t-num t-num-pct">{share:.1f}%</td>
+            <td class="t-num t-num-tok">{c.eager_tokens:,}</td>
+            <td class="t-num t-num-tok">{lazy_cell}</td>
             <td class="t-num t-num-tok">{c.total_tokens:,}</td>
           </tr>''')
     return f'''
     <section class="panel">
       <header class="panel-h">
         <h2>Categories{_info("categories")}</h2>
-        <span class="panel-sub">token share by configuration source</span>
+        <span class="panel-sub">eager / on-demand split per configuration source</span>
       </header>
       <table class="dt">
         <thead>
           <tr>
             <th class="t-cat">Source</th>
             <th class="t-num">Files</th>
-            <th class="t-bar">Share</th>
-            <th class="t-num t-num-pct">%</th>
-            <th class="t-num t-num-tok">Tokens</th>
+            <th class="t-bar">Total weight</th>
+            <th class="t-num t-num-tok">Eager</th>
+            <th class="t-num t-num-tok">On-demand</th>
+            <th class="t-num t-num-tok">Total</th>
           </tr>
         </thead>
         <tbody>{''.join(rows)}</tbody>

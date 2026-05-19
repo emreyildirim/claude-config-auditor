@@ -92,6 +92,50 @@ def test_agent_overlap_is_bidirectional():
     assert len(overlap) == 2, overlap
 
 
+def test_eager_load_excludes_agent_and_skill_bodies():
+    """The headline metric must only count what Claude actually pulls
+    into the session at startup: full CLAUDE.md/rules plus agent/skill
+    frontmatter. Bodies of agents and skills are on-demand and must
+    not appear in eager_load_total."""
+    result = scan(FIXTURES / "good")
+    est = get_estimator()
+    budget = budget_check.compute(result, est)
+
+    # CLAUDE.md and rules are fully eager.
+    for f in budget.files:
+        if f.category in ("claude.md", "rule"):
+            assert f.eager_tokens == f.tokens, f
+            assert f.lazy_tokens == 0, f
+
+    # Agents and skills (with valid frontmatter) split into eager + lazy
+    # such that they sum to the total. Whether eager or lazy dominates
+    # depends on how the user wrote the file — not a contract.
+    agent_files = [f for f in budget.files if f.category == "agent"]
+    assert agent_files, "fixture should have at least one agent"
+    for f in agent_files:
+        assert f.eager_tokens > 0, f  # frontmatter exists
+        assert f.lazy_tokens > 0, f   # body exists
+        assert f.eager_tokens + f.lazy_tokens == f.tokens, f
+
+
+def test_eager_load_is_smaller_than_total_config():
+    """For any project with non-trivial agents/skills, eager < total."""
+    result = scan(FIXTURES / "good")
+    est = get_estimator()
+    budget = budget_check.compute(result, est)
+    assert budget.eager_load_total < budget.total_config_tokens
+    assert budget.eager_load_total + budget.on_demand_total == budget.total_config_tokens
+
+
+def test_session_start_total_alias_returns_eager():
+    """Backward-compat: the old session_start_total accessor now points
+    at eager_load_total. Documented in the budget docstring."""
+    result = scan(FIXTURES / "good")
+    est = get_estimator()
+    budget = budget_check.compute(result, est)
+    assert budget.session_start_total == budget.eager_load_total
+
+
 def test_tokens_by_path_matches_files():
     """BudgetReport.tokens_by_path should be the single source of truth."""
     result = scan(FIXTURES / "good")
