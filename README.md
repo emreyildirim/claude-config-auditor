@@ -104,6 +104,83 @@ Findings  0 error  0 warning  0 info
   No issues found.
 ```
 
+## Working with the JSON output
+
+`--json` writes a machine-readable report to stdout. Pipe it to a file
+or another tool. The full schema is in
+[`examples/sample-report.md`](examples/sample-report.md); a few common
+recipes follow.
+
+Save a report:
+
+```bash
+claude-audit ~/some-project --json > report.json
+```
+
+Pretty-print and inspect top-level keys (requires [`jq`](https://stedolan.github.io/jq/)):
+
+```bash
+claude-audit ~/some-project --json | jq 'keys'
+```
+
+Just the headline numbers:
+
+```bash
+claude-audit ~/some-project --json | jq '{
+  always_loaded: .eager_load_total_tokens,
+  on_demand: .on_demand_total_tokens,
+  window_pct: .percent_of_window
+}'
+```
+
+Top 10 biggest files:
+
+```bash
+claude-audit ~/some-project --json | jq '.files[:10] | map({
+  path: .relpath,
+  tokens: .tokens,
+  category
+})'
+```
+
+Only the errors (blocking findings):
+
+```bash
+claude-audit ~/some-project --json |
+  jq '.findings | map(select(.severity == "error"))'
+```
+
+Count findings by code (useful in CI dashboards):
+
+```bash
+claude-audit ~/some-project --json |
+  jq '[.findings[] | .code] | group_by(.) |
+      map({code: .[0], count: length})'
+```
+
+Fail the build only when there are AGT008 overlaps:
+
+```bash
+overlaps=$(claude-audit ~/some-project --json |
+           jq '[.findings[] | select(.code=="AGT008")] | length')
+if [ "$overlaps" -gt 0 ]; then
+  echo "Agent description overlaps detected — fix before merging."
+  exit 1
+fi
+```
+
+Python (no `jq` needed):
+
+```python
+import json, subprocess
+data = json.loads(subprocess.check_output(
+    ["claude-audit", "/path/to/project", "--json"]
+))
+big = [f for f in data["files"] if f["tokens"] > 5_000]
+for f in big:
+    print(f["tokens"], f["relpath"])
+```
+
 ## Honest notes on token counting
 
 Anthropic does not publish the Claude 3+ tokenizer's vocabulary, so any fully-offline count is an approximation. This tool uses:
