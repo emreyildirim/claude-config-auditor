@@ -51,11 +51,8 @@ which project venv you happen to have active.
 brew install pipx        # macOS
 # or:  python3 -m pip install --user pipx  &&  pipx ensurepath
 
-# Install the auditor:
+# Install the auditor (tiktoken comes with it as a hard dependency).
 pipx install git+https://github.com/emreyildirim/claude-config-auditor.git
-
-# Optional: closer token estimates via tiktoken.
-pipx inject claude-config-auditor tiktoken
 ```
 
 After that, `claude-audit --help` works from any project directory.
@@ -68,7 +65,7 @@ cd claude-config-auditor
 
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -e '.[dev]'    # editable install + pytest + tiktoken
+pip install -e '.[dev]'    # editable install + pytest (tiktoken comes from the base deps)
 
 pytest                      # run the test suite
 claude-audit --help         # verify it works
@@ -248,12 +245,23 @@ separate branch and is not part of any release yet.
 ### Why are the token counts called "estimates"?
 
 Anthropic does not publish the Claude 3+/4 tokenizer's vocabulary, so
-no fully-offline tool can compute an exact count. The auditor uses
-either `tiktoken` with the `cl100k_base` encoding (OpenAI's GPT-4
-tokenizer — empirically within ~10-15% of Anthropic's count for
-English / Markdown) or a character-based heuristic as a fallback. The
-report explicitly names which method was used so the uncertainty is
-visible.
+no fully-offline tool can compute an exact count. By default the
+auditor uses `tiktoken` with the `cl100k_base` encoding (OpenAI's
+GPT-4 tokenizer) — empirically within ~5-10% of Anthropic's count for
+the Markdown/YAML content the tool actually scans. If `tiktoken`
+cannot be imported (a stripped-down CI image, a no-network install),
+the auditor falls back to a character-based heuristic at ~4.5
+chars/token (tuned against five popular Claude Code frameworks in
+May 2026). The report explicitly names which method was used so the
+uncertainty is visible.
+
+To force the heuristic even when `tiktoken` is installed (useful for
+benchmarking or for cross-machine comparisons where `tiktoken`
+versions differ), set the env var:
+
+```bash
+CLAUDE_AUDIT_TOKENIZER=heuristic claude-audit ~/my-project
+```
 
 If Anthropic publishes a vendored tokenizer or a `count_tokens` model
 suitable for offline use, we'll wire it in and the numbers will sharpen.

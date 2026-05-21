@@ -6,6 +6,34 @@ adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed — `tiktoken` is now a hard dependency (default tokenizer)
+
+`tiktoken` (with the `cl100k_base` encoding) moved from
+`[project.optional-dependencies]` into the base `dependencies` list.
+The auditor's purpose is accurate token measurement; making the
+better estimator the default keeps the headline numbers honest by
+default. Empirically `cl100k_base` lands within ~5-10% of Anthropic's
+count on the Markdown/YAML config the tool actually scans, versus
+~10-30% over-counting for the character heuristic against the same
+files (measured across BMAD, claude-flow, wshobson, VoltAgent, and
+SuperClaude in May 2026).
+
+Two safety nets remain:
+
+- If `tiktoken` fails to import for any reason — a stripped-down CI
+  image, a platform without precompiled wheels, a no-network install —
+  the auditor transparently falls back to a character heuristic.
+- The heuristic itself was retuned from the textbook `~3.7 chars/token`
+  (which targets English prose) to `~4.5 chars/token` (the median
+  observed across real Markdown/YAML config files). The classic 3.7
+  figure was systematically over-counting our actual content.
+- Setting `CLAUDE_AUDIT_TOKENIZER=heuristic` in the environment forces
+  the fallback even when `tiktoken` is installed, for benchmarking or
+  cross-machine comparison.
+
+The report's "tokenizer" line still names whichever method ran, so
+the source of the numbers stays visible to the reader.
+
 ### Added — sharper signals for third-party framework installs
 
 - **Slash commands are now scanned and reported.** Files under

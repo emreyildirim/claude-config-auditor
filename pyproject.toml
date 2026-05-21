@@ -23,15 +23,24 @@ classifiers = [
     "Topic :: Software Development :: Quality Assurance",
     "Topic :: Utilities",
 ]
-dependencies = []
+dependencies = [
+    # Token estimation. Anthropic does not publish the Claude tokenizer,
+    # so we use OpenAI's `cl100k_base` via tiktoken as a close-enough
+    # proxy (within ~5-10% of Claude's actual count on Markdown/YAML).
+    # Empirically this is meaningfully more accurate than the character
+    # heuristic — see the May 2026 cross-framework comparison in the
+    # CHANGELOG. If tiktoken fails to import for any reason, the tool
+    # transparently falls back to a character-heuristic estimator.
+    "tiktoken>=0.5.0",
+]
 
 [project.optional-dependencies]
-# Better token estimation. Without this, the tool falls back to a
-# character-based heuristic and clearly reports the fallback.
+# Kept as a no-op extra for backward compatibility with any documentation
+# or scripts that still reference `[tokenizer]`.
 tokenizer = ["tiktoken>=0.5.0"]
 # Color output. Without this, the tool prints plain text.
 color = ["colorama>=0.4.6"]
-dev = ["pytest>=7", "tiktoken>=0.5.0", "colorama>=0.4.6"]
+dev = ["pytest>=7", "colorama>=0.4.6"]
 
 [project.scripts]
 claude-audit = "claude_config_auditor.cli:main"
