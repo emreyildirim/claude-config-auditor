@@ -6,6 +6,53 @@ adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added — sharper signals for third-party framework installs
+
+- **Slash commands are now scanned and reported.** Files under
+  `.claude/commands/` are picked up as a new `command` category in the
+  budget report, terminal output, JSON, and the HTML dashboard (with
+  its own colour). Commands have zero eager footprint — they only load
+  when the user types `/<name>` — so the headline "Always loaded"
+  metric is unaffected, but the count and on-demand weight are no
+  longer invisible. Frameworks like SuperClaude (31 commands),
+  claude-flow (88 commands), and wshobson plugins (7+ commands) were
+  completely missing from the report before.
+- **Framework-shape detection (`HLT007`).** The auditor now recognises
+  well-known install patterns and surfaces them as a positive
+  informational finding: a `_bmad/` marker dir → `BMAD-style`, a
+  `.claude-flow/` dir → `claude-flow`, plus three heuristic shapes
+  (`skill-pack`, `agent-pack`, `command-pack`) for unmarked frameworks
+  whose layout is unambiguous. This is orientation, not a problem
+  flag — but it makes the rest of the report much easier to read on a
+  fresh BMAD or wshobson install.
+
+### Changed — fixed the metric, not the message
+
+The user-facing mentality stays the same: surface real signals, let
+the user decide. These changes correct *what* AGT007, SKL005, and
+HLT005 actually measure so the signals are honest, not quieter for
+the sake of quiet.
+
+- **AGT007 now flags eager footprint, not total file size.** An
+  agent's body runs in its own sub-session — it does not bloat the
+  main session. The old check fired on any agent over 2 000 tokens
+  total, which caught legitimately rich subagent packs (VoltAgent,
+  wshobson) and missed the actual failure mode: usage docs leaking
+  into the YAML `description`. The new threshold is 250 tokens of
+  *eager* footprint (frontmatter only). Across the five frameworks
+  audited in May 2026, this removed 65+ noise findings without
+  losing the one genuine eager-bloat case in claude-flow.
+- **SKL005 follows the same logic.** A skill's body is read on use,
+  not at session start. The check now fires only when SKILL.md
+  frontmatter exceeds 250 eager tokens. Body bloat is still visible
+  in the existing "Largest files" table — that's where it belongs.
+- **HLT005 hint is framework-aware.** When a known framework shape is
+  detected, HLT005 (no CLAUDE.md but agents/skills present) still
+  fires — the file really is missing — but the hint now explains the
+  framework's convention and lets the user decide whether to act.
+  For unrecognised shapes, the generic hint is unchanged. Nothing is
+  suppressed; the same fact is delivered with better context.
+
 ### Added
 - README "FAQ" section answering the three most common questions
   visitors ask: does this work on non-Python projects (yes, any

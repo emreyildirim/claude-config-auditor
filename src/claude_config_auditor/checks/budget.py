@@ -49,6 +49,12 @@ TOP_FILES = 20
 # is loaded eagerly; the body is on-demand.
 _FULLY_EAGER_CATEGORIES = {"claude.md", "rule"}
 
+# Categories whose content never appears in the main session: it is only
+# pulled in when the user explicitly invokes it. Slash commands behave
+# this way — they exist on disk but nothing is loaded until the user
+# types `/<name>`. Tracked separately so totals stay honest.
+_FULLY_LAZY_CATEGORIES = {"command"}
+
 
 @dataclass
 class FileTokens:
@@ -101,6 +107,13 @@ class BudgetReport:
         (eager + lazy) — the size relevant to per-file bloat checks."""
         return {f.relpath: f.tokens for f in self.files}
 
+    @property
+    def eager_tokens_by_path(self) -> dict[str, int]:
+        """Per-file eager footprint — the slice that competes for context
+        window space at session start. For agents and skills this is just
+        the YAML frontmatter; for CLAUDE.md and rules it equals the total."""
+        return {f.relpath: f.eager_tokens for f in self.files}
+
 
 def _split_eager_lazy(rec: FileRecord, category: str, estimator: Estimator) -> tuple[int, int, int]:
     """Return (total_tokens, eager_tokens, lazy_tokens) for one file.
@@ -115,6 +128,9 @@ def _split_eager_lazy(rec: FileRecord, category: str, estimator: Estimator) -> t
 
     if category in _FULLY_EAGER_CATEGORIES:
         return total, total, 0
+
+    if category in _FULLY_LAZY_CATEGORIES:
+        return total, 0, total
 
     if not rec.frontmatter_ok:
         return total, 0, total
@@ -163,6 +179,7 @@ def compute(scan: Scan, estimator: Estimator) -> BudgetReport:
         add(scan.agents, "agent"),
         add(scan.skills, "skill"),
         add(scan.rules, "rule"),
+        add(scan.commands, "command"),
     ]
     eager_total = sum(c.eager_tokens for c in categories)
     lazy_total = sum(c.lazy_tokens for c in categories)

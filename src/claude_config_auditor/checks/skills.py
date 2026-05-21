@@ -15,7 +15,11 @@ from claude_config_auditor.scanner import FileRecord
 
 SKILL_DESCRIPTION_MIN_CHARS = 40
 SKILL_DESCRIPTION_LONG_CHARS = 800
-SKILL_TOKEN_BLOAT = 3_000
+# SKL005 measures eager footprint only — see AGENT_EAGER_BLOAT_TOKENS
+# in agents.py for the same reasoning. A skill body of 5 000 tokens is
+# fine: skills are read at use time, not at session start. What hurts
+# every session is a bloated description in the SKILL.md frontmatter.
+SKILL_EAGER_BLOAT_TOKENS = 250
 
 
 @dataclass
@@ -23,8 +27,14 @@ class SkillReport:
     findings: list[Finding]
 
 
-def audit(skills: list[FileRecord], tokens_by_path: dict[str, int]) -> SkillReport:
-    """Lint skill definitions; see agents.audit for the tokens_by_path contract."""
+def audit(
+    skills: list[FileRecord],
+    tokens_by_path: dict[str, int],
+    eager_tokens_by_path: dict[str, int] | None = None,
+) -> SkillReport:
+    """Lint skill definitions; see agents.audit for the contract."""
+    if eager_tokens_by_path is None:
+        eager_tokens_by_path = {}
     findings: list[Finding] = []
 
     for rec in skills:
@@ -74,15 +84,24 @@ def audit(skills: list[FileRecord], tokens_by_path: dict[str, int]) -> SkillRepo
                     )
                 )
 
-        token_cost = tokens_by_path.get(rec.relpath, 0)
-        if token_cost > SKILL_TOKEN_BLOAT:
+        eager_cost = eager_tokens_by_path.get(rec.relpath, 0)
+        if eager_cost > SKILL_EAGER_BLOAT_TOKENS:
             findings.append(
                 Finding(
                     severity="info",
                     code="SKL005",
-                    message=f"SKILL.md is large (~{token_cost} tokens)",
+                    message=(
+                        f"SKILL.md session-start cost is ~{eager_cost} tokens "
+                        "(frontmatter description loaded on every session)"
+                    ),
                     file=rec.relpath,
-                    hint="Skills are loaded by description at session start, but the body is read on use. Still — trim aggressively.",
+                    hint=(
+                        "The body of a skill is on-demand. Only the "
+                        "frontmatter — primarily `description` — is loaded "
+                        "every session. A description over ~250 tokens "
+                        "usually means usage instructions belong in the "
+                        "body, not the frontmatter."
+                    ),
                 )
             )
 

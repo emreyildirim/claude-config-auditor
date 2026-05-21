@@ -30,3 +30,7 @@ dist/
 # Test fixtures under tests/fixtures/ are nested and intentionally tracked.
 /.claude/
 /CLAUDE.md
+
+# Sandbox copies of real projects used for manual end-to-end testing —
+# never commit (may contain private project content).
+/example-repo/

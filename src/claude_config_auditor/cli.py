@@ -14,6 +14,7 @@ from claude_config_auditor.checks import budget as budget_check
 from claude_config_auditor.checks import health as health_check
 from claude_config_auditor.checks import skills as skills_check
 from claude_config_auditor.findings import Finding
+from claude_config_auditor.framework_shape import detect as detect_shape
 from claude_config_auditor.render_html import render_html
 from claude_config_auditor.report import render_json, render_terminal
 from claude_config_auditor.scanner import scan
@@ -114,11 +115,19 @@ def main(argv: list[str] | None = None) -> int:
 
     budget = budget_check.compute(scan_result, estimator)
     tokens_by_path = budget.tokens_by_path
+    eager_by_path = budget.eager_tokens_by_path
+    shape = detect_shape(target, scan_result)
 
     findings: list[Finding] = []
-    findings.extend(agents_check.audit(scan_result.agents, tokens_by_path).findings)
-    findings.extend(skills_check.audit(scan_result.skills, tokens_by_path).findings)
-    findings.extend(health_check.audit(scan_result, budget, args.budget, tokens_by_path))
+    findings.extend(
+        agents_check.audit(scan_result.agents, tokens_by_path, eager_by_path).findings
+    )
+    findings.extend(
+        skills_check.audit(scan_result.skills, tokens_by_path, eager_by_path).findings
+    )
+    findings.extend(
+        health_check.audit(scan_result, budget, args.budget, tokens_by_path, shape)
+    )
 
     if args.html:
         html_path = Path(args.html).resolve()

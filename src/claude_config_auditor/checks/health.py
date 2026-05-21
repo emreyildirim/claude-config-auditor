@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from claude_config_auditor.checks.budget import BudgetReport
 from claude_config_auditor.findings import Finding
+from claude_config_auditor.framework_shape import FrameworkShape
 from claude_config_auditor.scanner import Scan
 
 
@@ -28,8 +29,11 @@ def audit(
     budget: BudgetReport,
     claude_md_budget: int,
     tokens_by_path: dict[str, int],
+    shape: FrameworkShape | None = None,
 ) -> list[Finding]:
     findings: list[Finding] = []
+    if shape is None:
+        shape = FrameworkShape()
 
     # CLAUDE.md per-file budget.
     for rec in scan.claude_md_files:
@@ -91,11 +95,46 @@ def audit(
             )
         )
     if (len(scan.agents) + len(scan.skills)) >= AGENT_OR_SKILL_FLOOR and not scan.has_claude_md:
+        # The fact is unchanged — no CLAUDE.md is present — and we still
+        # emit it, because even a project that runs a third-party framework
+        # may benefit from a thin project-specific CLAUDE.md alongside it.
+        # When a known framework shape is detected, we enrich the hint so
+        # the user has the framework convention in front of them and can
+        # decide for themselves whether to act.
+        if shape.intentional_no_claude_md and shape.name:
+            hint = (
+                f"This looks like a {shape.name}-style install where no "
+                "project CLAUDE.md is by design. You can ignore this if "
+                "the framework's defaults match your project, or add a "
+                "thin CLAUDE.md for project-specific rules — both are "
+                "valid."
+            )
+        else:
+            hint = (
+                "A short CLAUDE.md at the project root gives Claude the "
+                "context it needs to apply your rules consistently across "
+                "agents and skills."
+            )
         findings.append(
             Finding(
                 severity="info",
                 code="HLT005",
-                message="agents/skills present but no CLAUDE.md — consider adding project-level guidance",
+                message="agents/skills present but no CLAUDE.md",
+                hint=hint,
+            )
+        )
+
+    # Positive context: when we recognise the shape, surface it so the
+    # rest of the report is easier to read. Not a problem, not a
+    # suggestion — just orientation.
+    if shape.name:
+        markers = "; ".join(shape.markers) if shape.markers else "shape match"
+        findings.append(
+            Finding(
+                severity="info",
+                code="HLT007",
+                message=f"detected {shape.name}-style install at this target",
+                hint=f"Evidence: {markers}.",
             )
         )
 

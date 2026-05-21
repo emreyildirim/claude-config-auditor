@@ -38,6 +38,7 @@ class Scan:
     agents: list[FileRecord] = field(default_factory=list)
     skills: list[FileRecord] = field(default_factory=list)
     rules: list[FileRecord] = field(default_factory=list)
+    commands: list[FileRecord] = field(default_factory=list)
     has_claude_dir: bool = False
     has_claude_md: bool = False
 
@@ -50,6 +51,11 @@ class Scan:
         the model can decide when to invoke them. Both contribute to the
         session-start token cost. The brief defines this as the headline
         metric. See section 5.1.
+
+        Slash commands under .claude/commands/ are not in this list: they
+        are loaded only when the user types the command, so they have no
+        eager footprint. They are still tracked under `Scan.commands` so
+        the report can surface them.
         """
         return [*self.claude_md_files, *self.agents, *self.skills, *self.rules]
 
@@ -133,6 +139,19 @@ def scan(root: Path) -> Scan:
             rec = _read_file(f, root)
             if rec is not None:
                 result.rules.append(rec)
+
+    # Slash commands. Each .md is a single command. Commands have YAML
+    # frontmatter (description, allowed-tools, etc.) but are loaded only
+    # when the user types `/<name>` — they do not eager-load. We still
+    # track them so the report can show their count and total weight.
+    commands_dir = claude_dir / "commands"
+    if commands_dir.is_dir():
+        for f in sorted(commands_dir.rglob("*.md")):
+            rec = _read_file(f, root)
+            if rec is None:
+                continue
+            _parse_frontmatter_into(rec)
+            result.commands.append(rec)
 
     return result
 

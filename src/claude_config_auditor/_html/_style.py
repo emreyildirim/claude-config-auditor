@@ -40,6 +40,8 @@ _CSS = r"""
   --cat-skill-bg: rgba(46, 75, 134, 0.12);
   --cat-rule: #6a2e54;
   --cat-rule-bg: rgba(106, 46, 84, 0.12);
+  --cat-command: #5a3a82;
+  --cat-command-bg: rgba(90, 58, 130, 0.12);
 
   --sans: "SF Pro Text", -apple-system, BlinkMacSystemFont, system-ui,
           "Segoe UI", "Helvetica Neue", sans-serif;
@@ -86,6 +88,8 @@ _CSS = r"""
     --cat-skill-bg: rgba(127, 169, 232, 0.15);
     --cat-rule: #d68caf;
     --cat-rule-bg: rgba(214, 140, 175, 0.15);
+    --cat-command: #b89cdd;
+    --cat-command-bg: rgba(184, 156, 221, 0.15);
 
     color-scheme: dark;
   }
@@ -124,6 +128,8 @@ _CSS = r"""
   --cat-skill-bg: rgba(127, 169, 232, 0.15);
   --cat-rule: #d68caf;
   --cat-rule-bg: rgba(214, 140, 175, 0.15);
+  --cat-command: #b89cdd;
+  --cat-command-bg: rgba(184, 156, 221, 0.15);
 
   color-scheme: dark;
 }
@@ -424,6 +430,7 @@ body {
 .util-seg--agent { fill: var(--cat-agent); }
 .util-seg--skill { fill: var(--cat-skill); }
 .util-seg--rule { fill: var(--cat-rule); }
+.util-seg--command { fill: var(--cat-command); }
 .util-seg--over { fill: var(--critical); }
 
 .util-legend {
@@ -452,6 +459,7 @@ body {
 .leg-swatch--agent { background: var(--cat-agent); }
 .leg-swatch--skill { background: var(--cat-skill); }
 .leg-swatch--rule { background: var(--cat-rule); }
+.leg-swatch--command { background: var(--cat-command); }
 .leg-name {
   font-family: var(--mono);
   font-size: 12px;
@@ -554,6 +562,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
 .row-bar--agent { background: var(--cat-agent); }
 .row-bar--skill { background: var(--cat-skill); }
 .row-bar--rule { background: var(--cat-rule); }
+.row-bar--command { background: var(--cat-command); }
 
 .cat-tag {
   display: inline-block;
@@ -570,6 +579,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
 .cat-tag--agent { color: var(--cat-agent); background: var(--cat-agent-bg); border-color: transparent; }
 .cat-tag--skill { color: var(--cat-skill); background: var(--cat-skill-bg); border-color: transparent; }
 .cat-tag--rule { color: var(--cat-rule); background: var(--cat-rule-bg); border-color: transparent; }
+.cat-tag--command { color: var(--cat-command); background: var(--cat-command-bg); border-color: transparent; }
 
 /* ============ Findings ============ */
 .f-group { padding: 14px 20px 18px; border-bottom: 1px solid var(--border); }

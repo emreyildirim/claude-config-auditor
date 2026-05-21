@@ -21,7 +21,12 @@ from claude_config_auditor.scanner import FileRecord
 DESCRIPTION_MIN_CHARS = 30
 DESCRIPTION_SHORT_CHARS = 60        # below this -> warning, "Claude may not trigger"
 DESCRIPTION_LONG_CHARS = 600        # above this -> warning, "wasting tokens on a description"
-AGENT_TOKEN_BLOAT = 2_000           # above this for a single agent -> info
+# AGT007 flags eager footprint, not total file size. An agent's body
+# is on-demand (runs in its own sub-session), so a 6 000-token body is
+# fine. The cost paid on every session is the YAML frontmatter — name,
+# description, allowed-tools. A frontmatter above ~250 tokens usually
+# means usage docs leaked into the description; that's a real bug.
+AGENT_EAGER_BLOAT_TOKENS = 250
 OVERLAP_JACCARD_THRESHOLD = 0.55    # word-overlap; deliberately not semantic
 _STOPWORDS = {
     "the", "a", "an", "and", "or", "but", "of", "to", "in", "for", "on",
@@ -36,13 +41,21 @@ class AgentReport:
     findings: list[Finding]
 
 
-def audit(agents: list[FileRecord], tokens_by_path: dict[str, int]) -> AgentReport:
+def audit(
+    agents: list[FileRecord],
+    tokens_by_path: dict[str, int],
+    eager_tokens_by_path: dict[str, int] | None = None,
+) -> AgentReport:
     """Lint agent definitions.
 
-    `tokens_by_path` maps `FileRecord.relpath` to the pre-computed token cost
-    of the file (built once by the caller from BudgetReport). The check
-    reuses it rather than invoking the tokenizer again.
+    `tokens_by_path` maps `FileRecord.relpath` to total token cost
+    (eager + lazy). `eager_tokens_by_path` is the per-file frontmatter
+    cost — the slice loaded into the session at startup. AGT007 reads
+    this map; if not provided, AGT007 is skipped (defensive: keeps the
+    function callable from older code paths until they are updated).
     """
+    if eager_tokens_by_path is None:
+        eager_tokens_by_path = {}
     findings: list[Finding] = []
 
     # Per-agent checks.
@@ -114,15 +127,24 @@ def audit(agents: list[FileRecord], tokens_by_path: dict[str, int]) -> AgentRepo
                     )
                 )
 
-        token_cost = tokens_by_path.get(rec.relpath, 0)
-        if token_cost > AGENT_TOKEN_BLOAT:
+        eager_cost = eager_tokens_by_path.get(rec.relpath, 0)
+        if eager_cost > AGENT_EAGER_BLOAT_TOKENS:
             findings.append(
                 Finding(
                     severity="info",
                     code="AGT007",
-                    message=f"agent file is large (~{token_cost} tokens)",
+                    message=(
+                        f"agent's session-start cost is ~{eager_cost} tokens "
+                        "(YAML frontmatter loaded on every session)"
+                    ),
                     file=rec.relpath,
-                    hint="Large agents inflate every session. Move reference material into a skill or external doc.",
+                    hint=(
+                        "The body of an agent is on-demand (it loads only "
+                        "when this agent runs in its own sub-session). The "
+                        "frontmatter is paid every session. If reference "
+                        "material has leaked into the `description`, move "
+                        "it into the body."
+                    ),
                 )
             )
 

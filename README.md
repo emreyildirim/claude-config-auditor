@@ -18,11 +18,12 @@ The ecosystem has a lot of "session handoff" and "state management" tools. It do
 
 ## What it does (Phase 1)
 
-- Counts tokens for `CLAUDE.md`, every agent, every skill, every rule.
-- Splits the cost into **always-loaded** (full CLAUDE.md + full rules + agent/skill *frontmatter*) and **on-demand** (agent/skill *bodies*, loaded when the agent runs or the skill is invoked). The always-loaded number is what actually competes for context-window space at session start.
+- Counts tokens for `CLAUDE.md`, every agent, every skill, every rule, and every slash command.
+- Splits the cost into **always-loaded** (full CLAUDE.md + full rules + agent/skill *frontmatter*) and **on-demand** (agent/skill *bodies* + slash commands, loaded when the agent runs, the skill is invoked, or the user types `/<command>`). The always-loaded number is what actually competes for context-window space at session start.
 - Reports both numbers and the always-loaded share of a typical 200k window.
-- Lints agent and skill frontmatter (missing fields, descriptions that are too short or too long, malformed YAML).
+- Lints agent and skill frontmatter (missing fields, descriptions that are too short or too long, malformed YAML). Per-file *eager footprint* checks (AGT007 / SKL005) flag the kind of bloat that costs you on every session, not just files that happen to be large.
 - Detects overlapping agent `description` fields by simple word-overlap.
+- Recognises common third-party framework installs (BMAD, claude-flow, agent-pack / skill-pack / command-pack shapes) and adds that context to relevant findings so a missing CLAUDE.md is read as "intentional, ignore if it suits you" rather than scolding.
 - Outputs a human-readable terminal report, JSON (`--json`), or a self-contained HTML report with charts (`--html`).
 - **Never modifies any files.** Phase 1 is strictly read-only.
 
@@ -112,10 +113,13 @@ By category  (eager / on-demand / total)
   claude.md    1 file(s)   ~80 / — / ~80
   agent        2 file(s)   ~117 / ~108 / ~225
   skill        1 file(s)   ~59 / ~46 / ~105
+  command      2 file(s)   ~0 / ~140 / ~140
 
 Findings  0 error  0 warning  0 info
   No issues found.
 ```
+
+Slash commands appear with `~0` eager weight because Claude Code does not pull `.claude/commands/*.md` into context until the user types `/<command>`.
 
 ## Working with the JSON output
 
