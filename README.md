@@ -16,7 +16,12 @@ The ecosystem has a lot of "session handoff" and "state management" tools. It do
 - "Are two of my agents describing the same job?" (Claude routes by description; near-duplicates cause silent misrouting.)
 - "Is my SKILL.md description too vague for Claude to ever invoke it?"
 
-## What it does (Phase 1)
+## What it does
+
+Two modes — `audit` is the default and is read-only; `fix` is opt-in
+and prompts before every change.
+
+**`audit` (default, read-only)**
 
 - Counts tokens for `CLAUDE.md`, every agent, every skill, every rule, and every slash command.
 - Splits the cost into **always-loaded** (full CLAUDE.md + full rules + agent/skill *frontmatter*) and **on-demand** (agent/skill *bodies* + slash commands, loaded when the agent runs, the skill is invoked, or the user types `/<command>`). The always-loaded number is what actually competes for context-window space at session start.
@@ -25,7 +30,14 @@ The ecosystem has a lot of "session handoff" and "state management" tools. It do
 - Detects overlapping agent `description` fields by simple word-overlap.
 - Recognises common third-party framework installs (BMAD, claude-flow, agent-pack / skill-pack / command-pack shapes) and adds that context to relevant findings so a missing CLAUDE.md is read as "intentional, ignore if it suits you" rather than scolding.
 - Outputs a human-readable terminal report, JSON (`--json`), or a self-contained HTML report with charts (`--html`).
-- **Never modifies any files.** Phase 1 is strictly read-only.
+- **Never modifies any files.** Verified by an automated mtime/size snapshot test.
+
+**`fix` (opt-in, prompts before every change)**
+
+- Walks fixable findings one by one: rationale → unified diff → +/- summary → explicit y/n/a/q prompt.
+- Two proposers shipped today: agent-description fixes for `AGT003`–`AGT008` (annotates frontmatter with `# TODO` YAML comments — Claude ignores them so behaviour is unchanged the moment the fix applies), and CLAUDE.md archive (moves stale sections into a sibling `CLAUDE.archive.md` using conservative veto heuristics).
+- Every accepted change is backed up with SHA-256 manifests; `claude-audit revert` restores any session and refuses to overwrite hand-edited files unless `--force` is passed.
+- `--dry-run` previews without writing; `--apply-all` batches approval (still prints every diff) for non-interactive use.
 
 ## What it does *not* do
 
