@@ -1,0 +1,7 @@
+# The HTML reports under case-studies/ and examples/ are produced by
+# claude-audit itself, not authored by hand. Mark them as generated so
+# GitHub Linguist excludes them from the repo's language stats (the
+# repo is ~90% Python by intent) and collapses them by default in
+# pull-request diffs.
+case-studies/*.html linguist-generated=true
+examples/*.html linguist-generated=true
