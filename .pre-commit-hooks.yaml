@@ -1,0 +1,7 @@
+- id: claude-audit
+  name: claude-audit
+  description: Audit .claude/ and CLAUDE.md (token budget + agent/skill quality)
+  entry: claude-audit
+  language: python
+  pass_filenames: false
+  files: '(^\.claude/|^CLAUDE\.md$)'

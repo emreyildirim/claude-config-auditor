@@ -6,6 +6,28 @@ adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added — pre-commit hook integration
+
+`.pre-commit-hooks.yaml` now ships with the repo, so projects can wire
+the auditor into the [pre-commit](https://pre-commit.com/) framework
+with a single block in their `.pre-commit-config.yaml`. The hook runs
+only when files under `.claude/` or `CLAUDE.md` change and uses the
+existing `--fail-on` flag (`error` / `warning` / `never`) to decide
+whether a commit is rejected. CI exit codes were already in place —
+this entry just exposes them as a Git hook so blocking findings stop
+shipping into `main` by accident.
+
+### Changed — README spells out the two fix-mode philosophies
+
+The "What `fix` can currently propose" section now explicitly names
+the design split: `agent_description` *annotates* (the TODO marker is
+a grep-friendly hint; the description text is left untouched on
+purpose) while `claude_md_archive` *edits* (a section is physically
+moved). External review feedback read the TODO comments as a half
+measure; the addition clarifies that refusing to invent description
+wording is a deliberate contract, with LLM-assisted rewriting reserved
+for a possible Phase 3.
+
 ### Added — `case-studies/`: real audits against six popular frameworks
 
 Six self-contained HTML reports under `case-studies/` produced by

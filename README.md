@@ -84,6 +84,29 @@ pytest                      # run the test suite
 claude-audit --help         # verify it works
 ```
 
+### Use as a pre-commit hook
+
+The repo ships a [`.pre-commit-hooks.yaml`](.pre-commit-hooks.yaml) so
+the auditor can be wired into the
+[pre-commit](https://pre-commit.com/) framework directly. Add to your
+project's `.pre-commit-config.yaml`:
+
+```yaml
+repos:
+  - repo: https://github.com/emreyildirim/claude-config-auditor
+    rev: main   # pin to a tag or SHA in real usage
+    hooks:
+      - id: claude-audit
+        args: [--fail-on, error]
+```
+
+Then `pre-commit install` registers the hook. It runs only when files
+under `.claude/` or `CLAUDE.md` change, exits non-zero on blocking
+findings (so the commit is rejected), and stays silent otherwise. The
+`--fail-on` flag controls how strict the gate is: `error` (default
+recommendation) blocks only on real problems; `warning` is stricter;
+`never` makes the hook informational.
+
 ## Use
 
 The tool has three subcommands. The first two — `audit` (default) and
@@ -155,6 +178,15 @@ What `fix` can currently propose:
   Conventions, …) and sections with operational language ("always",
   "must", "before using", …) are never archived. Each moved section
   leaves a pointer in the source so the outline survives.
+
+The two proposers ship intentionally different philosophies.
+`agent_description` **annotates** — the TODO marker is a grep-friendly
+hint, the description text itself is left untouched on purpose, because
+the auditor will not invent wording on a developer's behalf.
+`claude_md_archive` **edits** — a section is physically moved into a
+sibling file because the operation is mechanical and reversible. A
+future Phase 3 may add LLM-assisted description rewriting on top of
+the existing annotation; for now, the split is the contract.
 
 Example dry-run output is at
 [`examples/sample-fix-output.md`](examples/sample-fix-output.md).
