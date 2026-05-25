@@ -45,6 +45,7 @@ def audit(
     agents: list[FileRecord],
     tokens_by_path: dict[str, int],
     eager_tokens_by_path: dict[str, int] | None = None,
+    semantic: bool = False,
 ) -> AgentReport:
     """Lint agent definitions.
 
@@ -53,6 +54,10 @@ def audit(
     cost — the slice loaded into the session at startup. AGT007 reads
     this map; if not provided, AGT007 is skipped (defensive: keeps the
     function callable from older code paths until they are updated).
+
+    `semantic=True` enables the opt-in Phase 3 semantic re-evaluation
+    of AGT008 candidate pairs. Requires the `[semantic]` extras
+    package; raises RuntimeError if not installed.
     """
     if eager_tokens_by_path is None:
         eager_tokens_by_path = {}
@@ -160,6 +165,15 @@ def audit(
         if len(words) >= 4:  # too short to compare meaningfully
             sigs.append((rec, desc, words))
 
+    # Embedding matrix when --semantic was passed (one batch call,
+    # rows aligned with `sigs`). Each row is reused for every pair
+    # that touches that agent.
+    embeddings = None
+    if semantic and sigs:
+        from claude_config_auditor import semantic as _semantic_mod
+
+        embeddings = _semantic_mod.encode_descriptions([s[1] for s in sigs])
+
     # Jaccard is a symmetric measure (J(A,B) == J(B,A)) so the overlap
     # itself applies to *both* agents in a colliding pair. We emit a
     # finding against each side so neither file appears clean when the
@@ -171,21 +185,45 @@ def audit(
             j_score = _jaccard(words_a, words_b)
             if j_score < OVERLAP_JACCARD_THRESHOLD:
                 continue
-            hint = (
-                "Word-overlap heuristic (not semantic) — the signal is "
-                "coarse and may include false positives where descriptions "
-                "share boilerplate. If this is a real conflict, make each "
-                "description's trigger condition disjoint. Accurate "
-                "semantic detection is planned as opt-in (Phase 3, "
-                "`pip install claude-config-auditor[semantic]`)."
-            )
+
+            if embeddings is not None:
+                from claude_config_auditor import semantic as _semantic_mod
+                cos = _semantic_mod.cosine(embeddings[i], embeddings[j])
+                if cos < _semantic_mod.SEMANTIC_COSINE_THRESHOLD:
+                    # Semantic disagrees with the Jaccard hit — drop it.
+                    continue
+                severity = "warning"
+                hint = (
+                    "Semantic match (cosine "
+                    f"{cos:.2f} ≥ {_semantic_mod.SEMANTIC_COSINE_THRESHOLD}) "
+                    "between two agent descriptions. The two agents are "
+                    "competing for the same routing slot. Tighten each "
+                    "description's trigger condition so they cover "
+                    "disjoint scenarios."
+                )
+                message_suffix = (
+                    f"(word-overlap {j_score:.0%}, semantic cos {cos:.2f})"
+                )
+            else:
+                severity = "info"
+                hint = (
+                    "Word-overlap heuristic (not semantic) — the signal "
+                    "is coarse and may include false positives where "
+                    "descriptions share boilerplate. If this is a real "
+                    "conflict, make each description's trigger condition "
+                    "disjoint. Accurate semantic detection is opt-in "
+                    "(`pip install claude-config-auditor[semantic]` then "
+                    "`claude-audit --semantic`)."
+                )
+                message_suffix = f"(word-overlap {j_score:.0%})"
+
             findings.append(
                 Finding(
-                    severity="info",
+                    severity=severity,
                     code="AGT008",
                     message=(
                         f"description overlaps with `{rec_b.relpath}` "
-                        f"(word-overlap {j_score:.0%})"
+                        f"{message_suffix}"
                     ),
                     file=rec_a.relpath,
                     hint=hint,
@@ -193,11 +231,11 @@ def audit(
             )
             findings.append(
                 Finding(
-                    severity="info",
+                    severity=severity,
                     code="AGT008",
                     message=(
                         f"description overlaps with `{rec_a.relpath}` "
-                        f"(word-overlap {j_score:.0%})"
+                        f"{message_suffix}"
                     ),
                     file=rec_b.relpath,
                     hint=hint,

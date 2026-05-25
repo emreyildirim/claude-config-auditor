@@ -204,6 +204,12 @@ ANTHROPIC_API_KEY=sk-ant-... claude-audit --accurate
 
 # Pin the model used for count_tokens (default: claude-sonnet-4-5).
 claude-audit --accurate --accurate-model claude-haiku-4-5
+
+# Re-evaluate the AGT008 word-overlap candidates with semantic
+# embeddings. Requires the [semantic] extras package and downloads
+# an ~80MB MiniLM model the first time it runs.
+pip install 'claude-config-auditor[semantic]'
+claude-audit --semantic
 ```
 
 `audit` never modifies any file. The default behaviour stays this way
@@ -503,20 +509,15 @@ suitable for offline use, we'll wire it in and the numbers will sharpen.
   `~/.cache/claude-config-auditor/` so repeat audits don't re-hit the
   API. Default tokenizer remains `tiktoken` `cl100k_base`; nothing
   about the offline contract changes unless the flag is passed.
-- **Phase 3 — planned: opt-in semantic agent overlap (AGT008-S).** The
-  current word-overlap signal is honest-but-coarse: it ships at
-  `info` severity because it misses real overlaps phrased in
-  different vocabulary and flags pairs that only share boilerplate.
-  Phase 3 adds an opt-in extras package
-  (`pip install claude-config-auditor[semantic]`) that pulls in
-  `sentence-transformers` (~80MB local model, no network calls at
-  audit time after the one-off download). When the extras package is
-  present and `--semantic` is passed, AGT008 switches to cosine
-  similarity over description embeddings: false positives where
-  descriptions only share boilerplate are dropped, and real overlaps
-  whose wording differs are caught. Pairs the embedding model
-  confirms become `warning`; ones it disagrees with disappear from
-  the report. Default install behaviour is unchanged.
+- **Phase 3 — shipped:** opt-in semantic agent overlap (AGT008-S).
+  Default AGT008 stays at `info` (word-overlap heuristic). Installing
+  the extras package and passing `--semantic` re-evaluates every
+  Jaccard candidate pair against cosine similarity over MiniLM
+  sentence embeddings (`sentence-transformers/all-MiniLM-L6-v2`,
+  ~80MB local model, no network call at audit time after the one-off
+  download). Pairs whose cosine ≥ 0.82 are upgraded to `warning` and
+  carry both scores in the message; pairs below the threshold are
+  dropped from the report. Default install behaviour is unchanged.
 
 ## License
 

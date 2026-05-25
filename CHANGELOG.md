@@ -6,6 +6,56 @@ adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added — opt-in `--semantic` flag (Phase 3 shipped)
+
+The `[semantic]` extras package (`pip install 'claude-config-auditor[semantic]'`)
+pulls `sentence-transformers` for local embeddings; with the extras
+installed, `claude-audit --semantic` re-evaluates every Jaccard
+candidate pair against cosine similarity over MiniLM sentence
+embeddings (`all-MiniLM-L6-v2`, ~80MB local model, no network at
+audit time after the one-off download).
+
+- Pairs whose cosine ≥ 0.82 are upgraded from the default `info`
+  severity to `warning`; the message now carries both signals
+  (`(word-overlap 67%, semantic cos 0.91)`) so the reader can see
+  what was measured.
+- Pairs whose cosine falls below 0.82 are dropped from the report
+  entirely. This is the false-positive eliminator the word-overlap
+  heuristic was missing — `unity-specialist.md` vs.
+  `unreal-specialist.md` (high word-overlap, different game engines)
+  no longer appears as a finding when `--semantic` is on.
+- Smoke-tested against the live `you-are-president` project:
+  default mode emitted 2 AGT008 info findings (Unity vs. Unreal
+  specialist boilerplate); `--semantic` correctly dropped both.
+
+Without the extras package, `--semantic` exits with code 2 and a
+single-line stderr pointing at the install command. Default install
+behaviour and the offline contract are unchanged.
+
+### Changed — AGT008 severity dropped from `warning` to `info`
+
+The word-overlap detection has known false positives (descriptions
+sharing boilerplate but covering different scopes) and false
+negatives (same-meaning descriptions phrased with different
+vocabulary). Treating it as a warning overstated the confidence.
+Severity is now `info`; the proper semantic detection ships behind
+the `--semantic` opt-in described above.
+
+### Changed — AGT008 hint names the heuristic and points at the opt-in
+
+Previous wording read like a final verdict. New wording is honest
+about the technique ("word-overlap heuristic, not semantic"),
+acknowledges false positives, and points at the install path for
+the semantic detection.
+
+### Added — README cost snapshot moved above the fold
+
+The six-framework headline table now sits right after "Why this
+exists" instead of near the bottom. Readers opening the page see
+real Always-loaded / Window / Files / Findings numbers in the first
+screenful, which reinforces the cost-auditor positioning before the
+feature list.
+
 ### Added — opt-in `--accurate` flag (Phase 2.5 shipped)
 
 New `--accurate` flag on both `audit` and `fix` subcommands routes

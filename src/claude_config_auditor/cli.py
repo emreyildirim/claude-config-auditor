@@ -223,6 +223,17 @@ def _add_audit_args(parser: argparse.ArgumentParser) -> None:
             "claude-sonnet-4-5). Only meaningful with --accurate."
         ),
     )
+    parser.add_argument(
+        "--semantic", action="store_true",
+        help=(
+            "Opt-in semantic overlap detection for AGT008. Re-evaluates "
+            "every Jaccard candidate pair against cosine similarity over "
+            "MiniLM sentence embeddings; pairs the embedding model "
+            "confirms become warning, pairs it disagrees with are "
+            "dropped. Requires the [semantic] extras package: "
+            "`pip install claude-config-auditor[semantic]`."
+        ),
+    )
 
 
 def _estimator_from_args(args: argparse.Namespace):
@@ -312,8 +323,23 @@ def _run_audit(args: argparse.Namespace) -> int:
     shape = detect_shape(target, scan_result)
 
     findings: list[Finding] = []
+    if getattr(args, "semantic", False):
+        from claude_config_auditor import semantic as _semantic_mod
+        if not _semantic_mod.available():
+            print(
+                "error: --semantic requires the [semantic] extras package. "
+                "Install with: pip install 'claude-config-auditor[semantic]'",
+                file=sys.stderr,
+            )
+            return 2
+
     findings.extend(
-        agents_check.audit(scan_result.agents, tokens_by_path, eager_by_path).findings
+        agents_check.audit(
+            scan_result.agents,
+            tokens_by_path,
+            eager_by_path,
+            semantic=getattr(args, "semantic", False),
+        ).findings
     )
     findings.extend(
         skills_check.audit(scan_result.skills, tokens_by_path, eager_by_path).findings

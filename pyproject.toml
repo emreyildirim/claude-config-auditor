@@ -40,6 +40,10 @@ dependencies = [
 tokenizer = ["tiktoken>=0.5.0"]
 # Color output. Without this, the tool prints plain text.
 color = ["colorama>=0.4.6"]
+# Opt-in semantic overlap detection (AGT008). Pulls sentence-transformers
+# for local sentence-embeddings (no network at audit time after the one-off
+# model download). Activated with the `--semantic` flag on `audit`.
+semantic = ["sentence-transformers>=2.7"]
 dev = ["pytest>=7", "colorama>=0.4.6"]
 
 [project.scripts]
