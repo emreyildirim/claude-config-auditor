@@ -281,12 +281,27 @@ def _anthropic_count_uncached(text: str, model: str) -> int:
             "content-type": "application/json",
         },
     )
+    # 4xx errors are deterministic (auth, validation, bad model) — never
+    # retry them, just surface the underlying message from the API.
+    # 5xx and pure network errors (URLError without an http code) are
+    # retried once before failing.
     last_err: Exception | None = None
     for attempt in (1, 2):
         try:
             with urllib.request.urlopen(req, timeout=30) as resp:
                 body = json.loads(resp.read())
                 return int(body["input_tokens"])
+        except urllib.error.HTTPError as e:
+            message = _extract_anthropic_error(e)
+            if 400 <= e.code < 500:
+                raise RuntimeError(
+                    f"--accurate: count_tokens returned HTTP {e.code} — {message}"
+                ) from None
+            last_err = RuntimeError(
+                f"--accurate: count_tokens HTTP {e.code} — {message}"
+            )
+            if attempt == 1:
+                continue
         except (urllib.error.URLError, json.JSONDecodeError, KeyError, ValueError) as e:
             last_err = e
             if attempt == 1:
@@ -294,3 +309,26 @@ def _anthropic_count_uncached(text: str, model: str) -> int:
     raise RuntimeError(
         f"--accurate: count_tokens request failed after retry: {last_err}"
     )
+
+
+def _extract_anthropic_error(err: urllib.error.HTTPError) -> str:
+    """Best-effort: pull a human message out of Anthropic's JSON error body.
+
+    Response shape on errors is documented as:
+        {"type": "error", "error": {"type": "...", "message": "..."}}
+    Falls back to the raw reason if anything is missing or non-JSON."""
+    try:
+        body = err.read()
+        if body:
+            data = json.loads(body)
+            err_obj = data.get("error") if isinstance(data, dict) else None
+            if isinstance(err_obj, dict):
+                msg = err_obj.get("message")
+                typ = err_obj.get("type")
+                if msg and typ:
+                    return f"{typ}: {msg}"
+                if msg:
+                    return str(msg)
+    except (OSError, json.JSONDecodeError, ValueError):
+        pass
+    return err.reason or "no body"

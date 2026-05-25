@@ -161,3 +161,70 @@ def test_default_path_still_returns_tiktoken_or_heuristic(monkeypatch):
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     est = tokens.get_estimator()
     assert est.method in {"tiktoken-cl100k_base", "char-heuristic"}
+
+
+def _http_error(code: int, body: bytes):
+    return urllib_error.HTTPError(
+        url=tokens._ANTHROPIC_COUNT_TOKENS_URL,
+        code=code,
+        msg=f"HTTP {code}",
+        hdrs=None,
+        fp=BytesIO(body),
+    )
+
+
+def test_http_401_does_not_retry_and_surfaces_anthropic_message(monkeypatch):
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-bad")
+    est = tokens.get_estimator(accurate=True)
+    body = json.dumps(
+        {"type": "error", "error": {"type": "authentication_error", "message": "invalid x-api-key"}}
+    ).encode("utf-8")
+    with patch.object(
+        tokens.urllib.request,
+        "urlopen",
+        side_effect=_http_error(401, body),
+    ) as m:
+        with pytest.raises(RuntimeError, match="authentication_error.*invalid x-api-key"):
+            est.count("hello")
+    # Single attempt — no retry on 4xx.
+    assert m.call_count == 1
+
+
+def test_http_400_invalid_model_does_not_retry(monkeypatch):
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-test")
+    est = tokens.get_estimator(accurate=True, accurate_model="not-a-real-model")
+    body = json.dumps(
+        {"type": "error", "error": {"type": "invalid_request_error", "message": "model: not-a-real-model"}}
+    ).encode("utf-8")
+    with patch.object(
+        tokens.urllib.request,
+        "urlopen",
+        side_effect=_http_error(400, body),
+    ) as m:
+        with pytest.raises(RuntimeError, match="invalid_request_error.*not-a-real-model"):
+            est.count("hello")
+    assert m.call_count == 1
+
+
+def test_http_503_retries_once(monkeypatch):
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-test")
+    est = tokens.get_estimator(accurate=True)
+    with patch.object(
+        tokens.urllib.request,
+        "urlopen",
+        side_effect=[_http_error(503, b""), _fake_response(21)],
+    ) as m:
+        assert est.count("flaky") == 21
+    assert m.call_count == 2
+
+
+def test_http_error_with_non_json_body_falls_back_to_reason(monkeypatch):
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-test")
+    est = tokens.get_estimator(accurate=True)
+    with patch.object(
+        tokens.urllib.request,
+        "urlopen",
+        side_effect=_http_error(403, b"<html>nginx 403</html>"),
+    ):
+        with pytest.raises(RuntimeError, match="HTTP 403"):
+            est.count("hello")
