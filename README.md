@@ -16,6 +16,32 @@ The ecosystem has a lot of "session handoff" and "state management" tools. It do
 - "Are two of my agents describing the same job?" (Anthropic's docs say agents are selected based on their description; the exact ranking algorithm isn't published, but overlapping descriptions create routing ambiguity in practice.)
 - "Is my SKILL.md description too vague for Claude to ever invoke it?"
 
+## Cost snapshot — six popular frameworks
+
+The headline `claude-audit --html` numbers from a clean May 2026
+install of six popular Claude Code frameworks:
+
+| Framework                  | Always loaded | Window  | Files | Findings |
+|----------------------------|--------------:|--------:|------:|---------:|
+| SuperClaude                |   591 tok     | 0.3%    |  51   | 3        |
+| wshobson                   | 1,275 tok     | 0.6%    |  29   | 1        |
+| BMAD                       | 3,066 tok     | 1.5%    |  70   | 2        |
+| claude-flow                | 7,474 tok     | 3.7%    | 217   | 33       |
+| VoltAgent                  | 10,010 tok    | 5.0%    | 145   | 1        |
+| Claude-Code-Game-Studios   | 17,858 tok    | 8.9%    | 138   | 3        |
+
+**"Always loaded"** is what Claude actually pulls into the main
+session at startup — full `CLAUDE.md` + full `rules/` + only the YAML
+frontmatter of every agent and skill. **"Window"** is that figure
+expressed as a percentage of a 200k reference context window.
+**"Findings"** is the count of agent / skill / health issues the
+auditor flagged.
+
+The 0.3% → 8.9% spread is informative on its own. A lean framework
+audits quietly; a heavy one flags exactly where to thin down. Full
+HTML reports — open in any browser, no network — live under
+[`case-studies/`](case-studies/).
+
 ## What it does
 
 Two modes — `audit` is the default and is read-only; `fix` is opt-in
