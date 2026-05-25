@@ -6,6 +6,14 @@ adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed — README cost-snapshot now ends with a one-command CTA
+
+Readers reached the "six frameworks" table and then had to scroll
+~100 lines to find install instructions. A two-line "Produce your
+own row in this table" block now sits directly under the table
+with `pipx install …` and `claude-audit … --html report.html`,
+closing the loop while reader intent is highest.
+
 ### Added — opt-in `--semantic` flag (Phase 3 shipped)
 
 The `[semantic]` extras package (`pip install 'claude-config-auditor[semantic]'`)

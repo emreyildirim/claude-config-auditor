@@ -42,6 +42,16 @@ audits quietly; a heavy one flags exactly where to thin down. Full
 HTML reports — open in any browser, no network — live under
 [`case-studies/`](case-studies/).
 
+**Produce your own row in this table:**
+
+```bash
+pipx install git+https://github.com/emreyildirim/claude-config-auditor.git
+claude-audit ~/your-project --html report.html
+```
+
+Open `report.html` in any browser. No network calls, nothing
+modified — just your numbers next to the six above.
+
 ## What it does
 
 Two modes — `audit` is the default and is read-only; `fix` is opt-in
