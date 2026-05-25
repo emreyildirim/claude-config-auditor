@@ -2,7 +2,7 @@
 
 [![tests](https://github.com/emreyildirim/claude-config-auditor/actions/workflows/tests.yml/badge.svg)](https://github.com/emreyildirim/claude-config-auditor/actions/workflows/tests.yml)
 
-A read-only linter for `.claude/` and `CLAUDE.md`. Measures the **token cost** your Claude Code config pays on every session, and audits **agent / skill quality** (missing descriptions, overlapping routes, broken YAML).
+A **non-destructive** linter and cost auditor for `.claude/` and `CLAUDE.md` — *we annotate, we don't rewrite*. Measures the **token cost** your Claude Code config pays on every session, and audits **agent / skill quality** (missing descriptions, overlapping routes, broken YAML).
 
 Think of it as ESLint for your context window.
 
@@ -45,6 +45,42 @@ and prompts before every change.
 - It does not hook into a live session.
 - It does not silently modify your files. `audit` is read-only; `fix`
   is opt-in and prompts before every change.
+
+## Design principles — why we annotate, not rewrite
+
+Unlike LLM-autofix linters in this space, this tool refuses to invent
+agent / skill description text on a developer's behalf. The `fix` mode
+either *annotates* (inserts a discoverable `# TODO` marker above the
+field that needs work) or *moves content mechanically* (relocating a
+stale CLAUDE.md section into a sibling archive). It never produces new
+prose. Five reasons that's the contract:
+
+1. **Predictability.** A given finding produces the same diff every
+   time. The auditor is a function, not a probabilistic generator —
+   `claude-audit fix --dry-run` today and a month later show the same
+   output for the same input.
+2. **Reversibility.** Every applied change is backed up with a
+   SHA-256 manifest, and `revert` refuses to overwrite hand-edits
+   unless `--force` is passed. The smaller and more mechanical the
+   change, the more meaningful "revert" is — a one-line YAML comment
+   reverts cleanly; an LLM rewrite that touched a dozen tokens does
+   not.
+3. **No API key, no network, no per-run cost.** The tool runs
+   offline by default. Nothing about your config is uploaded to a
+   third party. (The optional `--accurate` flag described below is
+   the single, explicit opt-out and it never changes default
+   behaviour.)
+4. **No model-version drift.** Heuristics are pinned and live in this
+   repo. An LLM-based linter's output depends on whichever model
+   version it happens to call — same project, different month,
+   different fix.
+5. **Human-in-the-loop by design.** Writing an agent's `description:`
+   is a product decision (it shapes how Claude routes to it). A linter
+   should surface the problem, not impersonate the developer making
+   that call.
+
+The roadmap sticks to this contract. The default `fix` behaviour does
+not change.
 
 ## Install
 
@@ -430,9 +466,6 @@ suitable for offline use, we'll wire it in and the numbers will sharpen.
   default tokenizer stays `tiktoken` `cl100k_base` — `--accurate` is for
   reviewers who want a ground-truth comparison against Anthropic's own
   counter without changing the headline experience.
-- **Phase 3 — not planned yet:** Anthropic-API-assisted rewriting of
-  descriptions and sections. Privacy and cost trade-offs make this a
-  separate conversation.
 
 ## License
 

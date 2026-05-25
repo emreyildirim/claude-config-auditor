@@ -6,6 +6,33 @@ adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added — README "Design principles" section, five-bullet contract
+
+A new section between *"What it does not do"* and *"Install"* names
+the contract the tool has held since day one: the `fix` mode either
+annotates (via inert `# TODO` YAML markers) or moves content
+mechanically — it never invents description text on the developer's
+behalf. The section lists five reasons (predictability,
+reversibility, no API key / network / per-run cost, no model-version
+drift, human-in-the-loop) and frames them as the durable contract,
+not a temporary state of the codebase.
+
+### Changed — tagline sharpened to "non-destructive, annotate-don't-rewrite"
+
+The header tagline now reads *"A **non-destructive** linter and cost
+auditor for `.claude/` and `CLAUDE.md` — we annotate, we don't
+rewrite."* The previous wording emphasised what the tool measured;
+the new wording leads with what the tool refuses to do. Same product,
+sharper positioning against LLM-autofix linters in the same niche.
+
+### Removed — speculative Phase 3 ("Anthropic-API-assisted rewriting")
+
+The roadmap no longer carries the Phase 3 line that hinted at future
+LLM-assisted description rewriting. That direction would have
+contradicted the "Design principles" contract; rather than leave a
+speculative tension in the docs, the entry is dropped. Phase 2.5
+(`--accurate` flag) is unchanged and stays in development.
+
 ### Added — pre-commit hook integration
 
 `.pre-commit-hooks.yaml` now ships with the repo, so projects can wire
