@@ -228,3 +228,27 @@ def test_http_error_with_non_json_body_falls_back_to_reason(monkeypatch):
     ):
         with pytest.raises(RuntimeError, match="HTTP 403"):
             est.count("hello")
+
+
+def test_cli_surfaces_runtime_error_as_clean_message(monkeypatch, capsys, tmp_path):
+    """When --accurate fails mid-audit (e.g. 401 on the first
+    count_tokens call), the CLI must print a single-line error to
+    stderr — never a traceback — and exit with code 2."""
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-bad")
+    (tmp_path / "CLAUDE.md").write_text("# minimal target\n", encoding="utf-8")
+    body = json.dumps(
+        {"type": "error", "error": {"type": "authentication_error", "message": "invalid x-api-key"}}
+    ).encode("utf-8")
+    with patch.object(
+        tokens.urllib.request,
+        "urlopen",
+        side_effect=_http_error(401, body),
+    ):
+        from claude_config_auditor.cli import main
+        exit_code = main(["audit", "--accurate", str(tmp_path)])
+    captured = capsys.readouterr()
+    assert exit_code == 2
+    assert "authentication_error" in captured.err
+    assert "invalid x-api-key" in captured.err
+    assert "Traceback" not in captured.err
+    assert "Traceback" not in captured.out

@@ -275,12 +275,18 @@ def main(argv: list[str] | None = None) -> int:
         argv = sys.argv[1:]
     args = build_parser().parse_args(_normalise_argv(list(argv)))
 
-    if args.command == "audit":
-        return _run_audit(args)
-    if args.command == "fix":
-        return _run_fix(args)
-    if args.command == "revert":
-        return _run_revert(args)
+    try:
+        if args.command == "audit":
+            return _run_audit(args)
+        if args.command == "fix":
+            return _run_fix(args)
+        if args.command == "revert":
+            return _run_revert(args)
+    except RuntimeError as e:
+        # Operational errors (e.g. --accurate hitting a 401 mid-audit)
+        # surface as a single-line message, never a stack trace.
+        print(f"error: {e}", file=sys.stderr)
+        return 2
     # build_parser sets command to None only when no subparser matched;
     # _normalise_argv prevents that. Treat as a programming error.
     print("error: no command", file=sys.stderr)
