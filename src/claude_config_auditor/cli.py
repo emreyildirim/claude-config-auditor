@@ -119,6 +119,17 @@ def build_parser() -> argparse.ArgumentParser:
             "(default: <target>/.claude-config-auditor/backups/)."
         ),
     )
+    fix_p.add_argument(
+        "--accurate", action="store_true",
+        help=(
+            "Route token counts through Anthropic's count_tokens endpoint "
+            "(uses ANTHROPIC_API_KEY). Opt-in; default tokenizer unchanged."
+        ),
+    )
+    fix_p.add_argument(
+        "--accurate-model", metavar="MODEL", default=None,
+        help="Model name for count_tokens (default: claude-sonnet-4-5).",
+    )
 
     # --- revert ---------------------------------------------------------
     rev_p = sub.add_parser(
@@ -196,6 +207,35 @@ def _add_audit_args(parser: argparse.ArgumentParser) -> None:
             "or worse are present. Useful in CI. Default: never."
         ),
     )
+    parser.add_argument(
+        "--accurate", action="store_true",
+        help=(
+            "Route token counts through Anthropic's count_tokens endpoint "
+            "for ground-truth numbers (uses ANTHROPIC_API_KEY from the "
+            "environment). Default behaviour is unchanged; this is an "
+            "opt-in opt-out from the offline contract."
+        ),
+    )
+    parser.add_argument(
+        "--accurate-model", metavar="MODEL", default=None,
+        help=(
+            "Model name to pass to count_tokens (default: "
+            "claude-sonnet-4-5). Only meaningful with --accurate."
+        ),
+    )
+
+
+def _estimator_from_args(args: argparse.Namespace):
+    """Build the estimator honouring --accurate / --accurate-model, with a
+    clean exit on the explicit-opt-in error (missing ANTHROPIC_API_KEY)."""
+    try:
+        return get_estimator(
+            accurate=getattr(args, "accurate", False),
+            accurate_model=getattr(args, "accurate_model", None),
+        )
+    except RuntimeError as e:
+        print(f"error: {e}", file=sys.stderr)
+        sys.exit(2)
 
 
 def _should_use_color(args: argparse.Namespace, env: Mapping[str, str]) -> bool:
@@ -258,7 +298,7 @@ def _run_audit(args: argparse.Namespace) -> int:
         print(f"error: target is not a directory: {target}", file=sys.stderr)
         return 2
 
-    estimator = get_estimator()
+    estimator = _estimator_from_args(args)
     scan_result = scan(target)
     budget = budget_check.compute(scan_result, estimator)
     tokens_by_path = budget.tokens_by_path
@@ -340,7 +380,7 @@ def _interactive_prompter(stdin: IO[str], stdout: IO[str]):
 
 
 def _gather_proposals(target: Path, args: argparse.Namespace) -> list[Proposal]:
-    estimator = get_estimator()
+    estimator = _estimator_from_args(args)
     scan_result = scan(target)
     budget = budget_check.compute(scan_result, estimator)
     tokens_by_path = budget.tokens_by_path

@@ -6,6 +6,23 @@ adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added — opt-in `--accurate` flag (Phase 2.5 shipped)
+
+New `--accurate` flag on both `audit` and `fix` subcommands routes
+token counts through Anthropic's public `count_tokens` endpoint
+instead of the offline `tiktoken` estimator. Requires
+`ANTHROPIC_API_KEY` in the environment — the flag is an explicit
+opt-in from the offline contract and raises a clean error (exit code
+2) if the key is missing rather than silently falling back. Each
+unique `(sha256(text), model)` pair is counted once and cached under
+`~/.cache/claude-config-auditor/accurate-tokens-v1.json`, so repeat
+audits of the same project never re-hit the API. The retry strategy
+is one extra attempt on transient network failures before surfacing
+the error. Optional `--accurate-model` overrides the default model
+(`claude-sonnet-4-5`). New `tests/test_accurate.py` mocks `urllib` so
+no real network calls are made under test. Roadmap entry moves from
+"in development" to "shipped".
+
 ### Added — README "Design principles" section, five-bullet contract
 
 A new section between *"What it does not do"* and *"Install"* names

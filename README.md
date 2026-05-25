@@ -169,6 +169,15 @@ claude-audit --fail-on warning
 
 # Custom CLAUDE.md token budget (default 5000).
 claude-audit --budget 3000
+
+# Route token counts through Anthropic's count_tokens endpoint for
+# ground-truth accuracy. Opt-in only; requires ANTHROPIC_API_KEY in
+# the environment. Per-file results are cached at
+# ~/.cache/claude-config-auditor/ so repeat audits don't re-hit the API.
+ANTHROPIC_API_KEY=sk-ant-... claude-audit --accurate
+
+# Pin the model used for count_tokens (default: claude-sonnet-4-5).
+claude-audit --accurate --accurate-model claude-haiku-4-5
 ```
 
 `audit` never modifies any file. The default behaviour stays this way
@@ -460,12 +469,14 @@ suitable for offline use, we'll wire it in and the numbers will sharpen.
 - **Phase 2 — shipped:** opt-in `fix` mode (annotates weak agent
   descriptions, archives stale CLAUDE.md sections) and `revert` with
   drift detection.
-- **Phase 2.5 — in development:** an opt-in `--accurate` flag that
-  routes token counts through Anthropic's public `count_tokens` endpoint
-  (your API key, one request per scanned file, cached locally). The
-  default tokenizer stays `tiktoken` `cl100k_base` — `--accurate` is for
-  reviewers who want a ground-truth comparison against Anthropic's own
-  counter without changing the headline experience.
+- **Phase 2.5 — shipped:** opt-in `--accurate` flag routes token counts
+  through Anthropic's public `count_tokens` endpoint. Requires
+  `ANTHROPIC_API_KEY` in the environment (hard error if missing — the
+  flag is an explicit opt-in and refuses to silently fall back). Each
+  unique `(text, model)` is counted once and cached under
+  `~/.cache/claude-config-auditor/` so repeat audits don't re-hit the
+  API. Default tokenizer remains `tiktoken` `cl100k_base`; nothing
+  about the offline contract changes unless the flag is passed.
 
 ## License
 
