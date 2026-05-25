@@ -172,8 +172,12 @@ def audit(
             if j_score < OVERLAP_JACCARD_THRESHOLD:
                 continue
             hint = (
-                "Overlapping descriptions cause Claude to pick the wrong "
-                "agent. Make each description's trigger condition disjoint."
+                "Word-overlap heuristic (not semantic) — the signal is "
+                "coarse and may include false positives where descriptions "
+                "share boilerplate. If this is a real conflict, make each "
+                "description's trigger condition disjoint. Accurate "
+                "semantic detection is planned as opt-in (Phase 3, "
+                "`pip install claude-config-auditor[semantic]`)."
             )
             findings.append(
                 Finding(
