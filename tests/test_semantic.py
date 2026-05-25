@@ -95,12 +95,21 @@ def test_cosine_helper_math():
     assert semantic_mod.cosine([0.0, 0.0], [1.0, 0.0]) == 0.0
 
 
-def test_available_returns_true_when_extras_installed():
-    """In this dev environment we install with [semantic], so
-    available() must report True. (If the test suite ever runs in an
-    environment without the extra, this assertion will fail loudly —
-    which is correct: it means the test setup is wrong.)"""
-    assert semantic_mod.available() is True
+def test_available_reflects_extras_install_state():
+    """`available()` must return a bool that matches whether the
+    `sentence_transformers` package can actually be imported in this
+    environment. CI runs without the `[semantic]` extras; local dev
+    typically runs with them. Both states are valid — what we're
+    asserting here is that the detection is honest, not that the
+    extras are present."""
+    try:
+        import sentence_transformers  # noqa: F401
+        expected = True
+    except ImportError:
+        expected = False
+    # Reset the cached probe so a previous test can't poison this one.
+    semantic_mod._AVAILABLE = None
+    assert semantic_mod.available() is expected
 
 
 def test_get_model_raises_when_extras_missing(monkeypatch):

@@ -77,14 +77,26 @@ def encode_descriptions(texts: list[str]) -> Any:
 
 
 def cosine(vec_a: Any, vec_b: Any) -> float:
-    """Cosine similarity in (-1, 1). Works on numpy vectors. We avoid
-    a hard numpy dependency at module import time by accepting whatever
-    `encode_descriptions` returned."""
-    import numpy as np
+    """Cosine similarity in (-1, 1).
 
-    a = np.asarray(vec_a, dtype=float)
-    b = np.asarray(vec_b, dtype=float)
-    denom = (np.linalg.norm(a) * np.linalg.norm(b))
+    Implemented in pure Python so the default install (no `[semantic]`
+    extras, therefore no numpy) can still import and exercise this
+    helper. Numpy arrays are iterable, so the same code path handles
+    both the embeddings returned by `encode_descriptions` and the
+    plain lists used in unit tests.
+    """
+    import math
+
+    dot = 0.0
+    norm_a = 0.0
+    norm_b = 0.0
+    for a, b in zip(vec_a, vec_b):
+        fa = float(a)
+        fb = float(b)
+        dot += fa * fb
+        norm_a += fa * fa
+        norm_b += fb * fb
+    denom = math.sqrt(norm_a) * math.sqrt(norm_b)
     if denom == 0:
         return 0.0
-    return float(np.dot(a, b) / denom)
+    return dot / denom
