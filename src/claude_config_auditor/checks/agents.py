@@ -177,7 +177,7 @@ def audit(
             )
             findings.append(
                 Finding(
-                    severity="warning",
+                    severity="info",
                     code="AGT008",
                     message=(
                         f"description overlaps with `{rec_b.relpath}` "
@@ -189,7 +189,7 @@ def audit(
             )
             findings.append(
                 Finding(
-                    severity="warning",
+                    severity="info",
                     code="AGT008",
                     message=(
                         f"description overlaps with `{rec_a.relpath}` "
