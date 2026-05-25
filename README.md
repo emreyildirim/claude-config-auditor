@@ -503,6 +503,20 @@ suitable for offline use, we'll wire it in and the numbers will sharpen.
   `~/.cache/claude-config-auditor/` so repeat audits don't re-hit the
   API. Default tokenizer remains `tiktoken` `cl100k_base`; nothing
   about the offline contract changes unless the flag is passed.
+- **Phase 3 — planned: opt-in semantic agent overlap (AGT008-S).** The
+  current word-overlap signal is honest-but-coarse: it ships at
+  `info` severity because it misses real overlaps phrased in
+  different vocabulary and flags pairs that only share boilerplate.
+  Phase 3 adds an opt-in extras package
+  (`pip install claude-config-auditor[semantic]`) that pulls in
+  `sentence-transformers` (~80MB local model, no network calls at
+  audit time after the one-off download). When the extras package is
+  present and `--semantic` is passed, AGT008 switches to cosine
+  similarity over description embeddings: false positives where
+  descriptions only share boilerplate are dropped, and real overlaps
+  whose wording differs are caught. Pairs the embedding model
+  confirms become `warning`; ones it disagrees with disappear from
+  the report. Default install behaviour is unchanged.
 
 ## License
 
