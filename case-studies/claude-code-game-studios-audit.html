@@ -1,0 +1,2765 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Audit · Claude-Code-Game-Studios</title>
+<style>
+/* ============ Theme tokens ============
+   :root holds the light theme. Dark theme overrides via either
+   [data-theme="dark"] (manual override) or @media prefers-color-scheme.
+   ===================================== */
+:root {
+  --bg: #f7f6f3;
+  --surface: #ffffff;
+  --surface-alt: #fbfaf7;
+  --border: #e6e3dc;
+  --border-strong: #cfccc3;
+  --border-faint: #efece5;
+
+  --ink-1: #0c0c0b;
+  --ink-2: #4d4b46;
+  --ink-3: #8a8780;
+  --ink-4: #b4b1a8;
+
+  --critical: #cc2c1f;
+  --critical-bg: #fdedea;
+  --critical-line: #f0c0b9;
+  --warning: #b87618;
+  --warning-bg: #fbf3e3;
+  --warning-line: #e9d4a4;
+  --info: #1f5ec0;
+  --info-bg: #ebf1fb;
+  --info-line: #c2d2ee;
+  --ok: #1d7a45;
+  --ok-bg: #e8f3ec;
+  --ok-line: #b8d8c2;
+
+  --cat-claude-md: #2b6358;
+  --cat-claude-md-bg: rgba(43, 99, 88, 0.12);
+  --cat-agent: #6b3a18;
+  --cat-agent-bg: rgba(107, 58, 24, 0.12);
+  --cat-skill: #2e4b86;
+  --cat-skill-bg: rgba(46, 75, 134, 0.12);
+  --cat-rule: #6a2e54;
+  --cat-rule-bg: rgba(106, 46, 84, 0.12);
+  --cat-command: #5a3a82;
+  --cat-command-bg: rgba(90, 58, 130, 0.12);
+
+  --sans: "SF Pro Text", -apple-system, BlinkMacSystemFont, system-ui,
+          "Segoe UI", "Helvetica Neue", sans-serif;
+  --mono: "JetBrains Mono", "SF Mono", "Cascadia Mono", Menlo, Consolas,
+          ui-monospace, monospace;
+
+  color-scheme: light;
+}
+
+/* Dark — applied when user OS prefers dark AND no manual override,
+   OR when manual override sets dark explicitly. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d1014;
+    --surface: #161a21;
+    --surface-alt: #1a1f28;
+    --border: #262c37;
+    --border-strong: #353c4a;
+    --border-faint: #1f242d;
+
+    --ink-1: #e9ecf1;
+    --ink-2: #a3a9b6;
+    --ink-3: #6c7484;
+    --ink-4: #4d5462;
+
+    --critical: #ff5b62;
+    --critical-bg: rgba(255, 91, 98, 0.12);
+    --critical-line: rgba(255, 91, 98, 0.3);
+    --warning: #f3b04a;
+    --warning-bg: rgba(243, 176, 74, 0.12);
+    --warning-line: rgba(243, 176, 74, 0.3);
+    --info: #5fa3ff;
+    --info-bg: rgba(95, 163, 255, 0.12);
+    --info-line: rgba(95, 163, 255, 0.3);
+    --ok: #5ad095;
+    --ok-bg: rgba(90, 208, 149, 0.12);
+    --ok-line: rgba(90, 208, 149, 0.3);
+
+    --cat-claude-md: #6dc9b3;
+    --cat-claude-md-bg: rgba(109, 201, 179, 0.15);
+    --cat-agent: #e09368;
+    --cat-agent-bg: rgba(224, 147, 104, 0.15);
+    --cat-skill: #7fa9e8;
+    --cat-skill-bg: rgba(127, 169, 232, 0.15);
+    --cat-rule: #d68caf;
+    --cat-rule-bg: rgba(214, 140, 175, 0.15);
+    --cat-command: #b89cdd;
+    --cat-command-bg: rgba(184, 156, 221, 0.15);
+
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d1014;
+  --surface: #161a21;
+  --surface-alt: #1a1f28;
+  --border: #262c37;
+  --border-strong: #353c4a;
+  --border-faint: #1f242d;
+
+  --ink-1: #e9ecf1;
+  --ink-2: #a3a9b6;
+  --ink-3: #6c7484;
+  --ink-4: #4d5462;
+
+  --critical: #ff5b62;
+  --critical-bg: rgba(255, 91, 98, 0.12);
+  --critical-line: rgba(255, 91, 98, 0.3);
+  --warning: #f3b04a;
+  --warning-bg: rgba(243, 176, 74, 0.12);
+  --warning-line: rgba(243, 176, 74, 0.3);
+  --info: #5fa3ff;
+  --info-bg: rgba(95, 163, 255, 0.12);
+  --info-line: rgba(95, 163, 255, 0.3);
+  --ok: #5ad095;
+  --ok-bg: rgba(90, 208, 149, 0.12);
+  --ok-line: rgba(90, 208, 149, 0.3);
+
+  --cat-claude-md: #6dc9b3;
+  --cat-claude-md-bg: rgba(109, 201, 179, 0.15);
+  --cat-agent: #e09368;
+  --cat-agent-bg: rgba(224, 147, 104, 0.15);
+  --cat-skill: #7fa9e8;
+  --cat-skill-bg: rgba(127, 169, 232, 0.15);
+  --cat-rule: #d68caf;
+  --cat-rule-bg: rgba(214, 140, 175, 0.15);
+  --cat-command: #b89cdd;
+  --cat-command-bg: rgba(184, 156, 221, 0.15);
+
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink-1);
+  font-family: var(--sans);
+  font-size: 13.5px;
+  line-height: 1.55;
+  font-feature-settings: "kern", "liga", "ss01";
+  font-variant-numeric: tabular-nums;
+}
+
+.doc {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 28px 32px 64px;
+}
+
+/* ============ Top bar ============ */
+.topbar {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 24px;
+  align-items: center;
+  padding: 16px 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  margin-bottom: 20px;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  color: var(--ink-1);
+}
+.brand-mark {
+  width: 18px; height: 18px;
+  display: inline-grid; place-items: center;
+  background: var(--ink-1);
+  color: var(--bg);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 2px;
+  line-height: 1;
+}
+.topbar-path {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--ink-2);
+  word-break: break-all;
+  padding: 4px 10px;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  justify-self: start;
+}
+.topbar-meta {
+  display: flex;
+  gap: 18px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  color: var(--ink-3);
+}
+.topbar-meta span strong {
+  color: var(--ink-2);
+  font-weight: 600;
+}
+.theme-toggle {
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  color: var(--ink-2);
+  width: 30px; height: 30px;
+  display: inline-grid; place-items: center;
+  cursor: pointer;
+  border-radius: 3px;
+  font-family: var(--mono);
+  font-size: 14px;
+  line-height: 1;
+  padding: 0;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+.theme-toggle:hover {
+  border-color: var(--border-strong);
+  color: var(--ink-1);
+}
+.theme-toggle::before { content: attr(data-icon); }
+.theme-toggle[data-theme="auto"] { color: var(--ink-3); }
+.theme-toggle[data-theme="light"] { color: var(--warning); }
+.theme-toggle[data-theme="dark"] { color: var(--info); }
+
+/* ============ KPIs ============ */
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.kpi {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 16px 18px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 124px;
+}
+.kpi-label {
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--ink-3);
+}
+.kpi-value {
+  font-family: var(--mono);
+  font-size: 34px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--ink-1);
+  line-height: 1;
+  margin-top: 2px;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+.kpi-unit {
+  font-family: var(--mono);
+  font-size: 14px;
+  color: var(--ink-3);
+  font-weight: 400;
+  margin-left: 6px;
+  letter-spacing: 0;
+}
+.kpi-sub {
+  font-size: 12px;
+  color: var(--ink-2);
+  line-height: 1.45;
+  margin-top: auto;
+}
+.kpi-strip {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 3px;
+  background: var(--border-strong);
+}
+.kpi--ok .kpi-strip { background: var(--ok); }
+.kpi--info .kpi-strip { background: var(--info); }
+.kpi--warning .kpi-strip { background: var(--warning); }
+.kpi--critical .kpi-strip { background: var(--critical); }
+.kpi--critical .kpi-value { color: var(--critical); }
+
+/* ============ Panels ============ */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  margin-bottom: 16px;
+}
+.panel-h {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-alt);
+}
+.panel-h h2 {
+  margin: 0;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--ink-1);
+}
+.panel-sub {
+  font-size: 11.5px;
+  color: var(--ink-3);
+}
+.panel-foot {
+  padding: 10px 20px;
+  border-top: 1px solid var(--border);
+  font-size: 11.5px;
+  color: var(--ink-3);
+  background: var(--surface-alt);
+}
+
+/* Expand block (top-consumers overflow) */
+.expand {
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+}
+.expand-summary {
+  cursor: pointer;
+  user-select: none;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  font-size: 11.5px;
+  letter-spacing: 0.04em;
+  background: var(--surface-alt);
+  border-bottom: 1px solid transparent;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.expand-summary::-webkit-details-marker { display: none; }
+.expand-summary:hover {
+  background: var(--surface);
+  color: var(--ink-1);
+}
+.expand-summary:focus-visible {
+  outline: 2px solid var(--info);
+  outline-offset: -2px;
+}
+.expand-toggle {
+  display: inline-block;
+  width: 0; height: 0;
+  border-style: solid;
+  border-width: 5px 0 5px 8px;
+  border-color: transparent transparent transparent var(--ink-3);
+  transition: transform 0.18s ease;
+  flex-shrink: 0;
+}
+.expand[open] .expand-toggle { transform: rotate(90deg); }
+.expand[open] .expand-summary {
+  border-bottom-color: var(--border);
+  color: var(--ink-1);
+  background: var(--surface);
+}
+.expand-label {
+  font-family: var(--mono);
+  color: var(--ink-2);
+  font-size: 12px;
+}
+.expand[open] .expand-label { color: var(--ink-1); }
+.expand-hint {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-3);
+}
+.dt--continuation thead {
+  /* Continuation table — keep header subtle since it's a repeat */
+}
+.dt--continuation thead th {
+  background: var(--surface);
+  color: var(--ink-4);
+  font-size: 9.5px;
+}
+
+/* ============ Utilization chart ============ */
+.util-chart {
+  padding: 20px 20px 8px;
+}
+.util-chart svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.util-baseline { stroke: var(--ink-1); stroke-width: 1; }
+.util-tick { stroke: var(--ink-2); stroke-width: 1; }
+.util-tick-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  fill: var(--ink-3);
+}
+.util-wall {
+  stroke: var(--ink-1);
+  stroke-width: 1.5;
+  stroke-dasharray: 3 2;
+}
+.util-wall-label {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  fill: var(--ink-2);
+  letter-spacing: 0.08em;
+  font-weight: 600;
+}
+.util-over-label {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  fill: var(--critical);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+.util-seg { transition: opacity 0.15s; }
+.util-seg:hover { opacity: 0.85; }
+.util-seg--claude-md { fill: var(--cat-claude-md); }
+.util-seg--agent { fill: var(--cat-agent); }
+.util-seg--skill { fill: var(--cat-skill); }
+.util-seg--rule { fill: var(--cat-rule); }
+.util-seg--command { fill: var(--cat-command); }
+.util-seg--over { fill: var(--critical); }
+
+.util-legend {
+  padding: 12px 20px 18px;
+  display: grid;
+  gap: 4px;
+}
+.leg-row {
+  display: grid;
+  grid-template-columns: 14px 1fr 90px 60px 90px;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 0;
+  font-size: 12.5px;
+  border-bottom: 1px solid var(--border-faint);
+}
+.leg-row:last-child { border-bottom: none; }
+.leg-swatch {
+  display: inline-block;
+  width: 10px; height: 10px;
+  border-radius: 2px;
+  vertical-align: middle;
+  background: var(--ink-2);
+}
+.leg-swatch--claude-md { background: var(--cat-claude-md); }
+.leg-swatch--agent { background: var(--cat-agent); }
+.leg-swatch--skill { background: var(--cat-skill); }
+.leg-swatch--rule { background: var(--cat-rule); }
+.leg-swatch--command { background: var(--cat-command); }
+.leg-name {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--ink-1);
+}
+.leg-files {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--ink-3);
+  text-align: right;
+}
+.leg-pct {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--ink-2);
+  text-align: right;
+}
+.leg-tok {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  color: var(--ink-1);
+  text-align: right;
+  font-weight: 500;
+}
+
+/* ============ Data tables ============ */
+.dt {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+.dt thead th {
+  text-align: left;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--ink-3);
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-alt);
+}
+.dt tbody td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-faint);
+  vertical-align: middle;
+}
+.dt tbody tr:hover td { background: var(--surface-alt); }
+.dt tbody tr:last-child td { border-bottom: none; }
+
+.t-rank {
+  width: 40px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-3);
+  letter-spacing: 0.04em;
+}
+.t-cat {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  color: var(--ink-1);
+  width: 140px;
+}
+.t-cat-small { width: 80px; }
+.t-path code {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  color: var(--ink-1);
+  background: transparent;
+  word-break: break-all;
+}
+.t-num {
+  text-align: right;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  color: var(--ink-1);
+  white-space: nowrap;
+}
+.t-num-pct {
+  width: 70px;
+  color: var(--ink-2);
+}
+.t-num-tok {
+  width: 100px;
+  font-weight: 500;
+}
+.t-bar {
+  width: 35%;
+  padding-right: 18px;
+}
+th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
+
+.row-bar {
+  display: block;
+  height: 8px;
+  background: var(--ink-1);
+  border-radius: 1px;
+}
+.row-bar--claude-md { background: var(--cat-claude-md); }
+.row-bar--agent { background: var(--cat-agent); }
+.row-bar--skill { background: var(--cat-skill); }
+.row-bar--rule { background: var(--cat-rule); }
+.row-bar--command { background: var(--cat-command); }
+
+.cat-tag {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  padding: 2px 6px;
+  border: 1px solid currentColor;
+  border-radius: 2px;
+  text-transform: lowercase;
+  background: transparent;
+}
+.cat-tag--claude-md { color: var(--cat-claude-md); background: var(--cat-claude-md-bg); border-color: transparent; }
+.cat-tag--agent { color: var(--cat-agent); background: var(--cat-agent-bg); border-color: transparent; }
+.cat-tag--skill { color: var(--cat-skill); background: var(--cat-skill-bg); border-color: transparent; }
+.cat-tag--rule { color: var(--cat-rule); background: var(--cat-rule-bg); border-color: transparent; }
+.cat-tag--command { color: var(--cat-command); background: var(--cat-command-bg); border-color: transparent; }
+
+/* ============ Findings ============ */
+.f-group { padding: 14px 20px 18px; border-bottom: 1px solid var(--border); }
+.f-group:last-child { border-bottom: none; }
+.f-group-h {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.f-group-sev {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 2px;
+}
+.f-group-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-1);
+}
+.f-group-blurb {
+  font-size: 12px;
+  color: var(--ink-3);
+}
+.f-group-count {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-3);
+}
+
+.f-list { list-style: none; padding: 0; margin: 0; }
+.f {
+  display: grid;
+  grid-template-columns: 12px 88px 1fr;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px dotted var(--border);
+  align-items: start;
+}
+.f:last-child { border-bottom: none; }
+.f-bullet {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  margin-top: 8px;
+  margin-left: 4px;
+  background: var(--ink-3);
+}
+.f--error .f-bullet { background: var(--critical); }
+.f--warning .f-bullet { background: var(--warning); }
+.f--info .f-bullet { background: var(--info); }
+.f-code code {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  padding: 2px 6px;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+.f-body { min-width: 0; }
+.f-msg {
+  font-size: 13px;
+  color: var(--ink-1);
+  line-height: 1.5;
+}
+.f-path {
+  display: inline-block;
+  margin-top: 4px;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--ink-3);
+  background: transparent;
+  word-break: break-all;
+}
+.f-path--none { font-style: italic; }
+.f-hint {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--ink-2);
+  padding-left: 14px;
+  border-left: 2px solid var(--border-strong);
+}
+
+.sev {
+  display: inline-block;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.sev-error { color: var(--critical); background: var(--critical-bg); }
+.sev-warning { color: var(--warning); background: var(--warning-bg); }
+.sev-info { color: var(--info); background: var(--info-bg); }
+
+.all-clear {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  padding: 20px;
+  margin: 14px 20px;
+  background: var(--ok-bg);
+  border: 1px solid var(--ok-line);
+  border-left: 3px solid var(--ok);
+}
+.all-clear-mark {
+  font-size: 22px;
+  color: var(--ok);
+  font-weight: 700;
+}
+.all-clear strong { color: var(--ok); font-size: 14px; font-weight: 600; display: block; }
+.all-clear span { color: var(--ink-2); font-size: 12px; }
+
+/* ============ Footer ============ */
+.colophon {
+  margin-top: 24px;
+  padding: 16px 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+.colophon-block { display: grid; gap: 4px; }
+.colophon-row {
+  display: grid;
+  grid-template-columns: 130px 1fr;
+  gap: 12px;
+  font-size: 11.5px;
+}
+.colophon-row dt {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--ink-3);
+  padding-top: 2px;
+}
+.colophon-row dd {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--ink-1);
+}
+.colophon-note {
+  grid-column: 1 / -1;
+  font-size: 11.5px;
+  color: var(--ink-3);
+  border-top: 1px solid var(--border-faint);
+  padding-top: 12px;
+  line-height: 1.55;
+}
+.colophon-note .ro {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 600;
+  padding: 1px 6px;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  color: var(--ink-2);
+  margin-right: 8px;
+}
+
+@media (max-width: 920px) {
+  .kpis { grid-template-columns: repeat(2, 1fr); }
+  .topbar { grid-template-columns: 1fr; }
+  .topbar-path { justify-self: stretch; }
+}
+@media (max-width: 560px) {
+  .kpis { grid-template-columns: 1fr; }
+  .leg-row { grid-template-columns: 14px 1fr auto; }
+  .leg-files, .leg-pct { display: none; }
+  .f { grid-template-columns: 12px 1fr; }
+  .f-code { grid-column: 2; }
+  .colophon { grid-template-columns: 1fr; }
+}
+
+/* ============ Info tooltips ============
+   Tiny ⓘ button next to KPI labels and panel titles. Reveals a
+   tooltip on hover, keyboard focus, or tap (data-open is toggled by
+   the inline script). Tooltip colours invert the page palette so
+   the bubble stands out in both themes. */
+.info {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  margin-left: 6px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--ink-4);
+  background: transparent;
+  color: var(--ink-3);
+  font-family: var(--sans);
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: help;
+  user-select: none;
+  vertical-align: middle;
+  transition: color 0.12s, border-color 0.12s, background 0.12s;
+}
+.info:hover,
+.info:focus-visible,
+.info[data-open="true"] {
+  color: var(--ink-1);
+  border-color: var(--ink-1);
+  background: var(--surface);
+  outline: none;
+}
+.info-mark { pointer-events: none; }
+
+.info-tip {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: -6px;
+  z-index: 50;
+  width: 260px;
+  padding: 10px 12px;
+  background: var(--ink-1);
+  color: var(--surface);
+  border-radius: 4px;
+  font-family: var(--sans);
+  font-size: 11.5px;
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: 0;
+  text-transform: none;
+  text-align: left;
+  cursor: default;
+  opacity: 0;
+  transform: translateY(-2px);
+  pointer-events: none;
+  transition: opacity 0.14s ease, transform 0.14s ease;
+  box-shadow: 0 6px 20px -6px rgba(0, 0, 0, 0.25);
+  /* Small triangle pointing back at the icon. */
+}
+.info-tip::before {
+  content: "";
+  position: absolute;
+  top: -5px;
+  right: 8px;
+  width: 0; height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 5px solid var(--ink-1);
+}
+.info:hover .info-tip,
+.info:focus-visible .info-tip,
+.info[data-open="true"] .info-tip {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* Some hosts (KPI label, panel h2) are uppercase tracked — undo that
+   inside tooltip text so the prose reads naturally. */
+.info-tip {
+  letter-spacing: normal;
+  font-weight: 400;
+}
+
+/* Make the KPI label a flex row so the button doesn't blow out spacing. */
+.kpi-label {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.t-num-dim {
+  color: var(--ink-4);
+  font-family: var(--mono);
+}
+</style>
+</head>
+<body>
+<main class="doc doc--warning">
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">▣</span>
+      claude-config-auditor
+    </div>
+    <code class="topbar-path">Claude-Code-Game-Studios</code>
+    <div class="topbar-meta">
+      <span><strong>v0.1.0</strong></span>
+      <span>2026-05-23 · 14:26</span>
+      <span>id <strong>E5E15A87</strong></span>
+      <button class="theme-toggle" id="theme-toggle"
+              type="button" aria-label="Cycle color theme"
+              title="Cycle theme (auto / light / dark)"></button>
+    </div>
+  </header>
+
+  <section class="kpis">
+      <article class="kpi kpi--neutral">
+        <header class="kpi-label">
+          <span>Always loaded</span>
+          <button class="info" type="button" aria-label="Tokens Claude Code pulls into the main session at startup, every time you open this project: the full CLAUDE.md, the full rules/, plus the frontmatter (name + description) of every agent and skill. Agent and skill bodies are NOT in this number — they load on demand and are reported separately." data-info="always_loaded"><span class="info-mark" aria-hidden="true">?</span><span class="info-tip" role="tooltip">Tokens Claude Code pulls into the main session at startup, every time you open this project: the full CLAUDE.md, the full rules/, plus the frontmatter (name + description) of every agent and skill. Agent and skill bodies are NOT in this number — they load on demand and are reported separately.</span></button>
+        </header>
+        <div class="kpi-value">17,858<span class="kpi-unit">tok</span></div>
+        <div class="kpi-sub">+ 259,795 tok on-demand</div>
+        <div class="kpi-strip"></div>
+      </article>
+    
+      <article class="kpi kpi--ok">
+        <header class="kpi-label">
+          <span>Window occupation</span>
+          <button class="info" type="button" aria-label="Always-loaded tokens as a percentage of the 200,000-token context window. Below 25% leaves comfortable room for your conversation, files, and Claude&#x27;s responses; near or above 100% means the session is choking on its own config before you have typed a word." data-info="window_occupation"><span class="info-mark" aria-hidden="true">?</span><span class="info-tip" role="tooltip">Always-loaded tokens as a percentage of the 200,000-token context window. Below 25% leaves comfortable room for your conversation, files, and Claude&#x27;s responses; near or above 100% means the session is choking on its own config before you have typed a word.</span></button>
+        </header>
+        <div class="kpi-value">8.9<span class="kpi-unit">%</span></div>
+        <div class="kpi-sub">182,142 tokens of headroom</div>
+        <div class="kpi-strip"></div>
+      </article>
+    
+      <article class="kpi kpi--neutral">
+        <header class="kpi-label">
+          <span>Files tracked</span>
+          <button class="info" type="button" aria-label="Total configuration files the auditor read, broken down by type. Skills, agents, and rules live under .claude/; CLAUDE.md files can sit at the project root or nested inside subprojects." data-info="files_tracked"><span class="info-mark" aria-hidden="true">?</span><span class="info-tip" role="tooltip">Total configuration files the auditor read, broken down by type. Skills, agents, and rules live under .claude/; CLAUDE.md files can sit at the project root or nested inside subprojects.</span></button>
+        </header>
+        <div class="kpi-value">138</div>
+        <div class="kpi-sub">6 claude.md, 49 agent, 72 skill, 11 rule</div>
+        <div class="kpi-strip"></div>
+      </article>
+    
+      <article class="kpi kpi--warning">
+        <header class="kpi-label">
+          <span>Issues</span>
+          <button class="info" type="button" aria-label="Quality findings the auditor surfaced. Errors are blocking — Claude cannot use these correctly. Warnings cause routing or budget problems. Advisories are worth considering but not urgent." data-info="issues"><span class="info-mark" aria-hidden="true">?</span><span class="info-tip" role="tooltip">Quality findings the auditor surfaced. Errors are blocking — Claude cannot use these correctly. Warnings cause routing or budget problems. Advisories are worth considering but not urgent.</span></button>
+        </header>
+        <div class="kpi-value">3</div>
+        <div class="kpi-sub"><span class="sev sev-error">0</span> error · <span class="sev sev-warning">2</span> warning · <span class="sev sev-info">1</span> advisory</div>
+        <div class="kpi-strip"></div>
+      </article>
+    </section>
+  
+    <section class="panel">
+      <header class="panel-h">
+        <h2>Window utilization<button class="info" type="button" aria-label="Shows how each category contributes to the always-loaded session footprint. Bar segments reflect eager tokens only — on-demand weight (agent/skill bodies) is not shown here because it does not compete for window space at startup." data-info="window_utilization"><span class="info-mark" aria-hidden="true">?</span><span class="info-tip" role="tooltip">Shows how each category contributes to the always-loaded session footprint. Bar segments reflect eager tokens only — on-demand weight (agent/skill bodies) is not shown here because it does not compete for window space at startup.</span></button></h2>
+        <span class="panel-sub">
+          stacked contribution to the 200,000-token reference window
+        </span>
+      </header>
+      <div class="util-chart">
+        <svg viewBox="0 0 1000 140" preserveAspectRatio="xMidYMid meet"
+             role="img" aria-label="Context window utilization">
+          <line x1="40.0" y1="100" x2="40.0" y2="108" class="util-tick"/><text x="40.0" y="122" class="util-tick-label" text-anchor="middle">0%</text><line x1="215.0" y1="100" x2="215.0" y2="108" class="util-tick"/><text x="215.0" y="122" class="util-tick-label" text-anchor="middle">25%</text><line x1="390.0" y1="100" x2="390.0" y2="108" class="util-tick"/><text x="390.0" y="122" class="util-tick-label" text-anchor="middle">50%</text><line x1="565.0" y1="100" x2="565.0" y2="108" class="util-tick"/><text x="565.0" y="122" class="util-tick-label" text-anchor="middle">75%</text><line x1="740.0" y1="100" x2="740.0" y2="108" class="util-tick"/><text x="740.0" y="122" class="util-tick-label" text-anchor="middle">100%</text>
+          
+      <line x1="740.0" y1="44" x2="740.0" y2="108" class="util-wall"/>
+      <text x="734.0" y="34" class="util-wall-label" text-anchor="end">
+        200K · LIMIT
+      </text>
+    
+          
+          <rect x="40.0" y="60" width="12.5" height="40" class="util-seg util-seg--claude-md"/><rect x="52.5" y="60" width="15.4" height="40" class="util-seg util-seg--agent"/><rect x="67.9" y="60" width="25.2" height="40" class="util-seg util-seg--skill"/><rect x="93.1" y="60" width="9.4" height="40" class="util-seg util-seg--rule"/>
+          <line x1="40" y1="100" x2="940" y2="100" class="util-baseline"/>
+        </svg>
+      </div>
+      <div class="util-legend">
+          <div class="leg-row">
+            <span class="leg-swatch leg-swatch--claude-md"></span>
+            <span class="leg-name">claude.md</span>
+            <span class="leg-files">6 files</span>
+            <span class="leg-pct">20.0%</span>
+            <span class="leg-tok">3,574</span>
+          </div>
+        
+          <div class="leg-row">
+            <span class="leg-swatch leg-swatch--agent"></span>
+            <span class="leg-name">agent</span>
+            <span class="leg-files">49 files</span>
+            <span class="leg-pct">24.7%</span>
+            <span class="leg-tok">4,409</span>
+          </div>
+        
+          <div class="leg-row">
+            <span class="leg-swatch leg-swatch--skill"></span>
+            <span class="leg-name">skill</span>
+            <span class="leg-files">72 files</span>
+            <span class="leg-pct">40.3%</span>
+            <span class="leg-tok">7,190</span>
+          </div>
+        
+          <div class="leg-row">
+            <span class="leg-swatch leg-swatch--rule"></span>
+            <span class="leg-name">rule</span>
+            <span class="leg-files">11 files</span>
+            <span class="leg-pct">15.0%</span>
+            <span class="leg-tok">2,685</span>
+          </div>
+        </div>
+    </section>
+    
+  
+    <section class="panel">
+      <header class="panel-h">
+        <h2>Categories<button class="info" type="button" aria-label="Token breakdown by configuration source. The &#x27;Eager&#x27; column is what Claude actually loads at session start; &#x27;On-demand&#x27; is what waits to be invoked. Total = eager + on-demand." data-info="categories"><span class="info-mark" aria-hidden="true">?</span><span class="info-tip" role="tooltip">Token breakdown by configuration source. The &#x27;Eager&#x27; column is what Claude actually loads at session start; &#x27;On-demand&#x27; is what waits to be invoked. Total = eager + on-demand.</span></button></h2>
+        <span class="panel-sub">eager / on-demand split per configuration source</span>
+      </header>
+      <table class="dt">
+        <thead>
+          <tr>
+            <th class="t-cat">Source</th>
+            <th class="t-num">Files</th>
+            <th class="t-bar">Total weight</th>
+            <th class="t-num t-num-tok">Eager</th>
+            <th class="t-num t-num-tok">On-demand</th>
+            <th class="t-num t-num-tok">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="t-cat">
+              <span class="leg-swatch leg-swatch--claude-md"></span>
+              claude.md
+            </td>
+            <td class="t-num">6</td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--claude-md" style="width:1.9%"></span>
+            </td>
+            <td class="t-num t-num-tok">3,574</td>
+            <td class="t-num t-num-tok"><span class="t-num-dim">—</span></td>
+            <td class="t-num t-num-tok">3,574</td>
+          </tr>
+          <tr>
+            <td class="t-cat">
+              <span class="leg-swatch leg-swatch--agent"></span>
+              agent
+            </td>
+            <td class="t-num">49</td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:43.2%"></span>
+            </td>
+            <td class="t-num t-num-tok">4,409</td>
+            <td class="t-num t-num-tok">77,450</td>
+            <td class="t-num t-num-tok">81,859</td>
+          </tr>
+          <tr>
+            <td class="t-cat">
+              <span class="leg-swatch leg-swatch--skill"></span>
+              skill
+            </td>
+            <td class="t-num">72</td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:100.0%"></span>
+            </td>
+            <td class="t-num t-num-tok">7,190</td>
+            <td class="t-num t-num-tok">182,345</td>
+            <td class="t-num t-num-tok">189,535</td>
+          </tr>
+          <tr>
+            <td class="t-cat">
+              <span class="leg-swatch leg-swatch--rule"></span>
+              rule
+            </td>
+            <td class="t-num">11</td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--rule" style="width:1.4%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,685</td>
+            <td class="t-num t-num-tok"><span class="t-num-dim">—</span></td>
+            <td class="t-num t-num-tok">2,685</td>
+          </tr></tbody>
+      </table>
+    </section>
+    
+  
+    <section class="panel">
+      <header class="panel-h">
+        <h2>Top consumers<button class="info" type="button" aria-label="The single files costing you the most tokens, sorted largest to smallest. These are usually the best places to start when you need to claw context space back — even on-demand files fire often enough to matter." data-info="top_consumers"><span class="info-mark" aria-hidden="true">?</span><span class="info-tip" role="tooltip">The single files costing you the most tokens, sorted largest to smallest. These are usually the best places to start when you need to claw context space back — even on-demand files fire often enough to matter.</span></button></h2>
+        <span class="panel-sub">
+          largest files by estimated token cost · 138 file(s) total
+        </span>
+      </header>
+      <table class="dt dt--files">
+        
+        <thead>
+          <tr>
+            <th class="t-rank">№</th>
+            <th class="t-path">Path</th>
+            <th class="t-cat-small">Type</th>
+            <th class="t-bar">Size</th>
+            <th class="t-num t-num-tok">Tokens</th>
+          </tr>
+        </thead>
+    
+        <tbody>
+          <tr>
+            <td class="t-rank">001</td>
+            <td class="t-path"><code>.claude/skills/design-system/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:100.0%"></span>
+            </td>
+            <td class="t-num t-num-tok">9,141</td>
+          </tr>
+          <tr>
+            <td class="t-rank">002</td>
+            <td class="t-path"><code>.claude/skills/setup-engine/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:86.4%"></span>
+            </td>
+            <td class="t-num t-num-tok">7,897</td>
+          </tr>
+          <tr>
+            <td class="t-rank">003</td>
+            <td class="t-path"><code>.claude/skills/ux-design/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:80.6%"></span>
+            </td>
+            <td class="t-num t-num-tok">7,370</td>
+          </tr>
+          <tr>
+            <td class="t-rank">004</td>
+            <td class="t-path"><code>.claude/skills/gate-check/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:70.3%"></span>
+            </td>
+            <td class="t-num t-num-tok">6,429</td>
+          </tr>
+          <tr>
+            <td class="t-rank">005</td>
+            <td class="t-path"><code>.claude/skills/review-all-gdds/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:67.4%"></span>
+            </td>
+            <td class="t-num t-num-tok">6,158</td>
+          </tr>
+          <tr>
+            <td class="t-rank">006</td>
+            <td class="t-path"><code>.claude/skills/architecture-review/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:66.0%"></span>
+            </td>
+            <td class="t-num t-num-tok">6,030</td>
+          </tr>
+          <tr>
+            <td class="t-rank">007</td>
+            <td class="t-path"><code>.claude/skills/architecture-decision/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:50.0%"></span>
+            </td>
+            <td class="t-num t-num-tok">4,566</td>
+          </tr>
+          <tr>
+            <td class="t-rank">008</td>
+            <td class="t-path"><code>.claude/skills/brainstorm/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:49.9%"></span>
+            </td>
+            <td class="t-num t-num-tok">4,558</td>
+          </tr>
+          <tr>
+            <td class="t-rank">009</td>
+            <td class="t-path"><code>.claude/skills/story-done/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:48.4%"></span>
+            </td>
+            <td class="t-num t-num-tok">4,421</td>
+          </tr>
+          <tr>
+            <td class="t-rank">010</td>
+            <td class="t-path"><code>.claude/skills/adopt/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:47.4%"></span>
+            </td>
+            <td class="t-num t-num-tok">4,333</td>
+          </tr>
+          <tr>
+            <td class="t-rank">011</td>
+            <td class="t-path"><code>.claude/skills/localize/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:46.2%"></span>
+            </td>
+            <td class="t-num t-num-tok">4,225</td>
+          </tr>
+          <tr>
+            <td class="t-rank">012</td>
+            <td class="t-path"><code>.claude/agents/creative-director.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:42.0%"></span>
+            </td>
+            <td class="t-num t-num-tok">3,837</td>
+          </tr>
+          <tr>
+            <td class="t-rank">013</td>
+            <td class="t-path"><code>.claude/agents/godot-csharp-specialist.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:41.9%"></span>
+            </td>
+            <td class="t-num t-num-tok">3,829</td>
+          </tr>
+          <tr>
+            <td class="t-rank">014</td>
+            <td class="t-path"><code>.claude/skills/smoke-check/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:41.2%"></span>
+            </td>
+            <td class="t-num t-num-tok">3,769</td>
+          </tr>
+          <tr>
+            <td class="t-rank">015</td>
+            <td class="t-path"><code>.claude/skills/map-systems/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:40.7%"></span>
+            </td>
+            <td class="t-num t-num-tok">3,717</td>
+          </tr>
+          <tr>
+            <td class="t-rank">016</td>
+            <td class="t-path"><code>.claude/skills/story-readiness/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:40.4%"></span>
+            </td>
+            <td class="t-num t-num-tok">3,692</td>
+          </tr>
+          <tr>
+            <td class="t-rank">017</td>
+            <td class="t-path"><code>.claude/skills/create-architecture/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:38.5%"></span>
+            </td>
+            <td class="t-num t-num-tok">3,516</td>
+          </tr>
+          <tr>
+            <td class="t-rank">018</td>
+            <td class="t-path"><code>.claude/skills/dev-story/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:37.9%"></span>
+            </td>
+            <td class="t-num t-num-tok">3,461</td>
+          </tr>
+          <tr>
+            <td class="t-rank">019</td>
+            <td class="t-path"><code>.claude/skills/art-bible/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:36.1%"></span>
+            </td>
+            <td class="t-num t-num-tok">3,301</td>
+          </tr>
+          <tr>
+            <td class="t-rank">020</td>
+            <td class="t-path"><code>.claude/skills/skill-test/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:36.1%"></span>
+            </td>
+            <td class="t-num t-num-tok">3,298</td>
+          </tr></tbody>
+      </table>
+      
+          <details class="expand">
+            <summary class="expand-summary">
+              <span class="expand-toggle" aria-hidden="true"></span>
+              <span class="expand-label">Show remaining 118 file(s)</span>
+              <span class="expand-hint">138 total</span>
+            </summary>
+            <table class="dt dt--files dt--continuation">
+              
+        <thead>
+          <tr>
+            <th class="t-rank">№</th>
+            <th class="t-path">Path</th>
+            <th class="t-cat-small">Type</th>
+            <th class="t-bar">Size</th>
+            <th class="t-num t-num-tok">Tokens</th>
+          </tr>
+        </thead>
+    
+              <tbody>
+          <tr>
+            <td class="t-rank">021</td>
+            <td class="t-path"><code>.claude/skills/create-stories/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:33.9%"></span>
+            </td>
+            <td class="t-num t-num-tok">3,101</td>
+          </tr>
+          <tr>
+            <td class="t-rank">022</td>
+            <td class="t-path"><code>.claude/skills/design-review/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:33.4%"></span>
+            </td>
+            <td class="t-num t-num-tok">3,056</td>
+          </tr>
+          <tr>
+            <td class="t-rank">023</td>
+            <td class="t-path"><code>.claude/agents/godot-gdextension-specialist.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:33.2%"></span>
+            </td>
+            <td class="t-num t-num-tok">3,039</td>
+          </tr>
+          <tr>
+            <td class="t-rank">024</td>
+            <td class="t-path"><code>.claude/skills/asset-spec/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:33.2%"></span>
+            </td>
+            <td class="t-num t-num-tok">3,036</td>
+          </tr>
+          <tr>
+            <td class="t-rank">025</td>
+            <td class="t-path"><code>.claude/skills/test-setup/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:32.4%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,962</td>
+          </tr>
+          <tr>
+            <td class="t-rank">026</td>
+            <td class="t-path"><code>.claude/skills/start/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:32.3%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,950</td>
+          </tr>
+          <tr>
+            <td class="t-rank">027</td>
+            <td class="t-path"><code>.claude/skills/test-helpers/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:31.8%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,906</td>
+          </tr>
+          <tr>
+            <td class="t-rank">028</td>
+            <td class="t-path"><code>.claude/agents/game-designer.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:30.4%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,776</td>
+          </tr>
+          <tr>
+            <td class="t-rank">029</td>
+            <td class="t-path"><code>.claude/agents/godot-gdscript-specialist.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:30.0%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,742</td>
+          </tr>
+          <tr>
+            <td class="t-rank">030</td>
+            <td class="t-path"><code>.claude/agents/godot-shader-specialist.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:29.7%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,717</td>
+          </tr>
+          <tr>
+            <td class="t-rank">031</td>
+            <td class="t-path"><code>.claude/skills/qa-plan/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:28.0%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,561</td>
+          </tr>
+          <tr>
+            <td class="t-rank">032</td>
+            <td class="t-path"><code>.claude/skills/ux-review/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:26.6%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,432</td>
+          </tr>
+          <tr>
+            <td class="t-rank">033</td>
+            <td class="t-path"><code>.claude/skills/team-qa/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:26.1%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,386</td>
+          </tr>
+          <tr>
+            <td class="t-rank">034</td>
+            <td class="t-path"><code>.claude/skills/consistency-check/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:26.0%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,373</td>
+          </tr>
+          <tr>
+            <td class="t-rank">035</td>
+            <td class="t-path"><code>.claude/skills/team-ui/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:25.8%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,355</td>
+          </tr>
+          <tr>
+            <td class="t-rank">036</td>
+            <td class="t-path"><code>.claude/skills/soak-test/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:25.7%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,349</td>
+          </tr>
+          <tr>
+            <td class="t-rank">037</td>
+            <td class="t-path"><code>.claude/agents/unity-ui-specialist.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:25.2%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,308</td>
+          </tr>
+          <tr>
+            <td class="t-rank">038</td>
+            <td class="t-path"><code>.claude/skills/quick-design/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:24.5%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,235</td>
+          </tr>
+          <tr>
+            <td class="t-rank">039</td>
+            <td class="t-path"><code>.claude/skills/team-level/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:24.1%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,201</td>
+          </tr>
+          <tr>
+            <td class="t-rank">040</td>
+            <td class="t-path"><code>.claude/skills/create-epics/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:23.7%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,165</td>
+          </tr>
+          <tr>
+            <td class="t-rank">041</td>
+            <td class="t-path"><code>.claude/skills/create-control-manifest/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:23.7%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,164</td>
+          </tr>
+          <tr>
+            <td class="t-rank">042</td>
+            <td class="t-path"><code>.claude/agents/godot-specialist.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:23.5%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,149</td>
+          </tr>
+          <tr>
+            <td class="t-rank">043</td>
+            <td class="t-path"><code>.claude/agents/unity-specialist.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:23.3%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,134</td>
+          </tr>
+          <tr>
+            <td class="t-rank">044</td>
+            <td class="t-path"><code>.claude/agents/qa-tester.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:23.2%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,125</td>
+          </tr>
+          <tr>
+            <td class="t-rank">045</td>
+            <td class="t-path"><code>.claude/skills/reverse-document/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:23.2%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,118</td>
+          </tr>
+          <tr>
+            <td class="t-rank">046</td>
+            <td class="t-path"><code>.claude/skills/test-evidence-review/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:23.0%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,100</td>
+          </tr>
+          <tr>
+            <td class="t-rank">047</td>
+            <td class="t-path"><code>.claude/skills/regression-suite/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:22.9%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,094</td>
+          </tr>
+          <tr>
+            <td class="t-rank">048</td>
+            <td class="t-path"><code>.claude/agents/live-ops-designer.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:22.5%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,060</td>
+          </tr>
+          <tr>
+            <td class="t-rank">049</td>
+            <td class="t-path"><code>.claude/skills/sprint-plan/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:22.5%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,056</td>
+          </tr>
+          <tr>
+            <td class="t-rank">050</td>
+            <td class="t-path"><code>.claude/agents/unreal-specialist.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:22.4%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,046</td>
+          </tr>
+          <tr>
+            <td class="t-rank">051</td>
+            <td class="t-path"><code>.claude/skills/help/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:22.3%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,040</td>
+          </tr>
+          <tr>
+            <td class="t-rank">052</td>
+            <td class="t-path"><code>.claude/skills/bug-triage/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:22.0%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,007</td>
+          </tr>
+          <tr>
+            <td class="t-rank">053</td>
+            <td class="t-path"><code>.claude/agents/unity-shader-specialist.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:21.9%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,005</td>
+          </tr>
+          <tr>
+            <td class="t-rank">054</td>
+            <td class="t-path"><code>.claude/skills/test-flakiness/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:21.7%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,985</td>
+          </tr>
+          <tr>
+            <td class="t-rank">055</td>
+            <td class="t-path"><code>.claude/skills/security-audit/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:21.5%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,968</td>
+          </tr>
+          <tr>
+            <td class="t-rank">056</td>
+            <td class="t-path"><code>.claude/skills/sprint-status/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:21.4%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,960</td>
+          </tr>
+          <tr>
+            <td class="t-rank">057</td>
+            <td class="t-path"><code>.claude/skills/day-one-patch/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:21.4%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,959</td>
+          </tr>
+          <tr>
+            <td class="t-rank">058</td>
+            <td class="t-path"><code>.claude/skills/propagate-design-change/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:21.4%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,958</td>
+          </tr>
+          <tr>
+            <td class="t-rank">059</td>
+            <td class="t-path"><code>.claude/skills/team-live-ops/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:21.4%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,957</td>
+          </tr>
+          <tr>
+            <td class="t-rank">060</td>
+            <td class="t-path"><code>.claude/skills/team-release/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:21.0%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,918</td>
+          </tr>
+          <tr>
+            <td class="t-rank">061</td>
+            <td class="t-path"><code>.claude/agents/localization-lead.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:20.5%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,878</td>
+          </tr>
+          <tr>
+            <td class="t-rank">062</td>
+            <td class="t-path"><code>.claude/agents/unity-addressables-specialist.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:20.2%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,849</td>
+          </tr>
+          <tr>
+            <td class="t-rank">063</td>
+            <td class="t-path"><code>.claude/skills/retrospective/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:20.2%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,844</td>
+          </tr>
+          <tr>
+            <td class="t-rank">064</td>
+            <td class="t-path"><code>.claude/skills/content-audit/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:20.0%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,826</td>
+          </tr>
+          <tr>
+            <td class="t-rank">065</td>
+            <td class="t-path"><code>.claude/skills/launch-checklist/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:19.9%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,817</td>
+          </tr>
+          <tr>
+            <td class="t-rank">066</td>
+            <td class="t-path"><code>.claude/agents/prototyper.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:19.6%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,789</td>
+          </tr>
+          <tr>
+            <td class="t-rank">067</td>
+            <td class="t-path"><code>.claude/agents/unity-dots-specialist.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:19.5%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,782</td>
+          </tr>
+          <tr>
+            <td class="t-rank">068</td>
+            <td class="t-path"><code>.claude/agents/ue-umg-specialist.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:18.8%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,723</td>
+          </tr>
+          <tr>
+            <td class="t-rank">069</td>
+            <td class="t-path"><code>.claude/agents/ue-replication-specialist.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:18.3%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,671</td>
+          </tr>
+          <tr>
+            <td class="t-rank">070</td>
+            <td class="t-path"><code>.claude/agents/release-manager.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:18.2%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,662</td>
+          </tr>
+          <tr>
+            <td class="t-rank">071</td>
+            <td class="t-path"><code>.claude/agents/qa-lead.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:17.8%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,629</td>
+          </tr>
+          <tr>
+            <td class="t-rank">072</td>
+            <td class="t-path"><code>.claude/agents/ue-blueprint-specialist.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:17.8%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,629</td>
+          </tr>
+          <tr>
+            <td class="t-rank">073</td>
+            <td class="t-path"><code>.claude/agents/community-manager.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:17.6%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,612</td>
+          </tr>
+          <tr>
+            <td class="t-rank">074</td>
+            <td class="t-path"><code>.claude/agents/systems-designer.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:17.4%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,590</td>
+          </tr>
+          <tr>
+            <td class="t-rank">075</td>
+            <td class="t-path"><code>.claude/agents/accessibility-specialist.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:17.0%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,555</td>
+          </tr>
+          <tr>
+            <td class="t-rank">076</td>
+            <td class="t-path"><code>.claude/agents/ue-gas-specialist.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:17.0%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,554</td>
+          </tr>
+          <tr>
+            <td class="t-rank">077</td>
+            <td class="t-path"><code>.claude/skills/project-stage-detect/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:16.5%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,512</td>
+          </tr>
+          <tr>
+            <td class="t-rank">078</td>
+            <td class="t-path"><code>.claude/skills/team-audio/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:16.4%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,501</td>
+          </tr>
+          <tr>
+            <td class="t-rank">079</td>
+            <td class="t-path"><code>.claude/skills/bug-report/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:16.2%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,478</td>
+          </tr>
+          <tr>
+            <td class="t-rank">080</td>
+            <td class="t-path"><code>.claude/agents/producer.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:16.1%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,476</td>
+          </tr>
+          <tr>
+            <td class="t-rank">081</td>
+            <td class="t-path"><code>.claude/skills/code-review/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:16.0%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,466</td>
+          </tr>
+          <tr>
+            <td class="t-rank">082</td>
+            <td class="t-path"><code>.claude/agents/technical-director.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:16.0%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,460</td>
+          </tr>
+          <tr>
+            <td class="t-rank">083</td>
+            <td class="t-path"><code>.claude/agents/economy-designer.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:15.8%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,448</td>
+          </tr>
+          <tr>
+            <td class="t-rank">084</td>
+            <td class="t-path"><code>.claude/skills/changelog/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:15.8%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,445</td>
+          </tr>
+          <tr>
+            <td class="t-rank">085</td>
+            <td class="t-path"><code>.claude/skills/team-polish/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:15.8%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,440</td>
+          </tr>
+          <tr>
+            <td class="t-rank">086</td>
+            <td class="t-path"><code>.claude/skills/team-narrative/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:15.7%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,431</td>
+          </tr>
+          <tr>
+            <td class="t-rank">087</td>
+            <td class="t-path"><code>.claude/skills/team-combat/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:15.6%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,429</td>
+          </tr>
+          <tr>
+            <td class="t-rank">088</td>
+            <td class="t-path"><code>.claude/skills/release-checklist/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:15.5%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,416</td>
+          </tr>
+          <tr>
+            <td class="t-rank">089</td>
+            <td class="t-path"><code>.claude/skills/patch-notes/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:15.4%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,404</td>
+          </tr>
+          <tr>
+            <td class="t-rank">090</td>
+            <td class="t-path"><code>.claude/agents/gameplay-programmer.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:14.9%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,359</td>
+          </tr>
+          <tr>
+            <td class="t-rank">091</td>
+            <td class="t-path"><code>.claude/skills/prototype/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:14.6%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,335</td>
+          </tr>
+          <tr>
+            <td class="t-rank">092</td>
+            <td class="t-path"><code>.claude/agents/art-director.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:14.2%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,297</td>
+          </tr>
+          <tr>
+            <td class="t-rank">093</td>
+            <td class="t-path"><code>.claude/skills/playtest-report/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:13.7%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,249</td>
+          </tr>
+          <tr>
+            <td class="t-rank">094</td>
+            <td class="t-path"><code>.claude/agents/security-engineer.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:13.5%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,237</td>
+          </tr>
+          <tr>
+            <td class="t-rank">095</td>
+            <td class="t-path"><code>.claude/agents/narrative-director.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:13.4%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,229</td>
+          </tr>
+          <tr>
+            <td class="t-rank">096</td>
+            <td class="t-path"><code>Library/PackageCache/com.gamelovers.mcp-unity@d176a9d737cc/CLAUDE.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--claude-md">claude.md</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--claude-md" style="width:13.3%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,220</td>
+          </tr>
+          <tr>
+            <td class="t-rank">097</td>
+            <td class="t-path"><code>.claude/skills/hotfix/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:13.3%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,212</td>
+          </tr>
+          <tr>
+            <td class="t-rank">098</td>
+            <td class="t-path"><code>.claude/skills/skill-improve/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:13.1%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,195</td>
+          </tr>
+          <tr>
+            <td class="t-rank">099</td>
+            <td class="t-path"><code>.claude/agents/audio-director.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:12.6%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,155</td>
+          </tr>
+          <tr>
+            <td class="t-rank">100</td>
+            <td class="t-path"><code>.claude/agents/level-designer.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:12.5%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,142</td>
+          </tr>
+          <tr>
+            <td class="t-rank">101</td>
+            <td class="t-path"><code>.claude/agents/lead-programmer.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:12.2%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,118</td>
+          </tr>
+          <tr>
+            <td class="t-rank">102</td>
+            <td class="t-path"><code>.claude/skills/milestone-review/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:12.1%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,106</td>
+          </tr>
+          <tr>
+            <td class="t-rank">103</td>
+            <td class="t-path"><code>.claude/agents/world-builder.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:12.0%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,095</td>
+          </tr>
+          <tr>
+            <td class="t-rank">104</td>
+            <td class="t-path"><code>CCGS Skill Testing Framework/CLAUDE.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--claude-md">claude.md</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--claude-md" style="width:11.8%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,079</td>
+          </tr>
+          <tr>
+            <td class="t-rank">105</td>
+            <td class="t-path"><code>.claude/agents/technical-artist.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:11.8%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,076</td>
+          </tr>
+          <tr>
+            <td class="t-rank">106</td>
+            <td class="t-path"><code>.claude/skills/scope-check/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:11.7%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,072</td>
+          </tr>
+          <tr>
+            <td class="t-rank">107</td>
+            <td class="t-path"><code>.claude/agents/ux-designer.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:11.7%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,069</td>
+          </tr>
+          <tr>
+            <td class="t-rank">108</td>
+            <td class="t-path"><code>.claude/agents/engine-programmer.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:11.7%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,067</td>
+          </tr>
+          <tr>
+            <td class="t-rank">109</td>
+            <td class="t-path"><code>.claude/agents/ui-programmer.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:11.7%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,065</td>
+          </tr>
+          <tr>
+            <td class="t-rank">110</td>
+            <td class="t-path"><code>.claude/agents/performance-analyst.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:11.5%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,053</td>
+          </tr>
+          <tr>
+            <td class="t-rank">111</td>
+            <td class="t-path"><code>.claude/agents/writer.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:11.4%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,046</td>
+          </tr>
+          <tr>
+            <td class="t-rank">112</td>
+            <td class="t-path"><code>.claude/skills/tech-debt/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:11.3%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,031</td>
+          </tr>
+          <tr>
+            <td class="t-rank">113</td>
+            <td class="t-path"><code>.claude/agents/tools-programmer.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:11.2%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,028</td>
+          </tr>
+          <tr>
+            <td class="t-rank">114</td>
+            <td class="t-path"><code>.claude/agents/analytics-engineer.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:11.0%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,004</td>
+          </tr>
+          <tr>
+            <td class="t-rank">115</td>
+            <td class="t-path"><code>.claude/agents/ai-programmer.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:10.7%"></span>
+            </td>
+            <td class="t-num t-num-tok">979</td>
+          </tr>
+          <tr>
+            <td class="t-rank">116</td>
+            <td class="t-path"><code>.claude/agents/network-programmer.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:10.6%"></span>
+            </td>
+            <td class="t-num t-num-tok">970</td>
+          </tr>
+          <tr>
+            <td class="t-rank">117</td>
+            <td class="t-path"><code>.claude/skills/estimate/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:10.5%"></span>
+            </td>
+            <td class="t-num t-num-tok">958</td>
+          </tr>
+          <tr>
+            <td class="t-rank">118</td>
+            <td class="t-path"><code>.claude/agents/devops-engineer.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:10.4%"></span>
+            </td>
+            <td class="t-num t-num-tok">952</td>
+          </tr>
+          <tr>
+            <td class="t-rank">119</td>
+            <td class="t-path"><code>.claude/skills/perf-profile/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:10.3%"></span>
+            </td>
+            <td class="t-num t-num-tok">938</td>
+          </tr>
+          <tr>
+            <td class="t-rank">120</td>
+            <td class="t-path"><code>.claude/skills/balance-check/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:9.9%"></span>
+            </td>
+            <td class="t-num t-num-tok">906</td>
+          </tr>
+          <tr>
+            <td class="t-rank">121</td>
+            <td class="t-path"><code>.claude/agents/sound-designer.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:9.2%"></span>
+            </td>
+            <td class="t-num t-num-tok">844</td>
+          </tr>
+          <tr>
+            <td class="t-rank">122</td>
+            <td class="t-path"><code>.claude/skills/asset-audit/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:7.3%"></span>
+            </td>
+            <td class="t-num t-num-tok">671</td>
+          </tr>
+          <tr>
+            <td class="t-rank">123</td>
+            <td class="t-path"><code>.claude/skills/onboard/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:6.8%"></span>
+            </td>
+            <td class="t-num t-num-tok">619</td>
+          </tr>
+          <tr>
+            <td class="t-rank">124</td>
+            <td class="t-path"><code>.claude/rules/shader-code.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--rule">rule</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--rule" style="width:4.6%"></span>
+            </td>
+            <td class="t-num t-num-tok">422</td>
+          </tr>
+          <tr>
+            <td class="t-rank">125</td>
+            <td class="t-path"><code>CLAUDE.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--claude-md">claude.md</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--claude-md" style="width:3.8%"></span>
+            </td>
+            <td class="t-num t-num-tok">350</td>
+          </tr>
+          <tr>
+            <td class="t-rank">126</td>
+            <td class="t-path"><code>design/CLAUDE.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--claude-md">claude.md</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--claude-md" style="width:3.7%"></span>
+            </td>
+            <td class="t-num t-num-tok">340</td>
+          </tr>
+          <tr>
+            <td class="t-rank">127</td>
+            <td class="t-path"><code>.claude/rules/prototype-code.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--rule">rule</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--rule" style="width:3.6%"></span>
+            </td>
+            <td class="t-num t-num-tok">326</td>
+          </tr>
+          <tr>
+            <td class="t-rank">128</td>
+            <td class="t-path"><code>.claude/rules/engine-code.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--rule">rule</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--rule" style="width:3.5%"></span>
+            </td>
+            <td class="t-num t-num-tok">321</td>
+          </tr>
+          <tr>
+            <td class="t-rank">129</td>
+            <td class="t-path"><code>docs/CLAUDE.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--claude-md">claude.md</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--claude-md" style="width:3.5%"></span>
+            </td>
+            <td class="t-num t-num-tok">316</td>
+          </tr>
+          <tr>
+            <td class="t-rank">130</td>
+            <td class="t-path"><code>.claude/rules/data-files.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--rule">rule</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--rule" style="width:3.4%"></span>
+            </td>
+            <td class="t-num t-num-tok">312</td>
+          </tr>
+          <tr>
+            <td class="t-rank">131</td>
+            <td class="t-path"><code>.claude/rules/test-standards.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--rule">rule</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--rule" style="width:3.3%"></span>
+            </td>
+            <td class="t-num t-num-tok">298</td>
+          </tr>
+          <tr>
+            <td class="t-rank">132</td>
+            <td class="t-path"><code>src/CLAUDE.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--claude-md">claude.md</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--claude-md" style="width:2.9%"></span>
+            </td>
+            <td class="t-num t-num-tok">269</td>
+          </tr>
+          <tr>
+            <td class="t-rank">133</td>
+            <td class="t-path"><code>.claude/rules/gameplay-code.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--rule">rule</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--rule" style="width:2.5%"></span>
+            </td>
+            <td class="t-num t-num-tok">228</td>
+          </tr>
+          <tr>
+            <td class="t-rank">134</td>
+            <td class="t-path"><code>.claude/rules/design-docs.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--rule">rule</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--rule" style="width:2.4%"></span>
+            </td>
+            <td class="t-num t-num-tok">218</td>
+          </tr>
+          <tr>
+            <td class="t-rank">135</td>
+            <td class="t-path"><code>.claude/rules/narrative.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--rule">rule</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--rule" style="width:1.6%"></span>
+            </td>
+            <td class="t-num t-num-tok">148</td>
+          </tr>
+          <tr>
+            <td class="t-rank">136</td>
+            <td class="t-path"><code>.claude/rules/ai-code.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--rule">rule</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--rule" style="width:1.6%"></span>
+            </td>
+            <td class="t-num t-num-tok">146</td>
+          </tr>
+          <tr>
+            <td class="t-rank">137</td>
+            <td class="t-path"><code>.claude/rules/network-code.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--rule">rule</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--rule" style="width:1.5%"></span>
+            </td>
+            <td class="t-num t-num-tok">134</td>
+          </tr>
+          <tr>
+            <td class="t-rank">138</td>
+            <td class="t-path"><code>.claude/rules/ui-code.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--rule">rule</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--rule" style="width:1.4%"></span>
+            </td>
+            <td class="t-num t-num-tok">132</td>
+          </tr></tbody>
+            </table>
+          </details>
+        
+    </section>
+    
+  
+    <section class="panel">
+      <header class="panel-h">
+        <h2>Findings<button class="info" type="button" aria-label="Quality issues the auditor detected, grouped by severity. Each finding has a stable code (AGT001, SKL002, HLT003, etc.) so you can grep for it or look it up later." data-info="findings"><span class="info-mark" aria-hidden="true">?</span><span class="info-tip" role="tooltip">Quality issues the auditor detected, grouped by severity. Each finding has a stable code (AGT001, SKL002, HLT003, etc.) so you can grep for it or look it up later.</span></button></h2>
+        <span class="panel-sub">
+          0 error · 2 warning · 1 advisory
+        </span>
+      </header>
+      
+          <div class="f-group f-group--warning">
+            <div class="f-group-h">
+              <span class="f-group-sev sev sev-warning">warning</span>
+              <span class="f-group-title">Warnings</span>
+              <span class="f-group-blurb">likely to cause routing or budget problems</span>
+              <span class="f-group-count">2</span>
+            </div>
+            <ul class="f-list">
+              <li class="f f--warning">
+                <div class="f-bullet" aria-hidden="true"></div>
+                <div class="f-code"><code>AGT008</code></div>
+                <div class="f-body">
+                  <div class="f-msg">description overlaps with `.claude/agents/unreal-specialist.md` (word-overlap 59%)</div>
+                  <code class="f-path">.claude/agents/unity-specialist.md</code>
+                  <div class="f-hint">Overlapping descriptions cause Claude to pick the wrong agent. Make each description&#x27;s trigger condition disjoint.</div>
+                </div>
+              </li>
+              <li class="f f--warning">
+                <div class="f-bullet" aria-hidden="true"></div>
+                <div class="f-code"><code>AGT008</code></div>
+                <div class="f-body">
+                  <div class="f-msg">description overlaps with `.claude/agents/unity-specialist.md` (word-overlap 59%)</div>
+                  <code class="f-path">.claude/agents/unreal-specialist.md</code>
+                  <div class="f-hint">Overlapping descriptions cause Claude to pick the wrong agent. Make each description&#x27;s trigger condition disjoint.</div>
+                </div>
+              </li></ul>
+          </div>
+        
+          <div class="f-group f-group--info">
+            <div class="f-group-h">
+              <span class="f-group-sev sev sev-info">info</span>
+              <span class="f-group-title">Advisories</span>
+              <span class="f-group-blurb">things to consider but not urgent</span>
+              <span class="f-group-count">1</span>
+            </div>
+            <ul class="f-list">
+              <li class="f f--info">
+                <div class="f-bullet" aria-hidden="true"></div>
+                <div class="f-code"><code>HLT003</code></div>
+                <div class="f-body">
+                  <div class="f-msg">session-start config is ~17858 tokens (8.9% of the reference window)</div>
+                  <span class="f-path f-path--none">project-wide</span>
+                  
+                </div>
+              </li></ul>
+          </div>
+        
+    </section>
+    
+
+  <footer class="colophon">
+    <div class="colophon-block">
+      <div class="colophon-row"><dt>Tool</dt><dd>claude-config-auditor v0.1.0</dd></div>
+      <div class="colophon-row"><dt>Report ID</dt><dd>E5E15A87</dd></div>
+    </div>
+    <div class="colophon-block">
+      <div class="colophon-row"><dt>Generated</dt><dd>2026-05-23 · 14:26</dd></div>
+      <div class="colophon-row"><dt>Tokenizer</dt><dd>tiktoken-cl100k_base</dd></div>
+    </div>
+    <p class="colophon-note">
+      <span class="ro">Read-only</span>
+      Estimated using tiktoken `cl100k_base` (OpenAI GPT-4 tokenizer). Anthropic does not publish the Claude tokenizer; this is a close-but-not-exact proxy. Treat numbers as ±5-10% on Markdown/YAML. No files in the audited target were modified.
+    </p>
+  </footer>
+
+</main>
+
+<script>
+/* Theme toggle: cycles auto -> light -> dark -> auto, persisted in
+   localStorage. "auto" defers to prefers-color-scheme. Inline because the
+   report file must remain self-contained (no external network). */
+(function () {
+  var KEY = "cca-theme";
+  var ICONS = { auto: "◑", light: "☀", dark: "☾" };
+  var ORDER = ["auto", "light", "dark"];
+  var root = document.documentElement;
+  var btn = document.getElementById("theme-toggle");
+  function apply(theme) {
+    if (theme === "auto") {
+      root.removeAttribute("data-theme");
+    } else {
+      root.setAttribute("data-theme", theme);
+    }
+    btn.dataset.theme = theme;
+    btn.dataset.icon = ICONS[theme];
+    btn.setAttribute(
+      "aria-label",
+      "Cycle color theme (current: " + theme + ")"
+    );
+  }
+  var stored;
+  try { stored = localStorage.getItem(KEY); } catch (e) { stored = null; }
+  apply(stored && ORDER.indexOf(stored) >= 0 ? stored : "auto");
+  btn.addEventListener("click", function () {
+    var i = ORDER.indexOf(btn.dataset.theme);
+    var next = ORDER[(i + 1) % ORDER.length];
+    try { localStorage.setItem(KEY, next); } catch (e) {}
+    apply(next);
+  });
+})();
+
+/* Info tooltips: tap-to-toggle for touch devices that have no hover
+   state. Desktop users still get the CSS hover behaviour for free. */
+(function () {
+  var openTip = null;
+  function close(b) { if (b) b.removeAttribute("data-open"); }
+  document.querySelectorAll(".info").forEach(function (btn) {
+    btn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      if (openTip && openTip !== btn) close(openTip);
+      if (btn.dataset.open === "true") {
+        close(btn);
+        openTip = null;
+      } else {
+        btn.setAttribute("data-open", "true");
+        openTip = btn;
+      }
+    });
+  });
+  // Clicking anywhere else closes the open tooltip.
+  document.addEventListener("click", function () {
+    if (openTip) { close(openTip); openTip = null; }
+  });
+  // Esc also closes — keyboard-friendly.
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && openTip) { close(openTip); openTip = null; }
+  });
+})();
+</script>
+</body>
+</html>

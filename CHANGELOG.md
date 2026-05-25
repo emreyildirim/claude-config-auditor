@@ -6,6 +6,37 @@ adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added — `case-studies/`: real audits against six popular frameworks
+
+Six self-contained HTML reports under `case-studies/` produced by
+running `claude-audit` against fresh installs of BMAD, claude-flow,
+SuperClaude, VoltAgent, wshobson, and Claude-Code-Game-Studios in May
+2026. Each report is the unmodified `--html` output (local filesystem
+paths in the report header were scrubbed). The accompanying
+`case-studies/README.md` summarises headline numbers (always-loaded
+tokens, window occupation, file count, findings count) for every
+framework. These are the same installs the metric-tuning notes
+elsewhere in this changelog refer to — now visible as artifacts.
+
+### Changed — softened the "Claude routes by description" claim
+
+The "Why this exists" bullet that asserted *Claude routes by
+description; near-duplicates cause silent misrouting* now reads *agents
+are selected based on their description per Anthropic's docs; the
+exact ranking algorithm isn't published, but overlapping descriptions
+create routing ambiguity in practice*. The functional point is
+unchanged; the wording is honest about what Anthropic publicly
+documents.
+
+### Added — Phase 2.5 roadmap entry: opt-in `--accurate` flag
+
+Roadmap now flags a Phase 2.5 in development: an opt-in `--accurate`
+flag that routes token counts through Anthropic's public
+`count_tokens` endpoint (caller's API key, one request per scanned
+file, locally cached). Default tokenizer stays `tiktoken`
+`cl100k_base`; `--accurate` is a verification mode for reviewers who
+want a ground-truth comparison against Anthropic's own counter.
+
 ### Added — Phase 2: opt-in `fix` mode
 - New `fix` subcommand walks the user through fixable findings one by
   one. Each proposal shows a rationale, a unified diff (red removals,

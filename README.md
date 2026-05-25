@@ -13,7 +13,7 @@ Claude Code loads `CLAUDE.md`, every `.claude/agents/*.md`, and every skill's `S
 The ecosystem has a lot of "session handoff" and "state management" tools. It doesn't have a linter for the config itself. This is that linter.
 
 - "How many tokens does my CLAUDE.md actually cost?"
-- "Are two of my agents describing the same job?" (Claude routes by description; near-duplicates cause silent misrouting.)
+- "Are two of my agents describing the same job?" (Anthropic's docs say agents are selected based on their description; the exact ranking algorithm isn't published, but overlapping descriptions create routing ambiguity in practice.)
 - "Is my SKILL.md description too vague for Claude to ever invoke it?"
 
 ## What it does
@@ -218,6 +218,18 @@ Findings  0 error  0 warning  0 info
 
 Slash commands appear with `~0` eager weight because Claude Code does not pull `.claude/commands/*.md` into context until the user types `/<command>`.
 
+## Case studies
+
+Six real audits against popular Claude Code frameworks
+(BMAD, claude-flow, SuperClaude, VoltAgent, wshobson,
+Claude-Code-Game-Studios) live under
+[`case-studies/`](case-studies/). Each file is the raw HTML report
+`claude-audit --html` produced on a clean install in May 2026 — same
+metric tuning the rest of the README refers to. Use them as a baseline
+when re-running the auditor against a new release of one of these
+frameworks, or as a sanity check that the tool produces sensible
+numbers on a project you trust.
+
 ## Working with the JSON output
 
 `--json` writes a machine-readable report to stdout. Pipe it to a file
@@ -380,6 +392,12 @@ suitable for offline use, we'll wire it in and the numbers will sharpen.
 - **Phase 2 — shipped:** opt-in `fix` mode (annotates weak agent
   descriptions, archives stale CLAUDE.md sections) and `revert` with
   drift detection.
+- **Phase 2.5 — in development:** an opt-in `--accurate` flag that
+  routes token counts through Anthropic's public `count_tokens` endpoint
+  (your API key, one request per scanned file, cached locally). The
+  default tokenizer stays `tiktoken` `cl100k_base` — `--accurate` is for
+  reviewers who want a ground-truth comparison against Anthropic's own
+  counter without changing the headline experience.
 - **Phase 3 — not planned yet:** Anthropic-API-assisted rewriting of
   descriptions and sections. Privacy and cost trade-offs make this a
   separate conversation.

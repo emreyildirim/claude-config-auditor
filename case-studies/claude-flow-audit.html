@@ -1,0 +1,3909 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Audit · claude-flow</title>
+<style>
+/* ============ Theme tokens ============
+   :root holds the light theme. Dark theme overrides via either
+   [data-theme="dark"] (manual override) or @media prefers-color-scheme.
+   ===================================== */
+:root {
+  --bg: #f7f6f3;
+  --surface: #ffffff;
+  --surface-alt: #fbfaf7;
+  --border: #e6e3dc;
+  --border-strong: #cfccc3;
+  --border-faint: #efece5;
+
+  --ink-1: #0c0c0b;
+  --ink-2: #4d4b46;
+  --ink-3: #8a8780;
+  --ink-4: #b4b1a8;
+
+  --critical: #cc2c1f;
+  --critical-bg: #fdedea;
+  --critical-line: #f0c0b9;
+  --warning: #b87618;
+  --warning-bg: #fbf3e3;
+  --warning-line: #e9d4a4;
+  --info: #1f5ec0;
+  --info-bg: #ebf1fb;
+  --info-line: #c2d2ee;
+  --ok: #1d7a45;
+  --ok-bg: #e8f3ec;
+  --ok-line: #b8d8c2;
+
+  --cat-claude-md: #2b6358;
+  --cat-claude-md-bg: rgba(43, 99, 88, 0.12);
+  --cat-agent: #6b3a18;
+  --cat-agent-bg: rgba(107, 58, 24, 0.12);
+  --cat-skill: #2e4b86;
+  --cat-skill-bg: rgba(46, 75, 134, 0.12);
+  --cat-rule: #6a2e54;
+  --cat-rule-bg: rgba(106, 46, 84, 0.12);
+  --cat-command: #5a3a82;
+  --cat-command-bg: rgba(90, 58, 130, 0.12);
+
+  --sans: "SF Pro Text", -apple-system, BlinkMacSystemFont, system-ui,
+          "Segoe UI", "Helvetica Neue", sans-serif;
+  --mono: "JetBrains Mono", "SF Mono", "Cascadia Mono", Menlo, Consolas,
+          ui-monospace, monospace;
+
+  color-scheme: light;
+}
+
+/* Dark — applied when user OS prefers dark AND no manual override,
+   OR when manual override sets dark explicitly. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d1014;
+    --surface: #161a21;
+    --surface-alt: #1a1f28;
+    --border: #262c37;
+    --border-strong: #353c4a;
+    --border-faint: #1f242d;
+
+    --ink-1: #e9ecf1;
+    --ink-2: #a3a9b6;
+    --ink-3: #6c7484;
+    --ink-4: #4d5462;
+
+    --critical: #ff5b62;
+    --critical-bg: rgba(255, 91, 98, 0.12);
+    --critical-line: rgba(255, 91, 98, 0.3);
+    --warning: #f3b04a;
+    --warning-bg: rgba(243, 176, 74, 0.12);
+    --warning-line: rgba(243, 176, 74, 0.3);
+    --info: #5fa3ff;
+    --info-bg: rgba(95, 163, 255, 0.12);
+    --info-line: rgba(95, 163, 255, 0.3);
+    --ok: #5ad095;
+    --ok-bg: rgba(90, 208, 149, 0.12);
+    --ok-line: rgba(90, 208, 149, 0.3);
+
+    --cat-claude-md: #6dc9b3;
+    --cat-claude-md-bg: rgba(109, 201, 179, 0.15);
+    --cat-agent: #e09368;
+    --cat-agent-bg: rgba(224, 147, 104, 0.15);
+    --cat-skill: #7fa9e8;
+    --cat-skill-bg: rgba(127, 169, 232, 0.15);
+    --cat-rule: #d68caf;
+    --cat-rule-bg: rgba(214, 140, 175, 0.15);
+    --cat-command: #b89cdd;
+    --cat-command-bg: rgba(184, 156, 221, 0.15);
+
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d1014;
+  --surface: #161a21;
+  --surface-alt: #1a1f28;
+  --border: #262c37;
+  --border-strong: #353c4a;
+  --border-faint: #1f242d;
+
+  --ink-1: #e9ecf1;
+  --ink-2: #a3a9b6;
+  --ink-3: #6c7484;
+  --ink-4: #4d5462;
+
+  --critical: #ff5b62;
+  --critical-bg: rgba(255, 91, 98, 0.12);
+  --critical-line: rgba(255, 91, 98, 0.3);
+  --warning: #f3b04a;
+  --warning-bg: rgba(243, 176, 74, 0.12);
+  --warning-line: rgba(243, 176, 74, 0.3);
+  --info: #5fa3ff;
+  --info-bg: rgba(95, 163, 255, 0.12);
+  --info-line: rgba(95, 163, 255, 0.3);
+  --ok: #5ad095;
+  --ok-bg: rgba(90, 208, 149, 0.12);
+  --ok-line: rgba(90, 208, 149, 0.3);
+
+  --cat-claude-md: #6dc9b3;
+  --cat-claude-md-bg: rgba(109, 201, 179, 0.15);
+  --cat-agent: #e09368;
+  --cat-agent-bg: rgba(224, 147, 104, 0.15);
+  --cat-skill: #7fa9e8;
+  --cat-skill-bg: rgba(127, 169, 232, 0.15);
+  --cat-rule: #d68caf;
+  --cat-rule-bg: rgba(214, 140, 175, 0.15);
+  --cat-command: #b89cdd;
+  --cat-command-bg: rgba(184, 156, 221, 0.15);
+
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink-1);
+  font-family: var(--sans);
+  font-size: 13.5px;
+  line-height: 1.55;
+  font-feature-settings: "kern", "liga", "ss01";
+  font-variant-numeric: tabular-nums;
+}
+
+.doc {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 28px 32px 64px;
+}
+
+/* ============ Top bar ============ */
+.topbar {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 24px;
+  align-items: center;
+  padding: 16px 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  margin-bottom: 20px;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  color: var(--ink-1);
+}
+.brand-mark {
+  width: 18px; height: 18px;
+  display: inline-grid; place-items: center;
+  background: var(--ink-1);
+  color: var(--bg);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 2px;
+  line-height: 1;
+}
+.topbar-path {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--ink-2);
+  word-break: break-all;
+  padding: 4px 10px;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  justify-self: start;
+}
+.topbar-meta {
+  display: flex;
+  gap: 18px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  color: var(--ink-3);
+}
+.topbar-meta span strong {
+  color: var(--ink-2);
+  font-weight: 600;
+}
+.theme-toggle {
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  color: var(--ink-2);
+  width: 30px; height: 30px;
+  display: inline-grid; place-items: center;
+  cursor: pointer;
+  border-radius: 3px;
+  font-family: var(--mono);
+  font-size: 14px;
+  line-height: 1;
+  padding: 0;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+.theme-toggle:hover {
+  border-color: var(--border-strong);
+  color: var(--ink-1);
+}
+.theme-toggle::before { content: attr(data-icon); }
+.theme-toggle[data-theme="auto"] { color: var(--ink-3); }
+.theme-toggle[data-theme="light"] { color: var(--warning); }
+.theme-toggle[data-theme="dark"] { color: var(--info); }
+
+/* ============ KPIs ============ */
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.kpi {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 16px 18px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 124px;
+}
+.kpi-label {
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--ink-3);
+}
+.kpi-value {
+  font-family: var(--mono);
+  font-size: 34px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--ink-1);
+  line-height: 1;
+  margin-top: 2px;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+.kpi-unit {
+  font-family: var(--mono);
+  font-size: 14px;
+  color: var(--ink-3);
+  font-weight: 400;
+  margin-left: 6px;
+  letter-spacing: 0;
+}
+.kpi-sub {
+  font-size: 12px;
+  color: var(--ink-2);
+  line-height: 1.45;
+  margin-top: auto;
+}
+.kpi-strip {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 3px;
+  background: var(--border-strong);
+}
+.kpi--ok .kpi-strip { background: var(--ok); }
+.kpi--info .kpi-strip { background: var(--info); }
+.kpi--warning .kpi-strip { background: var(--warning); }
+.kpi--critical .kpi-strip { background: var(--critical); }
+.kpi--critical .kpi-value { color: var(--critical); }
+
+/* ============ Panels ============ */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  margin-bottom: 16px;
+}
+.panel-h {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-alt);
+}
+.panel-h h2 {
+  margin: 0;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--ink-1);
+}
+.panel-sub {
+  font-size: 11.5px;
+  color: var(--ink-3);
+}
+.panel-foot {
+  padding: 10px 20px;
+  border-top: 1px solid var(--border);
+  font-size: 11.5px;
+  color: var(--ink-3);
+  background: var(--surface-alt);
+}
+
+/* Expand block (top-consumers overflow) */
+.expand {
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+}
+.expand-summary {
+  cursor: pointer;
+  user-select: none;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  font-size: 11.5px;
+  letter-spacing: 0.04em;
+  background: var(--surface-alt);
+  border-bottom: 1px solid transparent;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.expand-summary::-webkit-details-marker { display: none; }
+.expand-summary:hover {
+  background: var(--surface);
+  color: var(--ink-1);
+}
+.expand-summary:focus-visible {
+  outline: 2px solid var(--info);
+  outline-offset: -2px;
+}
+.expand-toggle {
+  display: inline-block;
+  width: 0; height: 0;
+  border-style: solid;
+  border-width: 5px 0 5px 8px;
+  border-color: transparent transparent transparent var(--ink-3);
+  transition: transform 0.18s ease;
+  flex-shrink: 0;
+}
+.expand[open] .expand-toggle { transform: rotate(90deg); }
+.expand[open] .expand-summary {
+  border-bottom-color: var(--border);
+  color: var(--ink-1);
+  background: var(--surface);
+}
+.expand-label {
+  font-family: var(--mono);
+  color: var(--ink-2);
+  font-size: 12px;
+}
+.expand[open] .expand-label { color: var(--ink-1); }
+.expand-hint {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-3);
+}
+.dt--continuation thead {
+  /* Continuation table — keep header subtle since it's a repeat */
+}
+.dt--continuation thead th {
+  background: var(--surface);
+  color: var(--ink-4);
+  font-size: 9.5px;
+}
+
+/* ============ Utilization chart ============ */
+.util-chart {
+  padding: 20px 20px 8px;
+}
+.util-chart svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.util-baseline { stroke: var(--ink-1); stroke-width: 1; }
+.util-tick { stroke: var(--ink-2); stroke-width: 1; }
+.util-tick-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  fill: var(--ink-3);
+}
+.util-wall {
+  stroke: var(--ink-1);
+  stroke-width: 1.5;
+  stroke-dasharray: 3 2;
+}
+.util-wall-label {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  fill: var(--ink-2);
+  letter-spacing: 0.08em;
+  font-weight: 600;
+}
+.util-over-label {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  fill: var(--critical);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+.util-seg { transition: opacity 0.15s; }
+.util-seg:hover { opacity: 0.85; }
+.util-seg--claude-md { fill: var(--cat-claude-md); }
+.util-seg--agent { fill: var(--cat-agent); }
+.util-seg--skill { fill: var(--cat-skill); }
+.util-seg--rule { fill: var(--cat-rule); }
+.util-seg--command { fill: var(--cat-command); }
+.util-seg--over { fill: var(--critical); }
+
+.util-legend {
+  padding: 12px 20px 18px;
+  display: grid;
+  gap: 4px;
+}
+.leg-row {
+  display: grid;
+  grid-template-columns: 14px 1fr 90px 60px 90px;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 0;
+  font-size: 12.5px;
+  border-bottom: 1px solid var(--border-faint);
+}
+.leg-row:last-child { border-bottom: none; }
+.leg-swatch {
+  display: inline-block;
+  width: 10px; height: 10px;
+  border-radius: 2px;
+  vertical-align: middle;
+  background: var(--ink-2);
+}
+.leg-swatch--claude-md { background: var(--cat-claude-md); }
+.leg-swatch--agent { background: var(--cat-agent); }
+.leg-swatch--skill { background: var(--cat-skill); }
+.leg-swatch--rule { background: var(--cat-rule); }
+.leg-swatch--command { background: var(--cat-command); }
+.leg-name {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--ink-1);
+}
+.leg-files {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--ink-3);
+  text-align: right;
+}
+.leg-pct {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--ink-2);
+  text-align: right;
+}
+.leg-tok {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  color: var(--ink-1);
+  text-align: right;
+  font-weight: 500;
+}
+
+/* ============ Data tables ============ */
+.dt {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+.dt thead th {
+  text-align: left;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--ink-3);
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-alt);
+}
+.dt tbody td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-faint);
+  vertical-align: middle;
+}
+.dt tbody tr:hover td { background: var(--surface-alt); }
+.dt tbody tr:last-child td { border-bottom: none; }
+
+.t-rank {
+  width: 40px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-3);
+  letter-spacing: 0.04em;
+}
+.t-cat {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  color: var(--ink-1);
+  width: 140px;
+}
+.t-cat-small { width: 80px; }
+.t-path code {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  color: var(--ink-1);
+  background: transparent;
+  word-break: break-all;
+}
+.t-num {
+  text-align: right;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  color: var(--ink-1);
+  white-space: nowrap;
+}
+.t-num-pct {
+  width: 70px;
+  color: var(--ink-2);
+}
+.t-num-tok {
+  width: 100px;
+  font-weight: 500;
+}
+.t-bar {
+  width: 35%;
+  padding-right: 18px;
+}
+th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
+
+.row-bar {
+  display: block;
+  height: 8px;
+  background: var(--ink-1);
+  border-radius: 1px;
+}
+.row-bar--claude-md { background: var(--cat-claude-md); }
+.row-bar--agent { background: var(--cat-agent); }
+.row-bar--skill { background: var(--cat-skill); }
+.row-bar--rule { background: var(--cat-rule); }
+.row-bar--command { background: var(--cat-command); }
+
+.cat-tag {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  padding: 2px 6px;
+  border: 1px solid currentColor;
+  border-radius: 2px;
+  text-transform: lowercase;
+  background: transparent;
+}
+.cat-tag--claude-md { color: var(--cat-claude-md); background: var(--cat-claude-md-bg); border-color: transparent; }
+.cat-tag--agent { color: var(--cat-agent); background: var(--cat-agent-bg); border-color: transparent; }
+.cat-tag--skill { color: var(--cat-skill); background: var(--cat-skill-bg); border-color: transparent; }
+.cat-tag--rule { color: var(--cat-rule); background: var(--cat-rule-bg); border-color: transparent; }
+.cat-tag--command { color: var(--cat-command); background: var(--cat-command-bg); border-color: transparent; }
+
+/* ============ Findings ============ */
+.f-group { padding: 14px 20px 18px; border-bottom: 1px solid var(--border); }
+.f-group:last-child { border-bottom: none; }
+.f-group-h {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.f-group-sev {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 2px;
+}
+.f-group-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-1);
+}
+.f-group-blurb {
+  font-size: 12px;
+  color: var(--ink-3);
+}
+.f-group-count {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-3);
+}
+
+.f-list { list-style: none; padding: 0; margin: 0; }
+.f {
+  display: grid;
+  grid-template-columns: 12px 88px 1fr;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px dotted var(--border);
+  align-items: start;
+}
+.f:last-child { border-bottom: none; }
+.f-bullet {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  margin-top: 8px;
+  margin-left: 4px;
+  background: var(--ink-3);
+}
+.f--error .f-bullet { background: var(--critical); }
+.f--warning .f-bullet { background: var(--warning); }
+.f--info .f-bullet { background: var(--info); }
+.f-code code {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  padding: 2px 6px;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+.f-body { min-width: 0; }
+.f-msg {
+  font-size: 13px;
+  color: var(--ink-1);
+  line-height: 1.5;
+}
+.f-path {
+  display: inline-block;
+  margin-top: 4px;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--ink-3);
+  background: transparent;
+  word-break: break-all;
+}
+.f-path--none { font-style: italic; }
+.f-hint {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--ink-2);
+  padding-left: 14px;
+  border-left: 2px solid var(--border-strong);
+}
+
+.sev {
+  display: inline-block;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.sev-error { color: var(--critical); background: var(--critical-bg); }
+.sev-warning { color: var(--warning); background: var(--warning-bg); }
+.sev-info { color: var(--info); background: var(--info-bg); }
+
+.all-clear {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  padding: 20px;
+  margin: 14px 20px;
+  background: var(--ok-bg);
+  border: 1px solid var(--ok-line);
+  border-left: 3px solid var(--ok);
+}
+.all-clear-mark {
+  font-size: 22px;
+  color: var(--ok);
+  font-weight: 700;
+}
+.all-clear strong { color: var(--ok); font-size: 14px; font-weight: 600; display: block; }
+.all-clear span { color: var(--ink-2); font-size: 12px; }
+
+/* ============ Footer ============ */
+.colophon {
+  margin-top: 24px;
+  padding: 16px 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+.colophon-block { display: grid; gap: 4px; }
+.colophon-row {
+  display: grid;
+  grid-template-columns: 130px 1fr;
+  gap: 12px;
+  font-size: 11.5px;
+}
+.colophon-row dt {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--ink-3);
+  padding-top: 2px;
+}
+.colophon-row dd {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--ink-1);
+}
+.colophon-note {
+  grid-column: 1 / -1;
+  font-size: 11.5px;
+  color: var(--ink-3);
+  border-top: 1px solid var(--border-faint);
+  padding-top: 12px;
+  line-height: 1.55;
+}
+.colophon-note .ro {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 600;
+  padding: 1px 6px;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  color: var(--ink-2);
+  margin-right: 8px;
+}
+
+@media (max-width: 920px) {
+  .kpis { grid-template-columns: repeat(2, 1fr); }
+  .topbar { grid-template-columns: 1fr; }
+  .topbar-path { justify-self: stretch; }
+}
+@media (max-width: 560px) {
+  .kpis { grid-template-columns: 1fr; }
+  .leg-row { grid-template-columns: 14px 1fr auto; }
+  .leg-files, .leg-pct { display: none; }
+  .f { grid-template-columns: 12px 1fr; }
+  .f-code { grid-column: 2; }
+  .colophon { grid-template-columns: 1fr; }
+}
+
+/* ============ Info tooltips ============
+   Tiny ⓘ button next to KPI labels and panel titles. Reveals a
+   tooltip on hover, keyboard focus, or tap (data-open is toggled by
+   the inline script). Tooltip colours invert the page palette so
+   the bubble stands out in both themes. */
+.info {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  margin-left: 6px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--ink-4);
+  background: transparent;
+  color: var(--ink-3);
+  font-family: var(--sans);
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: help;
+  user-select: none;
+  vertical-align: middle;
+  transition: color 0.12s, border-color 0.12s, background 0.12s;
+}
+.info:hover,
+.info:focus-visible,
+.info[data-open="true"] {
+  color: var(--ink-1);
+  border-color: var(--ink-1);
+  background: var(--surface);
+  outline: none;
+}
+.info-mark { pointer-events: none; }
+
+.info-tip {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: -6px;
+  z-index: 50;
+  width: 260px;
+  padding: 10px 12px;
+  background: var(--ink-1);
+  color: var(--surface);
+  border-radius: 4px;
+  font-family: var(--sans);
+  font-size: 11.5px;
+  font-weight: 400;
+  line-height: 1.5;
+  letter-spacing: 0;
+  text-transform: none;
+  text-align: left;
+  cursor: default;
+  opacity: 0;
+  transform: translateY(-2px);
+  pointer-events: none;
+  transition: opacity 0.14s ease, transform 0.14s ease;
+  box-shadow: 0 6px 20px -6px rgba(0, 0, 0, 0.25);
+  /* Small triangle pointing back at the icon. */
+}
+.info-tip::before {
+  content: "";
+  position: absolute;
+  top: -5px;
+  right: 8px;
+  width: 0; height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 5px solid var(--ink-1);
+}
+.info:hover .info-tip,
+.info:focus-visible .info-tip,
+.info[data-open="true"] .info-tip {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* Some hosts (KPI label, panel h2) are uppercase tracked — undo that
+   inside tooltip text so the prose reads naturally. */
+.info-tip {
+  letter-spacing: normal;
+  font-weight: 400;
+}
+
+/* Make the KPI label a flex row so the button doesn't blow out spacing. */
+.kpi-label {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.t-num-dim {
+  color: var(--ink-4);
+  font-family: var(--mono);
+}
+</style>
+</head>
+<body>
+<main class="doc doc--critical">
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">▣</span>
+      claude-config-auditor
+    </div>
+    <code class="topbar-path">claude-flow</code>
+    <div class="topbar-meta">
+      <span><strong>v0.1.0</strong></span>
+      <span>2026-05-21 · 16:42</span>
+      <span>id <strong>137EB7D6</strong></span>
+      <button class="theme-toggle" id="theme-toggle"
+              type="button" aria-label="Cycle color theme"
+              title="Cycle theme (auto / light / dark)"></button>
+    </div>
+  </header>
+
+  <section class="kpis">
+      <article class="kpi kpi--neutral">
+        <header class="kpi-label">
+          <span>Always loaded</span>
+          <button class="info" type="button" aria-label="Tokens Claude Code pulls into the main session at startup, every time you open this project: the full CLAUDE.md, the full rules/, plus the frontmatter (name + description) of every agent and skill. Agent and skill bodies are NOT in this number — they load on demand and are reported separately." data-info="always_loaded"><span class="info-mark" aria-hidden="true">?</span><span class="info-tip" role="tooltip">Tokens Claude Code pulls into the main session at startup, every time you open this project: the full CLAUDE.md, the full rules/, plus the frontmatter (name + description) of every agent and skill. Agent and skill bodies are NOT in this number — they load on demand and are reported separately.</span></button>
+        </header>
+        <div class="kpi-value">7,474<span class="kpi-unit">tok</span></div>
+        <div class="kpi-sub">+ 354,384 tok on-demand</div>
+        <div class="kpi-strip"></div>
+      </article>
+    
+      <article class="kpi kpi--ok">
+        <header class="kpi-label">
+          <span>Window occupation</span>
+          <button class="info" type="button" aria-label="Always-loaded tokens as a percentage of the 200,000-token context window. Below 25% leaves comfortable room for your conversation, files, and Claude&#x27;s responses; near or above 100% means the session is choking on its own config before you have typed a word." data-info="window_occupation"><span class="info-mark" aria-hidden="true">?</span><span class="info-tip" role="tooltip">Always-loaded tokens as a percentage of the 200,000-token context window. Below 25% leaves comfortable room for your conversation, files, and Claude&#x27;s responses; near or above 100% means the session is choking on its own config before you have typed a word.</span></button>
+        </header>
+        <div class="kpi-value">3.7<span class="kpi-unit">%</span></div>
+        <div class="kpi-sub">192,526 tokens of headroom</div>
+        <div class="kpi-strip"></div>
+      </article>
+    
+      <article class="kpi kpi--neutral">
+        <header class="kpi-label">
+          <span>Files tracked</span>
+          <button class="info" type="button" aria-label="Total configuration files the auditor read, broken down by type. Skills, agents, and rules live under .claude/; CLAUDE.md files can sit at the project root or nested inside subprojects." data-info="files_tracked"><span class="info-mark" aria-hidden="true">?</span><span class="info-tip" role="tooltip">Total configuration files the auditor read, broken down by type. Skills, agents, and rules live under .claude/; CLAUDE.md files can sit at the project root or nested inside subprojects.</span></button>
+        </header>
+        <div class="kpi-value">217</div>
+        <div class="kpi-sub">1 claude.md, 98 agent, 30 skill, 88 command</div>
+        <div class="kpi-strip"></div>
+      </article>
+    
+      <article class="kpi kpi--critical">
+        <header class="kpi-label">
+          <span>Issues</span>
+          <button class="info" type="button" aria-label="Quality findings the auditor surfaced. Errors are blocking — Claude cannot use these correctly. Warnings cause routing or budget problems. Advisories are worth considering but not urgent." data-info="issues"><span class="info-mark" aria-hidden="true">?</span><span class="info-tip" role="tooltip">Quality findings the auditor surfaced. Errors are blocking — Claude cannot use these correctly. Warnings cause routing or budget problems. Advisories are worth considering but not urgent.</span></button>
+        </header>
+        <div class="kpi-value">33</div>
+        <div class="kpi-sub"><span class="sev sev-error">1</span> error · <span class="sev sev-warning">16</span> warning · <span class="sev sev-info">16</span> advisory</div>
+        <div class="kpi-strip"></div>
+      </article>
+    </section>
+  
+    <section class="panel">
+      <header class="panel-h">
+        <h2>Window utilization<button class="info" type="button" aria-label="Shows how each category contributes to the always-loaded session footprint. Bar segments reflect eager tokens only — on-demand weight (agent/skill bodies) is not shown here because it does not compete for window space at startup." data-info="window_utilization"><span class="info-mark" aria-hidden="true">?</span><span class="info-tip" role="tooltip">Shows how each category contributes to the always-loaded session footprint. Bar segments reflect eager tokens only — on-demand weight (agent/skill bodies) is not shown here because it does not compete for window space at startup.</span></button></h2>
+        <span class="panel-sub">
+          stacked contribution to the 200,000-token reference window
+        </span>
+      </header>
+      <div class="util-chart">
+        <svg viewBox="0 0 1000 140" preserveAspectRatio="xMidYMid meet"
+             role="img" aria-label="Context window utilization">
+          <line x1="40.0" y1="100" x2="40.0" y2="108" class="util-tick"/><text x="40.0" y="122" class="util-tick-label" text-anchor="middle">0%</text><line x1="215.0" y1="100" x2="215.0" y2="108" class="util-tick"/><text x="215.0" y="122" class="util-tick-label" text-anchor="middle">25%</text><line x1="390.0" y1="100" x2="390.0" y2="108" class="util-tick"/><text x="390.0" y="122" class="util-tick-label" text-anchor="middle">50%</text><line x1="565.0" y1="100" x2="565.0" y2="108" class="util-tick"/><text x="565.0" y="122" class="util-tick-label" text-anchor="middle">75%</text><line x1="740.0" y1="100" x2="740.0" y2="108" class="util-tick"/><text x="740.0" y="122" class="util-tick-label" text-anchor="middle">100%</text>
+          
+      <line x1="740.0" y1="44" x2="740.0" y2="108" class="util-wall"/>
+      <text x="734.0" y="34" class="util-wall-label" text-anchor="end">
+        200K · LIMIT
+      </text>
+    
+          
+          <rect x="40.0" y="60" width="5.7" height="40" class="util-seg util-seg--claude-md"/><rect x="45.7" y="60" width="15.3" height="40" class="util-seg util-seg--agent"/><rect x="61.0" y="60" width="5.1" height="40" class="util-seg util-seg--skill"/>
+          <line x1="40" y1="100" x2="940" y2="100" class="util-baseline"/>
+        </svg>
+      </div>
+      <div class="util-legend">
+          <div class="leg-row">
+            <span class="leg-swatch leg-swatch--claude-md"></span>
+            <span class="leg-name">claude.md</span>
+            <span class="leg-files">1 files</span>
+            <span class="leg-pct">21.9%</span>
+            <span class="leg-tok">1,636</span>
+          </div>
+        
+          <div class="leg-row">
+            <span class="leg-swatch leg-swatch--agent"></span>
+            <span class="leg-name">agent</span>
+            <span class="leg-files">98 files</span>
+            <span class="leg-pct">58.5%</span>
+            <span class="leg-tok">4,376</span>
+          </div>
+        
+          <div class="leg-row">
+            <span class="leg-swatch leg-swatch--skill"></span>
+            <span class="leg-name">skill</span>
+            <span class="leg-files">30 files</span>
+            <span class="leg-pct">19.6%</span>
+            <span class="leg-tok">1,462</span>
+          </div>
+        </div>
+    </section>
+    
+  
+    <section class="panel">
+      <header class="panel-h">
+        <h2>Categories<button class="info" type="button" aria-label="Token breakdown by configuration source. The &#x27;Eager&#x27; column is what Claude actually loads at session start; &#x27;On-demand&#x27; is what waits to be invoked. Total = eager + on-demand." data-info="categories"><span class="info-mark" aria-hidden="true">?</span><span class="info-tip" role="tooltip">Token breakdown by configuration source. The &#x27;Eager&#x27; column is what Claude actually loads at session start; &#x27;On-demand&#x27; is what waits to be invoked. Total = eager + on-demand.</span></button></h2>
+        <span class="panel-sub">eager / on-demand split per configuration source</span>
+      </header>
+      <table class="dt">
+        <thead>
+          <tr>
+            <th class="t-cat">Source</th>
+            <th class="t-num">Files</th>
+            <th class="t-bar">Total weight</th>
+            <th class="t-num t-num-tok">Eager</th>
+            <th class="t-num t-num-tok">On-demand</th>
+            <th class="t-num t-num-tok">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="t-cat">
+              <span class="leg-swatch leg-swatch--claude-md"></span>
+              claude.md
+            </td>
+            <td class="t-num">1</td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--claude-md" style="width:0.9%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,636</td>
+            <td class="t-num t-num-tok"><span class="t-num-dim">—</span></td>
+            <td class="t-num t-num-tok">1,636</td>
+          </tr>
+          <tr>
+            <td class="t-cat">
+              <span class="leg-swatch leg-swatch--agent"></span>
+              agent
+            </td>
+            <td class="t-num">98</td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:100.0%"></span>
+            </td>
+            <td class="t-num t-num-tok">4,376</td>
+            <td class="t-num t-num-tok">172,222</td>
+            <td class="t-num t-num-tok">176,598</td>
+          </tr>
+          <tr>
+            <td class="t-cat">
+              <span class="leg-swatch leg-swatch--skill"></span>
+              skill
+            </td>
+            <td class="t-num">30</td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:67.6%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,462</td>
+            <td class="t-num t-num-tok">117,931</td>
+            <td class="t-num t-num-tok">119,393</td>
+          </tr>
+          <tr>
+            <td class="t-cat">
+              <span class="leg-swatch leg-swatch--command"></span>
+              command
+            </td>
+            <td class="t-num">88</td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:36.4%"></span>
+            </td>
+            <td class="t-num t-num-tok">0</td>
+            <td class="t-num t-num-tok">64,231</td>
+            <td class="t-num t-num-tok">64,231</td>
+          </tr></tbody>
+      </table>
+    </section>
+    
+  
+    <section class="panel">
+      <header class="panel-h">
+        <h2>Top consumers<button class="info" type="button" aria-label="The single files costing you the most tokens, sorted largest to smallest. These are usually the best places to start when you need to claw context space back — even on-demand files fire often enough to matter." data-info="top_consumers"><span class="info-mark" aria-hidden="true">?</span><span class="info-tip" role="tooltip">The single files costing you the most tokens, sorted largest to smallest. These are usually the best places to start when you need to claw context space back — even on-demand files fire often enough to matter.</span></button></h2>
+        <span class="panel-sub">
+          largest files by estimated token cost · 217 file(s) total
+        </span>
+      </header>
+      <table class="dt dt--files">
+        
+        <thead>
+          <tr>
+            <th class="t-rank">№</th>
+            <th class="t-path">Path</th>
+            <th class="t-cat-small">Type</th>
+            <th class="t-bar">Size</th>
+            <th class="t-num t-num-tok">Tokens</th>
+          </tr>
+        </thead>
+    
+        <tbody>
+          <tr>
+            <td class="t-rank">001</td>
+            <td class="t-path"><code>.claude/skills/github-project-management/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:100.0%"></span>
+            </td>
+            <td class="t-num t-num-tok">7,564</td>
+          </tr>
+          <tr>
+            <td class="t-rank">002</td>
+            <td class="t-path"><code>.claude/skills/hooks-automation/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:99.5%"></span>
+            </td>
+            <td class="t-num t-num-tok">7,527</td>
+          </tr>
+          <tr>
+            <td class="t-rank">003</td>
+            <td class="t-path"><code>.claude/skills/github-release-management/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:95.1%"></span>
+            </td>
+            <td class="t-num t-num-tok">7,195</td>
+          </tr>
+          <tr>
+            <td class="t-rank">004</td>
+            <td class="t-path"><code>.claude/skills/github-code-review/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:86.7%"></span>
+            </td>
+            <td class="t-num t-num-tok">6,557</td>
+          </tr>
+          <tr>
+            <td class="t-rank">005</td>
+            <td class="t-path"><code>.claude/skills/pair-programming/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:82.8%"></span>
+            </td>
+            <td class="t-num t-num-tok">6,260</td>
+          </tr>
+          <tr>
+            <td class="t-rank">006</td>
+            <td class="t-path"><code>.claude/skills/swarm-advanced/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:80.2%"></span>
+            </td>
+            <td class="t-num t-num-tok">6,065</td>
+          </tr>
+          <tr>
+            <td class="t-rank">007</td>
+            <td class="t-path"><code>.claude/skills/sparc-methodology/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:80.0%"></span>
+            </td>
+            <td class="t-num t-num-tok">6,054</td>
+          </tr>
+          <tr>
+            <td class="t-rank">008</td>
+            <td class="t-path"><code>.claude/skills/github-workflow-automation/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:79.3%"></span>
+            </td>
+            <td class="t-num t-num-tok">5,997</td>
+          </tr>
+          <tr>
+            <td class="t-rank">009</td>
+            <td class="t-path"><code>.claude/agents/consensus/quorum-manager.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:79.2%"></span>
+            </td>
+            <td class="t-num t-num-tok">5,987</td>
+          </tr>
+          <tr>
+            <td class="t-rank">010</td>
+            <td class="t-path"><code>.claude/agents/consensus/performance-benchmarker.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:75.7%"></span>
+            </td>
+            <td class="t-num t-num-tok">5,728</td>
+          </tr>
+          <tr>
+            <td class="t-rank">011</td>
+            <td class="t-path"><code>.claude/agents/consensus/crdt-synchronizer.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:75.4%"></span>
+            </td>
+            <td class="t-num t-num-tok">5,700</td>
+          </tr>
+          <tr>
+            <td class="t-rank">012</td>
+            <td class="t-path"><code>.claude/skills/github-multi-repo/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:74.9%"></span>
+            </td>
+            <td class="t-num t-num-tok">5,662</td>
+          </tr>
+          <tr>
+            <td class="t-rank">013</td>
+            <td class="t-path"><code>.claude/agents/goal/agent.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:74.1%"></span>
+            </td>
+            <td class="t-num t-num-tok">5,603</td>
+          </tr>
+          <tr>
+            <td class="t-rank">014</td>
+            <td class="t-path"><code>.claude/skills/v3-cli-modernization/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:73.6%"></span>
+            </td>
+            <td class="t-num t-num-tok">5,570</td>
+          </tr>
+          <tr>
+            <td class="t-rank">015</td>
+            <td class="t-path"><code>.claude/skills/skill-builder/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:68.9%"></span>
+            </td>
+            <td class="t-num t-num-tok">5,213</td>
+          </tr>
+          <tr>
+            <td class="t-rank">016</td>
+            <td class="t-path"><code>.claude/skills/v3-mcp-optimization/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:66.8%"></span>
+            </td>
+            <td class="t-num t-num-tok">5,050</td>
+          </tr>
+          <tr>
+            <td class="t-rank">017</td>
+            <td class="t-path"><code>.claude/skills/v3-core-implementation/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:66.6%"></span>
+            </td>
+            <td class="t-num t-num-tok">5,041</td>
+          </tr>
+          <tr>
+            <td class="t-rank">018</td>
+            <td class="t-path"><code>.claude/skills/verification-quality/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:66.5%"></span>
+            </td>
+            <td class="t-num t-num-tok">5,033</td>
+          </tr>
+          <tr>
+            <td class="t-rank">019</td>
+            <td class="t-path"><code>.claude/agents/optimization/topology-optimizer.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:66.2%"></span>
+            </td>
+            <td class="t-num t-num-tok">5,007</td>
+          </tr>
+          <tr>
+            <td class="t-rank">020</td>
+            <td class="t-path"><code>.claude/agents/templates/migration-plan.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:58.7%"></span>
+            </td>
+            <td class="t-num t-num-tok">4,438</td>
+          </tr></tbody>
+      </table>
+      
+          <details class="expand">
+            <summary class="expand-summary">
+              <span class="expand-toggle" aria-hidden="true"></span>
+              <span class="expand-label">Show remaining 197 file(s)</span>
+              <span class="expand-hint">217 total</span>
+            </summary>
+            <table class="dt dt--files dt--continuation">
+              
+        <thead>
+          <tr>
+            <th class="t-rank">№</th>
+            <th class="t-path">Path</th>
+            <th class="t-cat-small">Type</th>
+            <th class="t-bar">Size</th>
+            <th class="t-num t-num-tok">Tokens</th>
+          </tr>
+        </thead>
+    
+              <tbody>
+          <tr>
+            <td class="t-rank">021</td>
+            <td class="t-path"><code>.claude/agents/optimization/benchmark-suite.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:55.2%"></span>
+            </td>
+            <td class="t-num t-num-tok">4,177</td>
+          </tr>
+          <tr>
+            <td class="t-rank">022</td>
+            <td class="t-path"><code>.claude/agents/optimization/performance-monitor.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:54.8%"></span>
+            </td>
+            <td class="t-num t-num-tok">4,148</td>
+          </tr>
+          <tr>
+            <td class="t-rank">023</td>
+            <td class="t-path"><code>.claude/agents/consensus/security-manager.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:53.5%"></span>
+            </td>
+            <td class="t-num t-num-tok">4,047</td>
+          </tr>
+          <tr>
+            <td class="t-rank">024</td>
+            <td class="t-path"><code>.claude/agents/optimization/resource-allocator.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:53.3%"></span>
+            </td>
+            <td class="t-num t-num-tok">4,033</td>
+          </tr>
+          <tr>
+            <td class="t-rank">025</td>
+            <td class="t-path"><code>.claude/agents/github/sync-coordinator.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:51.0%"></span>
+            </td>
+            <td class="t-num t-num-tok">3,861</td>
+          </tr>
+          <tr>
+            <td class="t-rank">026</td>
+            <td class="t-path"><code>.claude/agents/github/workflow-automation.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:49.8%"></span>
+            </td>
+            <td class="t-num t-num-tok">3,764</td>
+          </tr>
+          <tr>
+            <td class="t-rank">027</td>
+            <td class="t-path"><code>.claude/agents/github/swarm-issue.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:48.9%"></span>
+            </td>
+            <td class="t-num t-num-tok">3,702</td>
+          </tr>
+          <tr>
+            <td class="t-rank">028</td>
+            <td class="t-path"><code>.claude/agents/github/release-swarm.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:45.5%"></span>
+            </td>
+            <td class="t-num t-num-tok">3,444</td>
+          </tr>
+          <tr>
+            <td class="t-rank">029</td>
+            <td class="t-path"><code>.claude/skills/agentdb-advanced/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:45.0%"></span>
+            </td>
+            <td class="t-num t-num-tok">3,404</td>
+          </tr>
+          <tr>
+            <td class="t-rank">030</td>
+            <td class="t-path"><code>.claude/agents/github/multi-repo-swarm.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:43.9%"></span>
+            </td>
+            <td class="t-num t-num-tok">3,324</td>
+          </tr>
+          <tr>
+            <td class="t-rank">031</td>
+            <td class="t-path"><code>.claude/commands/github/release-swarm.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:43.5%"></span>
+            </td>
+            <td class="t-num t-num-tok">3,294</td>
+          </tr>
+          <tr>
+            <td class="t-rank">032</td>
+            <td class="t-path"><code>.claude/skills/agentdb-optimization/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:43.2%"></span>
+            </td>
+            <td class="t-num t-num-tok">3,270</td>
+          </tr>
+          <tr>
+            <td class="t-rank">033</td>
+            <td class="t-path"><code>.claude/agents/goal/code-goal-planner.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:42.3%"></span>
+            </td>
+            <td class="t-num t-num-tok">3,199</td>
+          </tr>
+          <tr>
+            <td class="t-rank">034</td>
+            <td class="t-path"><code>.claude/commands/github/multi-repo-swarm.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:42.0%"></span>
+            </td>
+            <td class="t-num t-num-tok">3,180</td>
+          </tr>
+          <tr>
+            <td class="t-rank">035</td>
+            <td class="t-path"><code>.claude/commands/github/swarm-issue.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:40.6%"></span>
+            </td>
+            <td class="t-num t-num-tok">3,073</td>
+          </tr>
+          <tr>
+            <td class="t-rank">036</td>
+            <td class="t-path"><code>.claude/agents/github/project-board-sync.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:39.3%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,971</td>
+          </tr>
+          <tr>
+            <td class="t-rank">037</td>
+            <td class="t-path"><code>.claude/agents/github/code-review-swarm.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:39.2%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,968</td>
+          </tr>
+          <tr>
+            <td class="t-rank">038</td>
+            <td class="t-path"><code>.claude/agents/sparc/refinement.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:39.0%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,948</td>
+          </tr>
+          <tr>
+            <td class="t-rank">039</td>
+            <td class="t-path"><code>.claude/skills/v3-swarm-coordination/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:38.9%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,945</td>
+          </tr>
+          <tr>
+            <td class="t-rank">040</td>
+            <td class="t-path"><code>.claude/skills/agentdb-learning/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:38.9%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,944</td>
+          </tr>
+          <tr>
+            <td class="t-rank">041</td>
+            <td class="t-path"><code>.claude/agents/github/release-manager.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:38.5%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,915</td>
+          </tr>
+          <tr>
+            <td class="t-rank">042</td>
+            <td class="t-path"><code>.claude/commands/github/code-review-swarm.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:38.2%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,893</td>
+          </tr>
+          <tr>
+            <td class="t-rank">043</td>
+            <td class="t-path"><code>.claude/commands/github/release-manager.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:38.0%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,871</td>
+          </tr>
+          <tr>
+            <td class="t-rank">044</td>
+            <td class="t-path"><code>.claude/agents/swarm/adaptive-coordinator.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:37.7%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,848</td>
+          </tr>
+          <tr>
+            <td class="t-rank">045</td>
+            <td class="t-path"><code>.claude/agents/github/swarm-pr.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:37.4%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,827</td>
+          </tr>
+          <tr>
+            <td class="t-rank">046</td>
+            <td class="t-path"><code>.claude/commands/github/project-board-sync.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:37.0%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,801</td>
+          </tr>
+          <tr>
+            <td class="t-rank">047</td>
+            <td class="t-path"><code>.claude/agents/github/repo-architect.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:37.0%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,796</td>
+          </tr>
+          <tr>
+            <td class="t-rank">048</td>
+            <td class="t-path"><code>.claude/agents/sublinear/performance-optimizer.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:36.8%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,781</td>
+          </tr>
+          <tr>
+            <td class="t-rank">049</td>
+            <td class="t-path"><code>.claude/agents/optimization/load-balancer.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:36.5%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,760</td>
+          </tr>
+          <tr>
+            <td class="t-rank">050</td>
+            <td class="t-path"><code>.claude/commands/github/repo-architect.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:36.4%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,753</td>
+          </tr>
+          <tr>
+            <td class="t-rank">051</td>
+            <td class="t-path"><code>.claude/skills/stream-chain/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:36.4%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,751</td>
+          </tr>
+          <tr>
+            <td class="t-rank">052</td>
+            <td class="t-path"><code>.claude/commands/sparc/supabase-admin.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:36.3%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,744</td>
+          </tr>
+          <tr>
+            <td class="t-rank">053</td>
+            <td class="t-path"><code>.claude/commands/github/sync-coordinator.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:35.6%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,695</td>
+          </tr>
+          <tr>
+            <td class="t-rank">054</td>
+            <td class="t-path"><code>.claude/skills/reasoningbank-agentdb/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:35.2%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,660</td>
+          </tr>
+          <tr>
+            <td class="t-rank">055</td>
+            <td class="t-path"><code>.claude/agents/v3/v3-performance-engineer.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:33.9%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,567</td>
+          </tr>
+          <tr>
+            <td class="t-rank">056</td>
+            <td class="t-path"><code>.claude/agents/sublinear/consensus-coordinator.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:33.8%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,554</td>
+          </tr>
+          <tr>
+            <td class="t-rank">057</td>
+            <td class="t-path"><code>.claude/skills/v3-ddd-architecture/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:33.7%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,552</td>
+          </tr>
+          <tr>
+            <td class="t-rank">058</td>
+            <td class="t-path"><code>.claude/agents/swarm/mesh-coordinator.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:33.3%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,520</td>
+          </tr>
+          <tr>
+            <td class="t-rank">059</td>
+            <td class="t-path"><code>.claude/skills/v3-performance-optimization/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:32.5%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,459</td>
+          </tr>
+          <tr>
+            <td class="t-rank">060</td>
+            <td class="t-path"><code>.claude/agents/testing/production-validator.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:32.1%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,428</td>
+          </tr>
+          <tr>
+            <td class="t-rank">061</td>
+            <td class="t-path"><code>.claude/agents/testing/validation/production-validator.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:32.1%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,428</td>
+          </tr>
+          <tr>
+            <td class="t-rank">062</td>
+            <td class="t-path"><code>.claude/agents/sparc/architecture.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:32.0%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,417</td>
+          </tr>
+          <tr>
+            <td class="t-rank">063</td>
+            <td class="t-path"><code>.claude/skills/agentdb-vector-search/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:31.8%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,407</td>
+          </tr>
+          <tr>
+            <td class="t-rank">064</td>
+            <td class="t-path"><code>.claude/commands/github/workflow-automation.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:31.4%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,373</td>
+          </tr>
+          <tr>
+            <td class="t-rank">065</td>
+            <td class="t-path"><code>.claude/agents/sublinear/pagerank-analyzer.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:30.7%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,320</td>
+          </tr>
+          <tr>
+            <td class="t-rank">066</td>
+            <td class="t-path"><code>.claude/agents/v3/v3-integration-architect.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:29.5%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,230</td>
+          </tr>
+          <tr>
+            <td class="t-rank">067</td>
+            <td class="t-path"><code>.claude/skills/agentdb-memory-patterns/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:28.7%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,168</td>
+          </tr>
+          <tr>
+            <td class="t-rank">068</td>
+            <td class="t-path"><code>.claude/agents/swarm/hierarchical-coordinator.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:28.5%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,154</td>
+          </tr>
+          <tr>
+            <td class="t-rank">069</td>
+            <td class="t-path"><code>.claude/agents/github/issue-tracker.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:27.3%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,064</td>
+          </tr>
+          <tr>
+            <td class="t-rank">070</td>
+            <td class="t-path"><code>.claude/agents/sublinear/trading-predictor.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:26.3%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,992</td>
+          </tr>
+          <tr>
+            <td class="t-rank">071</td>
+            <td class="t-path"><code>.claude/commands/github/issue-tracker.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:26.2%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,981</td>
+          </tr>
+          <tr>
+            <td class="t-rank">072</td>
+            <td class="t-path"><code>.claude/agents/core/tester.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:24.4%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,843</td>
+          </tr>
+          <tr>
+            <td class="t-rank">073</td>
+            <td class="t-path"><code>.claude/agents/v3/v3-memory-specialist.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:24.3%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,838</td>
+          </tr>
+          <tr>
+            <td class="t-rank">074</td>
+            <td class="t-path"><code>.claude/commands/github/swarm-pr.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:24.1%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,824</td>
+          </tr>
+          <tr>
+            <td class="t-rank">075</td>
+            <td class="t-path"><code>.claude/agents/core/reviewer.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:23.8%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,803</td>
+          </tr>
+          <tr>
+            <td class="t-rank">076</td>
+            <td class="t-path"><code>.claude/agents/sparc/pseudocode.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:23.7%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,790</td>
+          </tr>
+          <tr>
+            <td class="t-rank">077</td>
+            <td class="t-path"><code>.claude/agents/goal/goal-planner.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:23.3%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,765</td>
+          </tr>
+          <tr>
+            <td class="t-rank">078</td>
+            <td class="t-path"><code>.claude/agents/dual-mode/codex-coordinator.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:23.1%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,750</td>
+          </tr>
+          <tr>
+            <td class="t-rank">079</td>
+            <td class="t-path"><code>.claude/skills/v3-integration-deep/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:22.8%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,722</td>
+          </tr>
+          <tr>
+            <td class="t-rank">080</td>
+            <td class="t-path"><code>.claude/agents/dual-mode/dual-orchestrator.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:22.6%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,711</td>
+          </tr>
+          <tr>
+            <td class="t-rank">081</td>
+            <td class="t-path"><code>CLAUDE.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--claude-md">claude.md</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--claude-md" style="width:21.6%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,636</td>
+          </tr>
+          <tr>
+            <td class="t-rank">082</td>
+            <td class="t-path"><code>.claude/agents/core/coder.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:21.0%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,585</td>
+          </tr>
+          <tr>
+            <td class="t-rank">083</td>
+            <td class="t-path"><code>.claude/agents/sparc/specification.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:20.6%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,560</td>
+          </tr>
+          <tr>
+            <td class="t-rank">084</td>
+            <td class="t-path"><code>.claude/agents/hive-mind/scout-explorer.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:20.0%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,513</td>
+          </tr>
+          <tr>
+            <td class="t-rank">085</td>
+            <td class="t-path"><code>.claude/agents/templates/implementer-sparc-coder.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:19.7%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,492</td>
+          </tr>
+          <tr>
+            <td class="t-rank">086</td>
+            <td class="t-path"><code>.claude/commands/github/pr-manager.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:18.9%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,430</td>
+          </tr>
+          <tr>
+            <td class="t-rank">087</td>
+            <td class="t-path"><code>.claude/agents/sublinear/matrix-optimizer.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:18.9%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,426</td>
+          </tr>
+          <tr>
+            <td class="t-rank">088</td>
+            <td class="t-path"><code>.claude/agents/github/pr-manager.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:18.5%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,402</td>
+          </tr>
+          <tr>
+            <td class="t-rank">089</td>
+            <td class="t-path"><code>.claude/skills/browser/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:18.2%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,380</td>
+          </tr>
+          <tr>
+            <td class="t-rank">090</td>
+            <td class="t-path"><code>.claude/agents/github/github-modes.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:18.1%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,367</td>
+          </tr>
+          <tr>
+            <td class="t-rank">091</td>
+            <td class="t-path"><code>.claude/agents/testing/tdd-london-swarm.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:17.5%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,324</td>
+          </tr>
+          <tr>
+            <td class="t-rank">092</td>
+            <td class="t-path"><code>.claude/agents/testing/unit/tdd-london-swarm.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:17.5%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,324</td>
+          </tr>
+          <tr>
+            <td class="t-rank">093</td>
+            <td class="t-path"><code>.claude/agents/hive-mind/worker-specialist.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:17.3%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,312</td>
+          </tr>
+          <tr>
+            <td class="t-rank">094</td>
+            <td class="t-path"><code>.claude/agents/dual-mode/codex-worker.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:17.3%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,305</td>
+          </tr>
+          <tr>
+            <td class="t-rank">095</td>
+            <td class="t-path"><code>.claude/commands/github/github-modes.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:17.1%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,292</td>
+          </tr>
+          <tr>
+            <td class="t-rank">096</td>
+            <td class="t-path"><code>.claude/agents/development/dev-backend-api.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:16.9%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,280</td>
+          </tr>
+          <tr>
+            <td class="t-rank">097</td>
+            <td class="t-path"><code>.claude/commands/claude-flow-swarm.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:16.2%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,229</td>
+          </tr>
+          <tr>
+            <td class="t-rank">098</td>
+            <td class="t-path"><code>.claude/skills/v3-memory-unification/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:15.6%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,183</td>
+          </tr>
+          <tr>
+            <td class="t-rank">099</td>
+            <td class="t-path"><code>.claude/agents/hive-mind/queen-coordinator.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:15.6%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,181</td>
+          </tr>
+          <tr>
+            <td class="t-rank">100</td>
+            <td class="t-path"><code>.claude/agents/payments/agentic-payments.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:15.0%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,137</td>
+          </tr>
+          <tr>
+            <td class="t-rank">101</td>
+            <td class="t-path"><code>.claude/agents/hive-mind/swarm-memory-manager.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:15.0%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,135</td>
+          </tr>
+          <tr>
+            <td class="t-rank">102</td>
+            <td class="t-path"><code>.claude/skills/reasoningbank-intelligence/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:14.9%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,126</td>
+          </tr>
+          <tr>
+            <td class="t-rank">103</td>
+            <td class="t-path"><code>.claude/agents/core/researcher.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:14.7%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,111</td>
+          </tr>
+          <tr>
+            <td class="t-rank">104</td>
+            <td class="t-path"><code>.claude/agents/v3/v3-security-architect.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:14.2%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,077</td>
+          </tr>
+          <tr>
+            <td class="t-rank">105</td>
+            <td class="t-path"><code>.claude/agents/analysis/code-analyzer.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:13.9%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,054</td>
+          </tr>
+          <tr>
+            <td class="t-rank">106</td>
+            <td class="t-path"><code>.claude/skills/swarm-orchestration/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:13.9%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,051</td>
+          </tr>
+          <tr>
+            <td class="t-rank">107</td>
+            <td class="t-path"><code>.claude/commands/sparc/sparc-modes.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:13.7%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,033</td>
+          </tr>
+          <tr>
+            <td class="t-rank">108</td>
+            <td class="t-path"><code>.claude/commands/claude-flow-help.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:12.9%"></span>
+            </td>
+            <td class="t-num t-num-tok">972</td>
+          </tr>
+          <tr>
+            <td class="t-rank">109</td>
+            <td class="t-path"><code>.claude/agents/templates/performance-analyzer.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:12.7%"></span>
+            </td>
+            <td class="t-num t-num-tok">963</td>
+          </tr>
+          <tr>
+            <td class="t-rank">110</td>
+            <td class="t-path"><code>.claude/agents/templates/automation-smart-agent.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:12.7%"></span>
+            </td>
+            <td class="t-num t-num-tok">957</td>
+          </tr>
+          <tr>
+            <td class="t-rank">111</td>
+            <td class="t-path"><code>.claude/agents/core/planner.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:12.5%"></span>
+            </td>
+            <td class="t-num t-num-tok">946</td>
+          </tr>
+          <tr>
+            <td class="t-rank">112</td>
+            <td class="t-path"><code>.claude/commands/analysis/bottleneck-detect.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:11.6%"></span>
+            </td>
+            <td class="t-num t-num-tok">881</td>
+          </tr>
+          <tr>
+            <td class="t-rank">113</td>
+            <td class="t-path"><code>.claude/agents/templates/sparc-coordinator.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:11.2%"></span>
+            </td>
+            <td class="t-num t-num-tok">847</td>
+          </tr>
+          <tr>
+            <td class="t-rank">114</td>
+            <td class="t-path"><code>.claude/agents/templates/github-pr-manager.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:11.0%"></span>
+            </td>
+            <td class="t-num t-num-tok">833</td>
+          </tr>
+          <tr>
+            <td class="t-rank">115</td>
+            <td class="t-path"><code>.claude/agents/hive-mind/collective-intelligence-coordinator.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:11.0%"></span>
+            </td>
+            <td class="t-num t-num-tok">832</td>
+          </tr>
+          <tr>
+            <td class="t-rank">116</td>
+            <td class="t-path"><code>.claude/commands/sparc/mcp.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:10.8%"></span>
+            </td>
+            <td class="t-num t-num-tok">820</td>
+          </tr>
+          <tr>
+            <td class="t-rank">117</td>
+            <td class="t-path"><code>.claude/commands/sparc/sparc.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:10.6%"></span>
+            </td>
+            <td class="t-num t-num-tok">805</td>
+          </tr>
+          <tr>
+            <td class="t-rank">118</td>
+            <td class="t-path"><code>.claude/agents/flow-nexus/user-tools.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:10.6%"></span>
+            </td>
+            <td class="t-num t-num-tok">803</td>
+          </tr>
+          <tr>
+            <td class="t-rank">119</td>
+            <td class="t-path"><code>.claude/commands/sparc/orchestrator.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:10.5%"></span>
+            </td>
+            <td class="t-num t-num-tok">791</td>
+          </tr>
+          <tr>
+            <td class="t-rank">120</td>
+            <td class="t-path"><code>.claude/agents/templates/memory-coordinator.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:10.4%"></span>
+            </td>
+            <td class="t-num t-num-tok">784</td>
+          </tr>
+          <tr>
+            <td class="t-rank">121</td>
+            <td class="t-path"><code>.claude/agents/flow-nexus/app-store.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:10.1%"></span>
+            </td>
+            <td class="t-num t-num-tok">761</td>
+          </tr>
+          <tr>
+            <td class="t-rank">122</td>
+            <td class="t-path"><code>.claude/commands/sparc/devops.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:10.1%"></span>
+            </td>
+            <td class="t-num t-num-tok">761</td>
+          </tr>
+          <tr>
+            <td class="t-rank">123</td>
+            <td class="t-path"><code>.claude/agents/flow-nexus/neural-network.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:9.9%"></span>
+            </td>
+            <td class="t-num t-num-tok">746</td>
+          </tr>
+          <tr>
+            <td class="t-rank">124</td>
+            <td class="t-path"><code>.claude/agents/flow-nexus/payments.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:9.7%"></span>
+            </td>
+            <td class="t-num t-num-tok">731</td>
+          </tr>
+          <tr>
+            <td class="t-rank">125</td>
+            <td class="t-path"><code>.claude/agents/flow-nexus/challenges.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:9.4%"></span>
+            </td>
+            <td class="t-num t-num-tok">714</td>
+          </tr>
+          <tr>
+            <td class="t-rank">126</td>
+            <td class="t-path"><code>.claude/agents/templates/orchestrator-task.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:9.3%"></span>
+            </td>
+            <td class="t-num t-num-tok">702</td>
+          </tr>
+          <tr>
+            <td class="t-rank">127</td>
+            <td class="t-path"><code>.claude/agents/flow-nexus/workflow.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:9.3%"></span>
+            </td>
+            <td class="t-num t-num-tok">701</td>
+          </tr>
+          <tr>
+            <td class="t-rank">128</td>
+            <td class="t-path"><code>.claude/commands/sparc/ask.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:9.1%"></span>
+            </td>
+            <td class="t-num t-num-tok">691</td>
+          </tr>
+          <tr>
+            <td class="t-rank">129</td>
+            <td class="t-path"><code>.claude/agents/flow-nexus/swarm.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:9.0%"></span>
+            </td>
+            <td class="t-num t-num-tok">683</td>
+          </tr>
+          <tr>
+            <td class="t-rank">130</td>
+            <td class="t-path"><code>.claude/commands/claude-flow-memory.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:8.6%"></span>
+            </td>
+            <td class="t-num t-num-tok">649</td>
+          </tr>
+          <tr>
+            <td class="t-rank">131</td>
+            <td class="t-path"><code>.claude/agents/flow-nexus/sandbox.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:8.4%"></span>
+            </td>
+            <td class="t-num t-num-tok">634</td>
+          </tr>
+          <tr>
+            <td class="t-rank">132</td>
+            <td class="t-path"><code>.claude/commands/sparc/code.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:8.2%"></span>
+            </td>
+            <td class="t-num t-num-tok">623</td>
+          </tr>
+          <tr>
+            <td class="t-rank">133</td>
+            <td class="t-path"><code>.claude/commands/automation/auto-agent.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:8.2%"></span>
+            </td>
+            <td class="t-num t-num-tok">620</td>
+          </tr>
+          <tr>
+            <td class="t-rank">134</td>
+            <td class="t-path"><code>.claude/agents/v3/v3-queen-coordinator.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:8.1%"></span>
+            </td>
+            <td class="t-num t-num-tok">614</td>
+          </tr>
+          <tr>
+            <td class="t-rank">135</td>
+            <td class="t-path"><code>.claude/commands/sparc/refinement-optimization-mode.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:8.1%"></span>
+            </td>
+            <td class="t-num t-num-tok">613</td>
+          </tr>
+          <tr>
+            <td class="t-rank">136</td>
+            <td class="t-path"><code>.claude/commands/sparc/post-deployment-monitoring-mode.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:8.1%"></span>
+            </td>
+            <td class="t-num t-num-tok">612</td>
+          </tr>
+          <tr>
+            <td class="t-rank">137</td>
+            <td class="t-path"><code>.claude/commands/github/github-swarm.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:7.9%"></span>
+            </td>
+            <td class="t-num t-num-tok">601</td>
+          </tr>
+          <tr>
+            <td class="t-rank">138</td>
+            <td class="t-path"><code>.claude/agents/templates/coordinator-swarm-init.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:7.7%"></span>
+            </td>
+            <td class="t-num t-num-tok">586</td>
+          </tr>
+          <tr>
+            <td class="t-rank">139</td>
+            <td class="t-path"><code>.claude/skills/v3-security-overhaul/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:7.7%"></span>
+            </td>
+            <td class="t-num t-num-tok">583</td>
+          </tr>
+          <tr>
+            <td class="t-rank">140</td>
+            <td class="t-path"><code>.claude/commands/hooks/post-edit.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:7.7%"></span>
+            </td>
+            <td class="t-num t-num-tok">580</td>
+          </tr>
+          <tr>
+            <td class="t-rank">141</td>
+            <td class="t-path"><code>.claude/commands/sparc/spec-pseudocode.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:7.5%"></span>
+            </td>
+            <td class="t-num t-num-tok">565</td>
+          </tr>
+          <tr>
+            <td class="t-rank">142</td>
+            <td class="t-path"><code>.claude/commands/automation/self-healing.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:7.4%"></span>
+            </td>
+            <td class="t-num t-num-tok">561</td>
+          </tr>
+          <tr>
+            <td class="t-rank">143</td>
+            <td class="t-path"><code>.claude/commands/hooks/session-end.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:7.3%"></span>
+            </td>
+            <td class="t-num t-num-tok">553</td>
+          </tr>
+          <tr>
+            <td class="t-rank">144</td>
+            <td class="t-path"><code>.claude/commands/hooks/pre-edit.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:7.2%"></span>
+            </td>
+            <td class="t-num t-num-tok">546</td>
+          </tr>
+          <tr>
+            <td class="t-rank">145</td>
+            <td class="t-path"><code>.claude/commands/sparc/docs-writer.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:7.2%"></span>
+            </td>
+            <td class="t-num t-num-tok">546</td>
+          </tr>
+          <tr>
+            <td class="t-rank">146</td>
+            <td class="t-path"><code>.claude/commands/hooks/post-task.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:7.2%"></span>
+            </td>
+            <td class="t-num t-num-tok">545</td>
+          </tr>
+          <tr>
+            <td class="t-rank">147</td>
+            <td class="t-path"><code>.claude/commands/sparc/debug.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:7.2%"></span>
+            </td>
+            <td class="t-num t-num-tok">542</td>
+          </tr>
+          <tr>
+            <td class="t-rank">148</td>
+            <td class="t-path"><code>.claude/commands/sparc/integration.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:7.2%"></span>
+            </td>
+            <td class="t-num t-num-tok">541</td>
+          </tr>
+          <tr>
+            <td class="t-rank">149</td>
+            <td class="t-path"><code>.claude/commands/sparc/security-review.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:7.1%"></span>
+            </td>
+            <td class="t-num t-num-tok">536</td>
+          </tr>
+          <tr>
+            <td class="t-rank">150</td>
+            <td class="t-path"><code>.claude/agents/flow-nexus/authentication.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:7.0%"></span>
+            </td>
+            <td class="t-num t-num-tok">528</td>
+          </tr>
+          <tr>
+            <td class="t-rank">151</td>
+            <td class="t-path"><code>.claude/commands/hooks/pre-task.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:7.0%"></span>
+            </td>
+            <td class="t-num t-num-tok">528</td>
+          </tr>
+          <tr>
+            <td class="t-rank">152</td>
+            <td class="t-path"><code>.claude/commands/sparc/tutorial.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:6.8%"></span>
+            </td>
+            <td class="t-num t-num-tok">513</td>
+          </tr>
+          <tr>
+            <td class="t-rank">153</td>
+            <td class="t-path"><code>.claude/commands/hooks/setup.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:6.7%"></span>
+            </td>
+            <td class="t-num t-num-tok">507</td>
+          </tr>
+          <tr>
+            <td class="t-rank">154</td>
+            <td class="t-path"><code>.claude/agents/specialized/mobile/spec-mobile-react-native.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:6.1%"></span>
+            </td>
+            <td class="t-num t-num-tok">462</td>
+          </tr>
+          <tr>
+            <td class="t-rank">155</td>
+            <td class="t-path"><code>.claude/agents/sona/sona-learning-optimizer.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:6.0%"></span>
+            </td>
+            <td class="t-num t-num-tok">457</td>
+          </tr>
+          <tr>
+            <td class="t-rank">156</td>
+            <td class="t-path"><code>.claude/commands/automation/session-memory.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:5.7%"></span>
+            </td>
+            <td class="t-num t-num-tok">431</td>
+          </tr>
+          <tr>
+            <td class="t-rank">157</td>
+            <td class="t-path"><code>.claude/commands/analysis/COMMAND_COMPLIANCE_REPORT.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:5.4%"></span>
+            </td>
+            <td class="t-num t-num-tok">412</td>
+          </tr>
+          <tr>
+            <td class="t-rank">158</td>
+            <td class="t-path"><code>.claude/commands/automation/smart-agents.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:5.2%"></span>
+            </td>
+            <td class="t-num t-num-tok">393</td>
+          </tr>
+          <tr>
+            <td class="t-rank">159</td>
+            <td class="t-path"><code>.claude/agents/data/ml/data-ml-model.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:5.1%"></span>
+            </td>
+            <td class="t-num t-num-tok">387</td>
+          </tr>
+          <tr>
+            <td class="t-rank">160</td>
+            <td class="t-path"><code>.claude/commands/hooks/overview.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:5.1%"></span>
+            </td>
+            <td class="t-num t-num-tok">382</td>
+          </tr>
+          <tr>
+            <td class="t-rank">161</td>
+            <td class="t-path"><code>.claude/commands/optimization/auto-topology.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:4.8%"></span>
+            </td>
+            <td class="t-num t-num-tok">364</td>
+          </tr>
+          <tr>
+            <td class="t-rank">162</td>
+            <td class="t-path"><code>.claude/commands/monitoring/status.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:4.4%"></span>
+            </td>
+            <td class="t-num t-num-tok">335</td>
+          </tr>
+          <tr>
+            <td class="t-rank">163</td>
+            <td class="t-path"><code>.claude/agents/analysis/analyze-code-quality.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:4.3%"></span>
+            </td>
+            <td class="t-num t-num-tok">328</td>
+          </tr>
+          <tr>
+            <td class="t-rank">164</td>
+            <td class="t-path"><code>.claude/agents/analysis/code-review/analyze-code-quality.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:4.3%"></span>
+            </td>
+            <td class="t-num t-num-tok">328</td>
+          </tr>
+          <tr>
+            <td class="t-rank">165</td>
+            <td class="t-path"><code>.claude/commands/optimization/parallel-execution.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:4.3%"></span>
+            </td>
+            <td class="t-num t-num-tok">324</td>
+          </tr>
+          <tr>
+            <td class="t-rank">166</td>
+            <td class="t-path"><code>.claude/agents/consensus/byzantine-coordinator.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:4.2%"></span>
+            </td>
+            <td class="t-num t-num-tok">315</td>
+          </tr>
+          <tr>
+            <td class="t-rank">167</td>
+            <td class="t-path"><code>.claude/agents/consensus/gossip-coordinator.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:4.2%"></span>
+            </td>
+            <td class="t-num t-num-tok">314</td>
+          </tr>
+          <tr>
+            <td class="t-rank">168</td>
+            <td class="t-path"><code>.claude/agents/documentation/api-docs/docs-api-openapi.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:4.1%"></span>
+            </td>
+            <td class="t-num t-num-tok">313</td>
+          </tr>
+          <tr>
+            <td class="t-rank">169</td>
+            <td class="t-path"><code>.claude/commands/analysis/performance-bottlenecks.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:4.1%"></span>
+            </td>
+            <td class="t-num t-num-tok">313</td>
+          </tr>
+          <tr>
+            <td class="t-rank">170</td>
+            <td class="t-path"><code>.claude/agents/custom/test-long-runner.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:4.1%"></span>
+            </td>
+            <td class="t-num t-num-tok">310</td>
+          </tr>
+          <tr>
+            <td class="t-rank">171</td>
+            <td class="t-path"><code>.claude/commands/monitoring/agents.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:4.0%"></span>
+            </td>
+            <td class="t-num t-num-tok">304</td>
+          </tr>
+          <tr>
+            <td class="t-rank">172</td>
+            <td class="t-path"><code>.claude/agents/consensus/raft-manager.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:4.0%"></span>
+            </td>
+            <td class="t-num t-num-tok">302</td>
+          </tr>
+          <tr>
+            <td class="t-rank">173</td>
+            <td class="t-path"><code>.claude/commands/sparc/innovator.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:3.9%"></span>
+            </td>
+            <td class="t-num t-num-tok">298</td>
+          </tr>
+          <tr>
+            <td class="t-rank">174</td>
+            <td class="t-path"><code>.claude/commands/sparc/researcher.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:3.9%"></span>
+            </td>
+            <td class="t-num t-num-tok">293</td>
+          </tr>
+          <tr>
+            <td class="t-rank">175</td>
+            <td class="t-path"><code>.claude/agents/devops/ci-cd/ops-cicd-github.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:3.8%"></span>
+            </td>
+            <td class="t-num t-num-tok">287</td>
+          </tr>
+          <tr>
+            <td class="t-rank">176</td>
+            <td class="t-path"><code>.claude/commands/sparc/tdd.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:3.8%"></span>
+            </td>
+            <td class="t-num t-num-tok">286</td>
+          </tr>
+          <tr>
+            <td class="t-rank">177</td>
+            <td class="t-path"><code>.claude/commands/sparc/debugger.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:3.7%"></span>
+            </td>
+            <td class="t-num t-num-tok">282</td>
+          </tr>
+          <tr>
+            <td class="t-rank">178</td>
+            <td class="t-path"><code>.claude/commands/sparc/memory-manager.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:3.7%"></span>
+            </td>
+            <td class="t-num t-num-tok">281</td>
+          </tr>
+          <tr>
+            <td class="t-rank">179</td>
+            <td class="t-path"><code>.claude/commands/sparc/architect.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:3.7%"></span>
+            </td>
+            <td class="t-num t-num-tok">280</td>
+          </tr>
+          <tr>
+            <td class="t-rank">180</td>
+            <td class="t-path"><code>.claude/commands/sparc/analyzer.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:3.7%"></span>
+            </td>
+            <td class="t-num t-num-tok">278</td>
+          </tr>
+          <tr>
+            <td class="t-rank">181</td>
+            <td class="t-path"><code>.claude/commands/sparc/batch-executor.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:3.7%"></span>
+            </td>
+            <td class="t-num t-num-tok">278</td>
+          </tr>
+          <tr>
+            <td class="t-rank">182</td>
+            <td class="t-path"><code>.claude/commands/sparc/reviewer.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:3.6%"></span>
+            </td>
+            <td class="t-num t-num-tok">275</td>
+          </tr>
+          <tr>
+            <td class="t-rank">183</td>
+            <td class="t-path"><code>.claude/commands/sparc/swarm-coordinator.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:3.6%"></span>
+            </td>
+            <td class="t-num t-num-tok">275</td>
+          </tr>
+          <tr>
+            <td class="t-rank">184</td>
+            <td class="t-path"><code>.claude/commands/sparc/coder.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:3.6%"></span>
+            </td>
+            <td class="t-num t-num-tok">274</td>
+          </tr>
+          <tr>
+            <td class="t-rank">185</td>
+            <td class="t-path"><code>.claude/commands/sparc/documenter.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:3.6%"></span>
+            </td>
+            <td class="t-num t-num-tok">270</td>
+          </tr>
+          <tr>
+            <td class="t-rank">186</td>
+            <td class="t-path"><code>.claude/commands/sparc/workflow-manager.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:3.6%"></span>
+            </td>
+            <td class="t-num t-num-tok">269</td>
+          </tr>
+          <tr>
+            <td class="t-rank">187</td>
+            <td class="t-path"><code>.claude/commands/sparc/optimizer.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:3.5%"></span>
+            </td>
+            <td class="t-num t-num-tok">267</td>
+          </tr>
+          <tr>
+            <td class="t-rank">188</td>
+            <td class="t-path"><code>.claude/commands/sparc/designer.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:3.5%"></span>
+            </td>
+            <td class="t-num t-num-tok">266</td>
+          </tr>
+          <tr>
+            <td class="t-rank">189</td>
+            <td class="t-path"><code>.claude/commands/sparc/tester.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:3.5%"></span>
+            </td>
+            <td class="t-num t-num-tok">263</td>
+          </tr>
+          <tr>
+            <td class="t-rank">190</td>
+            <td class="t-path"><code>.claude/commands/analysis/token-efficiency.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:3.3%"></span>
+            </td>
+            <td class="t-num t-num-tok">251</td>
+          </tr>
+          <tr>
+            <td class="t-rank">191</td>
+            <td class="t-path"><code>.claude/agents/architecture/system-design/arch-system-design.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:3.2%"></span>
+            </td>
+            <td class="t-num t-num-tok">243</td>
+          </tr>
+          <tr>
+            <td class="t-rank">192</td>
+            <td class="t-path"><code>.claude/agents/development/backend/dev-backend-api.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:2.3%"></span>
+            </td>
+            <td class="t-num t-num-tok">171</td>
+          </tr>
+          <tr>
+            <td class="t-rank">193</td>
+            <td class="t-path"><code>.claude/commands/analysis/token-usage.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:2.1%"></span>
+            </td>
+            <td class="t-num t-num-tok">162</td>
+          </tr>
+          <tr>
+            <td class="t-rank">194</td>
+            <td class="t-path"><code>.claude/commands/github/pr-enhance.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:2.1%"></span>
+            </td>
+            <td class="t-num t-num-tok">157</td>
+          </tr>
+          <tr>
+            <td class="t-rank">195</td>
+            <td class="t-path"><code>.claude/commands/github/repo-analyze.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:2.1%"></span>
+            </td>
+            <td class="t-num t-num-tok">157</td>
+          </tr>
+          <tr>
+            <td class="t-rank">196</td>
+            <td class="t-path"><code>.claude/commands/github/issue-triage.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:2.0%"></span>
+            </td>
+            <td class="t-num t-num-tok">152</td>
+          </tr>
+          <tr>
+            <td class="t-rank">197</td>
+            <td class="t-path"><code>.claude/commands/github/code-review.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:2.0%"></span>
+            </td>
+            <td class="t-num t-num-tok">148</td>
+          </tr>
+          <tr>
+            <td class="t-rank">198</td>
+            <td class="t-path"><code>.claude/commands/optimization/cache-manage.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:1.9%"></span>
+            </td>
+            <td class="t-num t-num-tok">142</td>
+          </tr>
+          <tr>
+            <td class="t-rank">199</td>
+            <td class="t-path"><code>.claude/commands/optimization/parallel-execute.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:1.9%"></span>
+            </td>
+            <td class="t-num t-num-tok">142</td>
+          </tr>
+          <tr>
+            <td class="t-rank">200</td>
+            <td class="t-path"><code>.claude/commands/analysis/performance-report.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:1.9%"></span>
+            </td>
+            <td class="t-num t-num-tok">141</td>
+          </tr>
+          <tr>
+            <td class="t-rank">201</td>
+            <td class="t-path"><code>.claude/commands/automation/workflow-select.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:1.9%"></span>
+            </td>
+            <td class="t-num t-num-tok">140</td>
+          </tr>
+          <tr>
+            <td class="t-rank">202</td>
+            <td class="t-path"><code>.claude/commands/automation/smart-spawn.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:1.8%"></span>
+            </td>
+            <td class="t-num t-num-tok">135</td>
+          </tr>
+          <tr>
+            <td class="t-rank">203</td>
+            <td class="t-path"><code>.claude/commands/optimization/topology-optimize.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:1.8%"></span>
+            </td>
+            <td class="t-num t-num-tok">133</td>
+          </tr>
+          <tr>
+            <td class="t-rank">204</td>
+            <td class="t-path"><code>.claude/commands/monitoring/real-time-view.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:1.7%"></span>
+            </td>
+            <td class="t-num t-num-tok">129</td>
+          </tr>
+          <tr>
+            <td class="t-rank">205</td>
+            <td class="t-path"><code>.claude/commands/monitoring/agent-metrics.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:1.6%"></span>
+            </td>
+            <td class="t-num t-num-tok">121</td>
+          </tr>
+          <tr>
+            <td class="t-rank">206</td>
+            <td class="t-path"><code>.claude/commands/monitoring/swarm-monitor.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:1.5%"></span>
+            </td>
+            <td class="t-num t-num-tok">112</td>
+          </tr>
+          <tr>
+            <td class="t-rank">207</td>
+            <td class="t-path"><code>.claude/commands/github/README.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:1.0%"></span>
+            </td>
+            <td class="t-num t-num-tok">74</td>
+          </tr>
+          <tr>
+            <td class="t-rank">208</td>
+            <td class="t-path"><code>.claude/agents/v3/test-architect.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:0.9%"></span>
+            </td>
+            <td class="t-num t-num-tok">66</td>
+          </tr>
+          <tr>
+            <td class="t-rank">209</td>
+            <td class="t-path"><code>.claude/commands/hooks/README.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:0.9%"></span>
+            </td>
+            <td class="t-num t-num-tok">66</td>
+          </tr>
+          <tr>
+            <td class="t-rank">210</td>
+            <td class="t-path"><code>.claude/agents/v3/typescript-specialist.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:0.9%"></span>
+            </td>
+            <td class="t-num t-num-tok">65</td>
+          </tr>
+          <tr>
+            <td class="t-rank">211</td>
+            <td class="t-path"><code>.claude/agents/v3/python-specialist.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:0.8%"></span>
+            </td>
+            <td class="t-num t-num-tok">62</td>
+          </tr>
+          <tr>
+            <td class="t-rank">212</td>
+            <td class="t-path"><code>.claude/agents/v3/database-specialist.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:0.8%"></span>
+            </td>
+            <td class="t-num t-num-tok">58</td>
+          </tr>
+          <tr>
+            <td class="t-rank">213</td>
+            <td class="t-path"><code>.claude/commands/analysis/README.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:0.7%"></span>
+            </td>
+            <td class="t-num t-num-tok">54</td>
+          </tr>
+          <tr>
+            <td class="t-rank">214</td>
+            <td class="t-path"><code>.claude/commands/optimization/README.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:0.7%"></span>
+            </td>
+            <td class="t-num t-num-tok">54</td>
+          </tr>
+          <tr>
+            <td class="t-rank">215</td>
+            <td class="t-path"><code>.claude/commands/monitoring/README.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:0.7%"></span>
+            </td>
+            <td class="t-num t-num-tok">52</td>
+          </tr>
+          <tr>
+            <td class="t-rank">216</td>
+            <td class="t-path"><code>.claude/commands/automation/README.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:0.6%"></span>
+            </td>
+            <td class="t-num t-num-tok">48</td>
+          </tr>
+          <tr>
+            <td class="t-rank">217</td>
+            <td class="t-path"><code>.claude/agents/v3/project-coordinator.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--agent">agent</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--agent" style="width:0.4%"></span>
+            </td>
+            <td class="t-num t-num-tok">30</td>
+          </tr></tbody>
+            </table>
+          </details>
+        
+    </section>
+    
+  
+    <section class="panel">
+      <header class="panel-h">
+        <h2>Findings<button class="info" type="button" aria-label="Quality issues the auditor detected, grouped by severity. Each finding has a stable code (AGT001, SKL002, HLT003, etc.) so you can grep for it or look it up later." data-info="findings"><span class="info-mark" aria-hidden="true">?</span><span class="info-tip" role="tooltip">Quality issues the auditor detected, grouped by severity. Each finding has a stable code (AGT001, SKL002, HLT003, etc.) so you can grep for it or look it up later.</span></button></h2>
+        <span class="panel-sub">
+          1 error · 16 warning · 16 advisory
+        </span>
+      </header>
+      
+          <div class="f-group f-group--error">
+            <div class="f-group-h">
+              <span class="f-group-sev sev sev-error">error</span>
+              <span class="f-group-title">Errors</span>
+              <span class="f-group-blurb">blocking issues that must be fixed</span>
+              <span class="f-group-count">1</span>
+            </div>
+            <ul class="f-list">
+              <li class="f f--error">
+                <div class="f-bullet" aria-hidden="true"></div>
+                <div class="f-code"><code>AGT001</code></div>
+                <div class="f-body">
+                  <div class="f-msg">frontmatter could not be parsed (invalid YAML frontmatter: mapping values are not allowed here
+  in &quot;&lt;unicode string&gt;&quot;, line 2, column 245:
+     ... clear success criteria. Examples: &lt;example&gt;Context: User needs t ... 
+                                         ^)</div>
+                  <code class="f-path">.claude/agents/goal/code-goal-planner.md</code>
+                  <div class="f-hint">Fix the YAML between the &#x27;---&#x27; lines at the top of the file.</div>
+                </div>
+              </li></ul>
+          </div>
+        
+          <div class="f-group f-group--warning">
+            <div class="f-group-h">
+              <span class="f-group-sev sev sev-warning">warning</span>
+              <span class="f-group-title">Warnings</span>
+              <span class="f-group-blurb">likely to cause routing or budget problems</span>
+              <span class="f-group-count">16</span>
+            </div>
+            <ul class="f-list">
+              <li class="f f--warning">
+                <div class="f-bullet" aria-hidden="true"></div>
+                <div class="f-code"><code>AGT008</code></div>
+                <div class="f-body">
+                  <div class="f-msg">description overlaps with `.claude/agents/analysis/code-analyzer.md` (word-overlap 100%)</div>
+                  <code class="f-path">.claude/agents/analysis/analyze-code-quality.md</code>
+                  <div class="f-hint">Overlapping descriptions cause Claude to pick the wrong agent. Make each description&#x27;s trigger condition disjoint.</div>
+                </div>
+              </li>
+              <li class="f f--warning">
+                <div class="f-bullet" aria-hidden="true"></div>
+                <div class="f-code"><code>AGT008</code></div>
+                <div class="f-body">
+                  <div class="f-msg">description overlaps with `.claude/agents/analysis/code-review/analyze-code-quality.md` (word-overlap 100%)</div>
+                  <code class="f-path">.claude/agents/analysis/analyze-code-quality.md</code>
+                  <div class="f-hint">Overlapping descriptions cause Claude to pick the wrong agent. Make each description&#x27;s trigger condition disjoint.</div>
+                </div>
+              </li>
+              <li class="f f--warning">
+                <div class="f-bullet" aria-hidden="true"></div>
+                <div class="f-code"><code>AGT008</code></div>
+                <div class="f-body">
+                  <div class="f-msg">description overlaps with `.claude/agents/analysis/analyze-code-quality.md` (word-overlap 100%)</div>
+                  <code class="f-path">.claude/agents/analysis/code-analyzer.md</code>
+                  <div class="f-hint">Overlapping descriptions cause Claude to pick the wrong agent. Make each description&#x27;s trigger condition disjoint.</div>
+                </div>
+              </li>
+              <li class="f f--warning">
+                <div class="f-bullet" aria-hidden="true"></div>
+                <div class="f-code"><code>AGT008</code></div>
+                <div class="f-body">
+                  <div class="f-msg">description overlaps with `.claude/agents/analysis/code-review/analyze-code-quality.md` (word-overlap 100%)</div>
+                  <code class="f-path">.claude/agents/analysis/code-analyzer.md</code>
+                  <div class="f-hint">Overlapping descriptions cause Claude to pick the wrong agent. Make each description&#x27;s trigger condition disjoint.</div>
+                </div>
+              </li>
+              <li class="f f--warning">
+                <div class="f-bullet" aria-hidden="true"></div>
+                <div class="f-code"><code>AGT008</code></div>
+                <div class="f-body">
+                  <div class="f-msg">description overlaps with `.claude/agents/analysis/analyze-code-quality.md` (word-overlap 100%)</div>
+                  <code class="f-path">.claude/agents/analysis/code-review/analyze-code-quality.md</code>
+                  <div class="f-hint">Overlapping descriptions cause Claude to pick the wrong agent. Make each description&#x27;s trigger condition disjoint.</div>
+                </div>
+              </li>
+              <li class="f f--warning">
+                <div class="f-bullet" aria-hidden="true"></div>
+                <div class="f-code"><code>AGT008</code></div>
+                <div class="f-body">
+                  <div class="f-msg">description overlaps with `.claude/agents/analysis/code-analyzer.md` (word-overlap 100%)</div>
+                  <code class="f-path">.claude/agents/analysis/code-review/analyze-code-quality.md</code>
+                  <div class="f-hint">Overlapping descriptions cause Claude to pick the wrong agent. Make each description&#x27;s trigger condition disjoint.</div>
+                </div>
+              </li>
+              <li class="f f--warning">
+                <div class="f-bullet" aria-hidden="true"></div>
+                <div class="f-code"><code>AGT008</code></div>
+                <div class="f-body">
+                  <div class="f-msg">description overlaps with `.claude/agents/consensus/security-manager.md` (word-overlap 56%)</div>
+                  <code class="f-path">.claude/agents/consensus/performance-benchmarker.md</code>
+                  <div class="f-hint">Overlapping descriptions cause Claude to pick the wrong agent. Make each description&#x27;s trigger condition disjoint.</div>
+                </div>
+              </li>
+              <li class="f f--warning">
+                <div class="f-bullet" aria-hidden="true"></div>
+                <div class="f-code"><code>AGT008</code></div>
+                <div class="f-body">
+                  <div class="f-msg">description overlaps with `.claude/agents/consensus/performance-benchmarker.md` (word-overlap 56%)</div>
+                  <code class="f-path">.claude/agents/consensus/security-manager.md</code>
+                  <div class="f-hint">Overlapping descriptions cause Claude to pick the wrong agent. Make each description&#x27;s trigger condition disjoint.</div>
+                </div>
+              </li>
+              <li class="f f--warning">
+                <div class="f-bullet" aria-hidden="true"></div>
+                <div class="f-code"><code>AGT008</code></div>
+                <div class="f-body">
+                  <div class="f-msg">description overlaps with `.claude/agents/v3/test-architect.md` (word-overlap 80%)</div>
+                  <code class="f-path">.claude/agents/core/tester.md</code>
+                  <div class="f-hint">Overlapping descriptions cause Claude to pick the wrong agent. Make each description&#x27;s trigger condition disjoint.</div>
+                </div>
+              </li>
+              <li class="f f--warning">
+                <div class="f-bullet" aria-hidden="true"></div>
+                <div class="f-code"><code>AGT006</code></div>
+                <div class="f-body">
+                  <div class="f-msg">`description` is unusually long (1295 chars)</div>
+                  <code class="f-path">.claude/agents/goal/goal-planner.md</code>
+                  <div class="f-hint">Every agent description is loaded on every session. Trim to the routing signal.</div>
+                </div>
+              </li>
+              <li class="f f--warning">
+                <div class="f-bullet" aria-hidden="true"></div>
+                <div class="f-code"><code>AGT008</code></div>
+                <div class="f-body">
+                  <div class="f-msg">description overlaps with `.claude/agents/testing/validation/production-validator.md` (word-overlap 100%)</div>
+                  <code class="f-path">.claude/agents/testing/production-validator.md</code>
+                  <div class="f-hint">Overlapping descriptions cause Claude to pick the wrong agent. Make each description&#x27;s trigger condition disjoint.</div>
+                </div>
+              </li>
+              <li class="f f--warning">
+                <div class="f-bullet" aria-hidden="true"></div>
+                <div class="f-code"><code>AGT008</code></div>
+                <div class="f-body">
+                  <div class="f-msg">description overlaps with `.claude/agents/testing/unit/tdd-london-swarm.md` (word-overlap 100%)</div>
+                  <code class="f-path">.claude/agents/testing/tdd-london-swarm.md</code>
+                  <div class="f-hint">Overlapping descriptions cause Claude to pick the wrong agent. Make each description&#x27;s trigger condition disjoint.</div>
+                </div>
+              </li>
+              <li class="f f--warning">
+                <div class="f-bullet" aria-hidden="true"></div>
+                <div class="f-code"><code>AGT008</code></div>
+                <div class="f-body">
+                  <div class="f-msg">description overlaps with `.claude/agents/testing/tdd-london-swarm.md` (word-overlap 100%)</div>
+                  <code class="f-path">.claude/agents/testing/unit/tdd-london-swarm.md</code>
+                  <div class="f-hint">Overlapping descriptions cause Claude to pick the wrong agent. Make each description&#x27;s trigger condition disjoint.</div>
+                </div>
+              </li>
+              <li class="f f--warning">
+                <div class="f-bullet" aria-hidden="true"></div>
+                <div class="f-code"><code>AGT008</code></div>
+                <div class="f-body">
+                  <div class="f-msg">description overlaps with `.claude/agents/testing/production-validator.md` (word-overlap 100%)</div>
+                  <code class="f-path">.claude/agents/testing/validation/production-validator.md</code>
+                  <div class="f-hint">Overlapping descriptions cause Claude to pick the wrong agent. Make each description&#x27;s trigger condition disjoint.</div>
+                </div>
+              </li>
+              <li class="f f--warning">
+                <div class="f-bullet" aria-hidden="true"></div>
+                <div class="f-code"><code>AGT004</code></div>
+                <div class="f-body">
+                  <div class="f-msg">`description` is very short (29 chars)</div>
+                  <code class="f-path">.claude/agents/v3/python-specialist.md</code>
+                  <div class="f-hint">Short descriptions make routing unreliable. Add concrete trigger examples.</div>
+                </div>
+              </li>
+              <li class="f f--warning">
+                <div class="f-bullet" aria-hidden="true"></div>
+                <div class="f-code"><code>AGT008</code></div>
+                <div class="f-body">
+                  <div class="f-msg">description overlaps with `.claude/agents/core/tester.md` (word-overlap 80%)</div>
+                  <code class="f-path">.claude/agents/v3/test-architect.md</code>
+                  <div class="f-hint">Overlapping descriptions cause Claude to pick the wrong agent. Make each description&#x27;s trigger condition disjoint.</div>
+                </div>
+              </li></ul>
+          </div>
+        
+          <div class="f-group f-group--info">
+            <div class="f-group-h">
+              <span class="f-group-sev sev sev-info">info</span>
+              <span class="f-group-title">Advisories</span>
+              <span class="f-group-blurb">things to consider but not urgent</span>
+              <span class="f-group-count">16</span>
+            </div>
+            <ul class="f-list">
+              <li class="f f--info">
+                <div class="f-bullet" aria-hidden="true"></div>
+                <div class="f-code"><code>HLT007</code></div>
+                <div class="f-body">
+                  <div class="f-msg">detected claude-flow-style install at this target</div>
+                  <span class="f-path f-path--none">project-wide</span>
+                  <div class="f-hint">Evidence: .claude-flow/ runtime directory present; 98 agent(s), 30 skill(s).</div>
+                </div>
+              </li>
+              <li class="f f--info">
+                <div class="f-bullet" aria-hidden="true"></div>
+                <div class="f-code"><code>AGT005</code></div>
+                <div class="f-body">
+                  <div class="f-msg">`description` is short (59 chars) — consider adding example triggers</div>
+                  <code class="f-path">.claude/agents/core/coder.md</code>
+                  
+                </div>
+              </li>
+              <li class="f f--info">
+                <div class="f-bullet" aria-hidden="true"></div>
+                <div class="f-code"><code>AGT005</code></div>
+                <div class="f-body">
+                  <div class="f-msg">`description` is short (47 chars) — consider adding example triggers</div>
+                  <code class="f-path">.claude/agents/core/planner.md</code>
+                  
+                </div>
+              </li>
+              <li class="f f--info">
+                <div class="f-bullet" aria-hidden="true"></div>
+                <div class="f-code"><code>AGT005</code></div>
+                <div class="f-body">
+                  <div class="f-msg">`description` is short (50 chars) — consider adding example triggers</div>
+                  <code class="f-path">.claude/agents/core/researcher.md</code>
+                  
+                </div>
+              </li>
+              <li class="f f--info">
+                <div class="f-bullet" aria-hidden="true"></div>
+                <div class="f-code"><code>AGT005</code></div>
+                <div class="f-body">
+                  <div class="f-msg">`description` is short (44 chars) — consider adding example triggers</div>
+                  <code class="f-path">.claude/agents/core/reviewer.md</code>
+                  
+                </div>
+              </li>
+              <li class="f f--info">
+                <div class="f-bullet" aria-hidden="true"></div>
+                <div class="f-code"><code>AGT005</code></div>
+                <div class="f-body">
+                  <div class="f-msg">`description` is short (54 chars) — consider adding example triggers</div>
+                  <code class="f-path">.claude/agents/core/tester.md</code>
+                  
+                </div>
+              </li>
+              <li class="f f--info">
+                <div class="f-bullet" aria-hidden="true"></div>
+                <div class="f-code"><code>AGT005</code></div>
+                <div class="f-body">
+                  <div class="f-msg">`description` is short (56 chars) — consider adding example triggers</div>
+                  <code class="f-path">.claude/agents/custom/test-long-runner.md</code>
+                  
+                </div>
+              </li>
+              <li class="f f--info">
+                <div class="f-bullet" aria-hidden="true"></div>
+                <div class="f-code"><code>AGT007</code></div>
+                <div class="f-body">
+                  <div class="f-msg">agent&#x27;s session-start cost is ~255 tokens (YAML frontmatter loaded on every session)</div>
+                  <code class="f-path">.claude/agents/goal/goal-planner.md</code>
+                  <div class="f-hint">The body of an agent is on-demand (it loads only when this agent runs in its own sub-session). The frontmatter is paid every session. If reference material has leaked into the `description`, move it into the body.</div>
+                </div>
+              </li>
+              <li class="f f--info">
+                <div class="f-bullet" aria-hidden="true"></div>
+                <div class="f-code"><code>AGT005</code></div>
+                <div class="f-body">
+                  <div class="f-msg">`description` is short (53 chars) — consider adding example triggers</div>
+                  <code class="f-path">.claude/agents/sparc/architecture.md</code>
+                  
+                </div>
+              </li>
+              <li class="f f--info">
+                <div class="f-bullet" aria-hidden="true"></div>
+                <div class="f-code"><code>AGT005</code></div>
+                <div class="f-body">
+                  <div class="f-msg">`description` is short (54 chars) — consider adding example triggers</div>
+                  <code class="f-path">.claude/agents/sparc/pseudocode.md</code>
+                  
+                </div>
+              </li>
+              <li class="f f--info">
+                <div class="f-bullet" aria-hidden="true"></div>
+                <div class="f-code"><code>AGT005</code></div>
+                <div class="f-body">
+                  <div class="f-msg">`description` is short (59 chars) — consider adding example triggers</div>
+                  <code class="f-path">.claude/agents/sparc/refinement.md</code>
+                  
+                </div>
+              </li>
+              <li class="f f--info">
+                <div class="f-bullet" aria-hidden="true"></div>
+                <div class="f-code"><code>AGT005</code></div>
+                <div class="f-body">
+                  <div class="f-msg">`description` is short (57 chars) — consider adding example triggers</div>
+                  <code class="f-path">.claude/agents/templates/coordinator-swarm-init.md</code>
+                  
+                </div>
+              </li>
+              <li class="f f--info">
+                <div class="f-bullet" aria-hidden="true"></div>
+                <div class="f-code"><code>AGT005</code></div>
+                <div class="f-body">
+                  <div class="f-msg">`description` is short (43 chars) — consider adding example triggers</div>
+                  <code class="f-path">.claude/agents/v3/database-specialist.md</code>
+                  
+                </div>
+              </li>
+              <li class="f f--info">
+                <div class="f-bullet" aria-hidden="true"></div>
+                <div class="f-code"><code>AGT005</code></div>
+                <div class="f-body">
+                  <div class="f-msg">`description` is short (50 chars) — consider adding example triggers</div>
+                  <code class="f-path">.claude/agents/v3/project-coordinator.md</code>
+                  
+                </div>
+              </li>
+              <li class="f f--info">
+                <div class="f-bullet" aria-hidden="true"></div>
+                <div class="f-code"><code>AGT005</code></div>
+                <div class="f-body">
+                  <div class="f-msg">`description` is short (40 chars) — consider adding example triggers</div>
+                  <code class="f-path">.claude/agents/v3/test-architect.md</code>
+                  
+                </div>
+              </li>
+              <li class="f f--info">
+                <div class="f-bullet" aria-hidden="true"></div>
+                <div class="f-code"><code>AGT005</code></div>
+                <div class="f-body">
+                  <div class="f-msg">`description` is short (33 chars) — consider adding example triggers</div>
+                  <code class="f-path">.claude/agents/v3/typescript-specialist.md</code>
+                  
+                </div>
+              </li></ul>
+          </div>
+        
+    </section>
+    
+
+  <footer class="colophon">
+    <div class="colophon-block">
+      <div class="colophon-row"><dt>Tool</dt><dd>claude-config-auditor v0.1.0</dd></div>
+      <div class="colophon-row"><dt>Report ID</dt><dd>137EB7D6</dd></div>
+    </div>
+    <div class="colophon-block">
+      <div class="colophon-row"><dt>Generated</dt><dd>2026-05-21 · 16:42</dd></div>
+      <div class="colophon-row"><dt>Tokenizer</dt><dd>tiktoken-cl100k_base</dd></div>
+    </div>
+    <p class="colophon-note">
+      <span class="ro">Read-only</span>
+      Estimated using tiktoken `cl100k_base` (OpenAI GPT-4 tokenizer). Anthropic does not publish the Claude tokenizer; this is a close-but-not-exact proxy. Treat numbers as ±5-10% on Markdown/YAML. No files in the audited target were modified.
+    </p>
+  </footer>
+
+</main>
+
+<script>
+/* Theme toggle: cycles auto -> light -> dark -> auto, persisted in
+   localStorage. "auto" defers to prefers-color-scheme. Inline because the
+   report file must remain self-contained (no external network). */
+(function () {
+  var KEY = "cca-theme";
+  var ICONS = { auto: "◑", light: "☀", dark: "☾" };
+  var ORDER = ["auto", "light", "dark"];
+  var root = document.documentElement;
+  var btn = document.getElementById("theme-toggle");
+  function apply(theme) {
+    if (theme === "auto") {
+      root.removeAttribute("data-theme");
+    } else {
+      root.setAttribute("data-theme", theme);
+    }
+    btn.dataset.theme = theme;
+    btn.dataset.icon = ICONS[theme];
+    btn.setAttribute(
+      "aria-label",
+      "Cycle color theme (current: " + theme + ")"
+    );
+  }
+  var stored;
+  try { stored = localStorage.getItem(KEY); } catch (e) { stored = null; }
+  apply(stored && ORDER.indexOf(stored) >= 0 ? stored : "auto");
+  btn.addEventListener("click", function () {
+    var i = ORDER.indexOf(btn.dataset.theme);
+    var next = ORDER[(i + 1) % ORDER.length];
+    try { localStorage.setItem(KEY, next); } catch (e) {}
+    apply(next);
+  });
+})();
+
+/* Info tooltips: tap-to-toggle for touch devices that have no hover
+   state. Desktop users still get the CSS hover behaviour for free. */
+(function () {
+  var openTip = null;
+  function close(b) { if (b) b.removeAttribute("data-open"); }
+  document.querySelectorAll(".info").forEach(function (btn) {
+    btn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      if (openTip && openTip !== btn) close(openTip);
+      if (btn.dataset.open === "true") {
+        close(btn);
+        openTip = null;
+      } else {
+        btn.setAttribute("data-open", "true");
+        openTip = btn;
+      }
+    });
+  });
+  // Clicking anywhere else closes the open tooltip.
+  document.addEventListener("click", function () {
+    if (openTip) { close(openTip); openTip = null; }
+  });
+  // Esc also closes — keyboard-friendly.
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && openTip) { close(openTip); openTip = null; }
+  });
+})();
+</script>
+</body>
+</html>
