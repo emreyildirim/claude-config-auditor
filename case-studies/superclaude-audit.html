@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Audit · superclaude</title>
+<title>Audit · ~/projects/superclaude</title>
 <style>
 /* ============ Theme tokens ============
    :root holds the light theme. Dark theme overrides via either
@@ -875,10 +875,10 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
       <span class="brand-mark">▣</span>
       claude-config-auditor
     </div>
-    <code class="topbar-path">superclaude</code>
+    <code class="topbar-path">~/projects/superclaude</code>
     <div class="topbar-meta">
       <span><strong>v0.1.0</strong></span>
-      <span>2026-05-21 · 16:42</span>
+      <span>2026-05-26 · 18:40</span>
       <span>id <strong>550407F0</strong></span>
       <button class="theme-toggle" id="theme-toggle"
               type="button" aria-label="Cycle color theme"
@@ -892,7 +892,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
           <span>Always loaded</span>
           <button class="info" type="button" aria-label="Tokens Claude Code pulls into the main session at startup, every time you open this project: the full CLAUDE.md, the full rules/, plus the frontmatter (name + description) of every agent and skill. Agent and skill bodies are NOT in this number — they load on demand and are reported separately." data-info="always_loaded"><span class="info-mark" aria-hidden="true">?</span><span class="info-tip" role="tooltip">Tokens Claude Code pulls into the main session at startup, every time you open this project: the full CLAUDE.md, the full rules/, plus the frontmatter (name + description) of every agent and skill. Agent and skill bodies are NOT in this number — they load on demand and are reported separately.</span></button>
         </header>
-        <div class="kpi-value">591<span class="kpi-unit">tok</span></div>
+        <div class="kpi-value">3,725<span class="kpi-unit">tok</span></div>
         <div class="kpi-sub">+ 54,773 tok on-demand</div>
         <div class="kpi-strip"></div>
       </article>
@@ -902,8 +902,8 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
           <span>Window occupation</span>
           <button class="info" type="button" aria-label="Always-loaded tokens as a percentage of the 200,000-token context window. Below 25% leaves comfortable room for your conversation, files, and Claude&#x27;s responses; near or above 100% means the session is choking on its own config before you have typed a word." data-info="window_occupation"><span class="info-mark" aria-hidden="true">?</span><span class="info-tip" role="tooltip">Always-loaded tokens as a percentage of the 200,000-token context window. Below 25% leaves comfortable room for your conversation, files, and Claude&#x27;s responses; near or above 100% means the session is choking on its own config before you have typed a word.</span></button>
         </header>
-        <div class="kpi-value">0.3<span class="kpi-unit">%</span></div>
-        <div class="kpi-sub">199,409 tokens of headroom</div>
+        <div class="kpi-value">1.9<span class="kpi-unit">%</span></div>
+        <div class="kpi-sub">196,275 tokens of headroom</div>
         <div class="kpi-strip"></div>
       </article>
     
@@ -912,8 +912,8 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
           <span>Files tracked</span>
           <button class="info" type="button" aria-label="Total configuration files the auditor read, broken down by type. Skills, agents, and rules live under .claude/; CLAUDE.md files can sit at the project root or nested inside subprojects." data-info="files_tracked"><span class="info-mark" aria-hidden="true">?</span><span class="info-tip" role="tooltip">Total configuration files the auditor read, broken down by type. Skills, agents, and rules live under .claude/; CLAUDE.md files can sit at the project root or nested inside subprojects.</span></button>
         </header>
-        <div class="kpi-value">51</div>
-        <div class="kpi-sub">20 agent, 31 command</div>
+        <div class="kpi-value">52</div>
+        <div class="kpi-sub">1 claude.md, 20 agent, 31 command</div>
         <div class="kpi-strip"></div>
       </article>
     
@@ -922,8 +922,8 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
           <span>Issues</span>
           <button class="info" type="button" aria-label="Quality findings the auditor surfaced. Errors are blocking — Claude cannot use these correctly. Warnings cause routing or budget problems. Advisories are worth considering but not urgent." data-info="issues"><span class="info-mark" aria-hidden="true">?</span><span class="info-tip" role="tooltip">Quality findings the auditor surfaced. Errors are blocking — Claude cannot use these correctly. Warnings cause routing or budget problems. Advisories are worth considering but not urgent.</span></button>
         </header>
-        <div class="kpi-value">3</div>
-        <div class="kpi-sub"><span class="sev sev-error">0</span> error · <span class="sev sev-warning">0</span> warning · <span class="sev sev-info">3</span> advisory</div>
+        <div class="kpi-value">2</div>
+        <div class="kpi-sub"><span class="sev sev-error">0</span> error · <span class="sev sev-warning">0</span> warning · <span class="sev sev-info">2</span> advisory</div>
         <div class="kpi-strip"></div>
       </article>
     </section>
@@ -946,16 +946,24 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
       </text>
     
           
-          <rect x="40.0" y="60" width="2.1" height="40" class="util-seg util-seg--agent"/>
+          <rect x="40.0" y="60" width="11.0" height="40" class="util-seg util-seg--claude-md"/><rect x="51.0" y="60" width="2.1" height="40" class="util-seg util-seg--agent"/>
           <line x1="40" y1="100" x2="940" y2="100" class="util-baseline"/>
         </svg>
       </div>
       <div class="util-legend">
           <div class="leg-row">
+            <span class="leg-swatch leg-swatch--claude-md"></span>
+            <span class="leg-name">claude.md</span>
+            <span class="leg-files">1 files</span>
+            <span class="leg-pct">84.1%</span>
+            <span class="leg-tok">3,134</span>
+          </div>
+        
+          <div class="leg-row">
             <span class="leg-swatch leg-swatch--agent"></span>
             <span class="leg-name">agent</span>
             <span class="leg-files">20 files</span>
-            <span class="leg-pct">100.0%</span>
+            <span class="leg-pct">15.9%</span>
             <span class="leg-tok">591</span>
           </div>
         </div>
@@ -979,6 +987,19 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
           </tr>
         </thead>
         <tbody>
+          <tr>
+            <td class="t-cat">
+              <span class="leg-swatch leg-swatch--claude-md"></span>
+              claude.md
+            </td>
+            <td class="t-num">1</td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--claude-md" style="width:8.3%"></span>
+            </td>
+            <td class="t-num t-num-tok">3,134</td>
+            <td class="t-num t-num-tok"><span class="t-num-dim">—</span></td>
+            <td class="t-num t-num-tok">3,134</td>
+          </tr>
           <tr>
             <td class="t-cat">
               <span class="leg-swatch leg-swatch--agent"></span>
@@ -1013,7 +1034,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
       <header class="panel-h">
         <h2>Top consumers<button class="info" type="button" aria-label="The single files costing you the most tokens, sorted largest to smallest. These are usually the best places to start when you need to claw context space back — even on-demand files fire often enough to matter." data-info="top_consumers"><span class="info-mark" aria-hidden="true">?</span><span class="info-tip" role="tooltip">The single files costing you the most tokens, sorted largest to smallest. These are usually the best places to start when you need to claw context space back — even on-demand files fire often enough to matter.</span></button></h2>
         <span class="panel-sub">
-          largest files by estimated token cost · 51 file(s) total
+          largest files by estimated token cost · 52 file(s) total
         </span>
       </header>
       <table class="dt dt--files">
@@ -1075,6 +1096,17 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
           </tr>
           <tr>
             <td class="t-rank">005</td>
+            <td class="t-path"><code>CLAUDE.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--claude-md">claude.md</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--claude-md" style="width:37.5%"></span>
+            </td>
+            <td class="t-num t-num-tok">3,134</td>
+          </tr>
+          <tr>
+            <td class="t-rank">006</td>
             <td class="t-path"><code>.claude/agents/socratic-mentor.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--agent">agent</span>
@@ -1085,7 +1117,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
             <td class="t-num t-num-tok">2,418</td>
           </tr>
           <tr>
-            <td class="t-rank">006</td>
+            <td class="t-rank">007</td>
             <td class="t-path"><code>.claude/agents/business-panel-experts.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--agent">agent</span>
@@ -1096,7 +1128,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
             <td class="t-num t-num-tok">2,198</td>
           </tr>
           <tr>
-            <td class="t-rank">007</td>
+            <td class="t-rank">008</td>
             <td class="t-path"><code>.claude/commands/sc/help.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--command">command</span>
@@ -1107,7 +1139,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
             <td class="t-num t-num-tok">1,720</td>
           </tr>
           <tr>
-            <td class="t-rank">008</td>
+            <td class="t-rank">009</td>
             <td class="t-path"><code>.claude/commands/sc/brainstorm.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--command">command</span>
@@ -1118,7 +1150,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
             <td class="t-num t-num-tok">1,023</td>
           </tr>
           <tr>
-            <td class="t-rank">009</td>
+            <td class="t-rank">010</td>
             <td class="t-path"><code>.claude/commands/sc/task.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--command">command</span>
@@ -1129,7 +1161,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
             <td class="t-num t-num-tok">945</td>
           </tr>
           <tr>
-            <td class="t-rank">010</td>
+            <td class="t-rank">011</td>
             <td class="t-path"><code>.claude/commands/sc/workflow.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--command">command</span>
@@ -1140,7 +1172,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
             <td class="t-num t-num-tok">941</td>
           </tr>
           <tr>
-            <td class="t-rank">011</td>
+            <td class="t-rank">012</td>
             <td class="t-path"><code>.claude/agents/deep-research-agent.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--agent">agent</span>
@@ -1151,7 +1183,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
             <td class="t-num t-num-tok">907</td>
           </tr>
           <tr>
-            <td class="t-rank">012</td>
+            <td class="t-rank">013</td>
             <td class="t-path"><code>.claude/commands/sc/implement.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--command">command</span>
@@ -1162,7 +1194,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
             <td class="t-num t-num-tok">878</td>
           </tr>
           <tr>
-            <td class="t-rank">013</td>
+            <td class="t-rank">014</td>
             <td class="t-path"><code>.claude/commands/sc/estimate.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--command">command</span>
@@ -1173,7 +1205,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
             <td class="t-num t-num-tok">845</td>
           </tr>
           <tr>
-            <td class="t-rank">014</td>
+            <td class="t-rank">015</td>
             <td class="t-path"><code>.claude/commands/sc/troubleshoot.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--command">command</span>
@@ -1184,7 +1216,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
             <td class="t-num t-num-tok">843</td>
           </tr>
           <tr>
-            <td class="t-rank">015</td>
+            <td class="t-rank">016</td>
             <td class="t-path"><code>.claude/commands/sc/improve.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--command">command</span>
@@ -1195,7 +1227,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
             <td class="t-num t-num-tok">831</td>
           </tr>
           <tr>
-            <td class="t-rank">016</td>
+            <td class="t-rank">017</td>
             <td class="t-path"><code>.claude/commands/sc/business-panel.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--command">command</span>
@@ -1206,7 +1238,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
             <td class="t-num t-num-tok">830</td>
           </tr>
           <tr>
-            <td class="t-rank">017</td>
+            <td class="t-rank">018</td>
             <td class="t-path"><code>.claude/commands/sc/spawn.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--command">command</span>
@@ -1217,7 +1249,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
             <td class="t-num t-num-tok">818</td>
           </tr>
           <tr>
-            <td class="t-rank">018</td>
+            <td class="t-rank">019</td>
             <td class="t-path"><code>.claude/commands/sc/research.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--command">command</span>
@@ -1228,7 +1260,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
             <td class="t-num t-num-tok">801</td>
           </tr>
           <tr>
-            <td class="t-rank">019</td>
+            <td class="t-rank">020</td>
             <td class="t-path"><code>.claude/commands/sc/cleanup.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--command">command</span>
@@ -1237,25 +1269,14 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
               <span class="row-bar row-bar--command" style="width:9.5%"></span>
             </td>
             <td class="t-num t-num-tok">797</td>
-          </tr>
-          <tr>
-            <td class="t-rank">020</td>
-            <td class="t-path"><code>.claude/commands/sc/index-repo.md</code></td>
-            <td class="t-cat-small">
-              <span class="cat-tag cat-tag--command">command</span>
-            </td>
-            <td class="t-bar">
-              <span class="row-bar row-bar--command" style="width:9.3%"></span>
-            </td>
-            <td class="t-num t-num-tok">775</td>
           </tr></tbody>
       </table>
       
           <details class="expand">
             <summary class="expand-summary">
               <span class="expand-toggle" aria-hidden="true"></span>
-              <span class="expand-label">Show remaining 31 file(s)</span>
-              <span class="expand-hint">51 total</span>
+              <span class="expand-label">Show remaining 32 file(s)</span>
+              <span class="expand-hint">52 total</span>
             </summary>
             <table class="dt dt--files dt--continuation">
               
@@ -1272,6 +1293,17 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
               <tbody>
           <tr>
             <td class="t-rank">021</td>
+            <td class="t-path"><code>.claude/commands/sc/index-repo.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--command">command</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--command" style="width:9.3%"></span>
+            </td>
+            <td class="t-num t-num-tok">775</td>
+          </tr>
+          <tr>
+            <td class="t-rank">022</td>
             <td class="t-path"><code>.claude/commands/sc/select-tool.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--command">command</span>
@@ -1282,7 +1314,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
             <td class="t-num t-num-tok">744</td>
           </tr>
           <tr>
-            <td class="t-rank">022</td>
+            <td class="t-rank">023</td>
             <td class="t-path"><code>.claude/commands/sc/reflect.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--command">command</span>
@@ -1293,7 +1325,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
             <td class="t-num t-num-tok">707</td>
           </tr>
           <tr>
-            <td class="t-rank">023</td>
+            <td class="t-rank">024</td>
             <td class="t-path"><code>.claude/commands/sc/sc.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--command">command</span>
@@ -1304,7 +1336,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
             <td class="t-num t-num-tok">675</td>
           </tr>
           <tr>
-            <td class="t-rank">024</td>
+            <td class="t-rank">025</td>
             <td class="t-path"><code>.claude/commands/sc/explain.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--command">command</span>
@@ -1315,7 +1347,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
             <td class="t-num t-num-tok">674</td>
           </tr>
           <tr>
-            <td class="t-rank">025</td>
+            <td class="t-rank">026</td>
             <td class="t-path"><code>.claude/commands/sc/save.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--command">command</span>
@@ -1326,7 +1358,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
             <td class="t-num t-num-tok">668</td>
           </tr>
           <tr>
-            <td class="t-rank">026</td>
+            <td class="t-rank">027</td>
             <td class="t-path"><code>.claude/commands/sc/index.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--command">command</span>
@@ -1337,7 +1369,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
             <td class="t-num t-num-tok">667</td>
           </tr>
           <tr>
-            <td class="t-rank">027</td>
+            <td class="t-rank">028</td>
             <td class="t-path"><code>.claude/commands/sc/design.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--command">command</span>
@@ -1348,7 +1380,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
             <td class="t-num t-num-tok">653</td>
           </tr>
           <tr>
-            <td class="t-rank">028</td>
+            <td class="t-rank">029</td>
             <td class="t-path"><code>.claude/commands/sc/analyze.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--command">command</span>
@@ -1359,7 +1391,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
             <td class="t-num t-num-tok">650</td>
           </tr>
           <tr>
-            <td class="t-rank">029</td>
+            <td class="t-rank">030</td>
             <td class="t-path"><code>.claude/commands/sc/load.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--command">command</span>
@@ -1370,7 +1402,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
             <td class="t-num t-num-tok">650</td>
           </tr>
           <tr>
-            <td class="t-rank">030</td>
+            <td class="t-rank">031</td>
             <td class="t-path"><code>.claude/commands/sc/build.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--command">command</span>
@@ -1381,7 +1413,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
             <td class="t-num t-num-tok">636</td>
           </tr>
           <tr>
-            <td class="t-rank">031</td>
+            <td class="t-rank">032</td>
             <td class="t-path"><code>.claude/commands/sc/agent.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--command">command</span>
@@ -1392,7 +1424,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
             <td class="t-num t-num-tok">627</td>
           </tr>
           <tr>
-            <td class="t-rank">032</td>
+            <td class="t-rank">033</td>
             <td class="t-path"><code>.claude/commands/sc/test.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--command">command</span>
@@ -1403,7 +1435,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
             <td class="t-num t-num-tok">622</td>
           </tr>
           <tr>
-            <td class="t-rank">033</td>
+            <td class="t-rank">034</td>
             <td class="t-path"><code>.claude/commands/sc/document.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--command">command</span>
@@ -1414,7 +1446,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
             <td class="t-num t-num-tok">597</td>
           </tr>
           <tr>
-            <td class="t-rank">034</td>
+            <td class="t-rank">035</td>
             <td class="t-path"><code>.claude/agents/python-expert.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--agent">agent</span>
@@ -1425,7 +1457,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
             <td class="t-num t-num-tok">549</td>
           </tr>
           <tr>
-            <td class="t-rank">035</td>
+            <td class="t-rank">036</td>
             <td class="t-path"><code>.claude/agents/security-engineer.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--agent">agent</span>
@@ -1436,7 +1468,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
             <td class="t-num t-num-tok">516</td>
           </tr>
           <tr>
-            <td class="t-rank">036</td>
+            <td class="t-rank">037</td>
             <td class="t-path"><code>.claude/agents/refactoring-expert.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--agent">agent</span>
@@ -1447,7 +1479,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
             <td class="t-num t-num-tok">493</td>
           </tr>
           <tr>
-            <td class="t-rank">037</td>
+            <td class="t-rank">038</td>
             <td class="t-path"><code>.claude/agents/root-cause-analyst.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--agent">agent</span>
@@ -1458,7 +1490,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
             <td class="t-num t-num-tok">491</td>
           </tr>
           <tr>
-            <td class="t-rank">038</td>
+            <td class="t-rank">039</td>
             <td class="t-path"><code>.claude/agents/requirements-analyst.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--agent">agent</span>
@@ -1469,7 +1501,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
             <td class="t-num t-num-tok">478</td>
           </tr>
           <tr>
-            <td class="t-rank">039</td>
+            <td class="t-rank">040</td>
             <td class="t-path"><code>.claude/commands/sc/git.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--command">command</span>
@@ -1480,7 +1512,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
             <td class="t-num t-num-tok">477</td>
           </tr>
           <tr>
-            <td class="t-rank">040</td>
+            <td class="t-rank">041</td>
             <td class="t-path"><code>.claude/agents/quality-engineer.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--agent">agent</span>
@@ -1491,7 +1523,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
             <td class="t-num t-num-tok">475</td>
           </tr>
           <tr>
-            <td class="t-rank">041</td>
+            <td class="t-rank">042</td>
             <td class="t-path"><code>.claude/agents/learning-guide.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--agent">agent</span>
@@ -1502,7 +1534,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
             <td class="t-num t-num-tok">472</td>
           </tr>
           <tr>
-            <td class="t-rank">042</td>
+            <td class="t-rank">043</td>
             <td class="t-path"><code>.claude/agents/technical-writer.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--agent">agent</span>
@@ -1513,7 +1545,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
             <td class="t-num t-num-tok">464</td>
           </tr>
           <tr>
-            <td class="t-rank">043</td>
+            <td class="t-rank">044</td>
             <td class="t-path"><code>.claude/agents/devops-architect.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--agent">agent</span>
@@ -1524,7 +1556,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
             <td class="t-num t-num-tok">458</td>
           </tr>
           <tr>
-            <td class="t-rank">044</td>
+            <td class="t-rank">045</td>
             <td class="t-path"><code>.claude/agents/performance-engineer.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--agent">agent</span>
@@ -1535,7 +1567,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
             <td class="t-num t-num-tok">457</td>
           </tr>
           <tr>
-            <td class="t-rank">045</td>
+            <td class="t-rank">046</td>
             <td class="t-path"><code>.claude/agents/system-architect.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--agent">agent</span>
@@ -1546,7 +1578,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
             <td class="t-num t-num-tok">444</td>
           </tr>
           <tr>
-            <td class="t-rank">046</td>
+            <td class="t-rank">047</td>
             <td class="t-path"><code>.claude/agents/frontend-architect.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--agent">agent</span>
@@ -1557,7 +1589,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
             <td class="t-num t-num-tok">442</td>
           </tr>
           <tr>
-            <td class="t-rank">047</td>
+            <td class="t-rank">048</td>
             <td class="t-path"><code>.claude/agents/backend-architect.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--agent">agent</span>
@@ -1568,7 +1600,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
             <td class="t-num t-num-tok">415</td>
           </tr>
           <tr>
-            <td class="t-rank">048</td>
+            <td class="t-rank">049</td>
             <td class="t-path"><code>.claude/agents/repo-index.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--agent">agent</span>
@@ -1579,7 +1611,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
             <td class="t-num t-num-tok">319</td>
           </tr>
           <tr>
-            <td class="t-rank">049</td>
+            <td class="t-rank">050</td>
             <td class="t-path"><code>.claude/agents/self-review.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--agent">agent</span>
@@ -1590,7 +1622,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
             <td class="t-num t-num-tok">300</td>
           </tr>
           <tr>
-            <td class="t-rank">050</td>
+            <td class="t-rank">051</td>
             <td class="t-path"><code>.claude/agents/deep-research.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--agent">agent</span>
@@ -1601,7 +1633,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
             <td class="t-num t-num-tok">293</td>
           </tr>
           <tr>
-            <td class="t-rank">051</td>
+            <td class="t-rank">052</td>
             <td class="t-path"><code>.claude/commands/sc/README.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--command">command</span>
@@ -1621,7 +1653,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
       <header class="panel-h">
         <h2>Findings<button class="info" type="button" aria-label="Quality issues the auditor detected, grouped by severity. Each finding has a stable code (AGT001, SKL002, HLT003, etc.) so you can grep for it or look it up later." data-info="findings"><span class="info-mark" aria-hidden="true">?</span><span class="info-tip" role="tooltip">Quality issues the auditor detected, grouped by severity. Each finding has a stable code (AGT001, SKL002, HLT003, etc.) so you can grep for it or look it up later.</span></button></h2>
         <span class="panel-sub">
-          0 error · 0 warning · 3 advisory
+          0 error · 0 warning · 2 advisory
         </span>
       </header>
       
@@ -1630,18 +1662,9 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
               <span class="f-group-sev sev sev-info">info</span>
               <span class="f-group-title">Advisories</span>
               <span class="f-group-blurb">things to consider but not urgent</span>
-              <span class="f-group-count">3</span>
+              <span class="f-group-count">2</span>
             </div>
             <ul class="f-list">
-              <li class="f f--info">
-                <div class="f-bullet" aria-hidden="true"></div>
-                <div class="f-code"><code>HLT005</code></div>
-                <div class="f-body">
-                  <div class="f-msg">agents/skills present but no CLAUDE.md</div>
-                  <span class="f-path f-path--none">project-wide</span>
-                  <div class="f-hint">A short CLAUDE.md at the project root gives Claude the context it needs to apply your rules consistently across agents and skills.</div>
-                </div>
-              </li>
               <li class="f f--info">
                 <div class="f-bullet" aria-hidden="true"></div>
                 <div class="f-code"><code>AGT005</code></div>
@@ -1671,12 +1694,12 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
       <div class="colophon-row"><dt>Report ID</dt><dd>550407F0</dd></div>
     </div>
     <div class="colophon-block">
-      <div class="colophon-row"><dt>Generated</dt><dd>2026-05-21 · 16:42</dd></div>
+      <div class="colophon-row"><dt>Generated</dt><dd>2026-05-26 · 18:40</dd></div>
       <div class="colophon-row"><dt>Tokenizer</dt><dd>tiktoken-cl100k_base</dd></div>
     </div>
     <p class="colophon-note">
       <span class="ro">Read-only</span>
-      Estimated using tiktoken `cl100k_base` (OpenAI GPT-4 tokenizer). Anthropic does not publish the Claude tokenizer; this is a close-but-not-exact proxy. Treat numbers as ±5-10% on Markdown/YAML. No files in the audited target were modified.
+      Estimated using tiktoken `cl100k_base` (OpenAI GPT-4 tokenizer). Anthropic does not publish the Claude tokenizer; this is a close-but-not-exact proxy. Treat numbers as ±5-10% on Markdown/YAML. Pass --accurate (and set ANTHROPIC_API_KEY) for ground-truth counts. No files in the audited target were modified.
     </p>
   </footer>
 

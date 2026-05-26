@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Audit · bmad</title>
+<title>Audit · ~/projects/bmad</title>
 <style>
 /* ============ Theme tokens ============
    :root holds the light theme. Dark theme overrides via either
@@ -875,10 +875,10 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
       <span class="brand-mark">▣</span>
       claude-config-auditor
     </div>
-    <code class="topbar-path">bmad</code>
+    <code class="topbar-path">~/projects/bmad</code>
     <div class="topbar-meta">
       <span><strong>v0.1.0</strong></span>
-      <span>2026-05-21 · 16:42</span>
+      <span>2026-05-26 · 18:40</span>
       <span>id <strong>DAAC7721</strong></span>
       <button class="theme-toggle" id="theme-toggle"
               type="button" aria-label="Cycle color theme"
@@ -892,8 +892,8 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
           <span>Always loaded</span>
           <button class="info" type="button" aria-label="Tokens Claude Code pulls into the main session at startup, every time you open this project: the full CLAUDE.md, the full rules/, plus the frontmatter (name + description) of every agent and skill. Agent and skill bodies are NOT in this number — they load on demand and are reported separately." data-info="always_loaded"><span class="info-mark" aria-hidden="true">?</span><span class="info-tip" role="tooltip">Tokens Claude Code pulls into the main session at startup, every time you open this project: the full CLAUDE.md, the full rules/, plus the frontmatter (name + description) of every agent and skill. Agent and skill bodies are NOT in this number — they load on demand and are reported separately.</span></button>
         </header>
-        <div class="kpi-value">3,066<span class="kpi-unit">tok</span></div>
-        <div class="kpi-sub">+ 108,214 tok on-demand</div>
+        <div class="kpi-value">2,304<span class="kpi-unit">tok</span></div>
+        <div class="kpi-sub">+ 79,944 tok on-demand</div>
         <div class="kpi-strip"></div>
       </article>
     
@@ -902,8 +902,8 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
           <span>Window occupation</span>
           <button class="info" type="button" aria-label="Always-loaded tokens as a percentage of the 200,000-token context window. Below 25% leaves comfortable room for your conversation, files, and Claude&#x27;s responses; near or above 100% means the session is choking on its own config before you have typed a word." data-info="window_occupation"><span class="info-mark" aria-hidden="true">?</span><span class="info-tip" role="tooltip">Always-loaded tokens as a percentage of the 200,000-token context window. Below 25% leaves comfortable room for your conversation, files, and Claude&#x27;s responses; near or above 100% means the session is choking on its own config before you have typed a word.</span></button>
         </header>
-        <div class="kpi-value">1.5<span class="kpi-unit">%</span></div>
-        <div class="kpi-sub">196,934 tokens of headroom</div>
+        <div class="kpi-value">1.2<span class="kpi-unit">%</span></div>
+        <div class="kpi-sub">197,696 tokens of headroom</div>
         <div class="kpi-strip"></div>
       </article>
     
@@ -912,8 +912,8 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
           <span>Files tracked</span>
           <button class="info" type="button" aria-label="Total configuration files the auditor read, broken down by type. Skills, agents, and rules live under .claude/; CLAUDE.md files can sit at the project root or nested inside subprojects." data-info="files_tracked"><span class="info-mark" aria-hidden="true">?</span><span class="info-tip" role="tooltip">Total configuration files the auditor read, broken down by type. Skills, agents, and rules live under .claude/; CLAUDE.md files can sit at the project root or nested inside subprojects.</span></button>
         </header>
-        <div class="kpi-value">70</div>
-        <div class="kpi-sub">70 skill</div>
+        <div class="kpi-value">45</div>
+        <div class="kpi-sub">1 claude.md, 44 skill</div>
         <div class="kpi-strip"></div>
       </article>
     
@@ -922,8 +922,8 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
           <span>Issues</span>
           <button class="info" type="button" aria-label="Quality findings the auditor surfaced. Errors are blocking — Claude cannot use these correctly. Warnings cause routing or budget problems. Advisories are worth considering but not urgent." data-info="issues"><span class="info-mark" aria-hidden="true">?</span><span class="info-tip" role="tooltip">Quality findings the auditor surfaced. Errors are blocking — Claude cannot use these correctly. Warnings cause routing or budget problems. Advisories are worth considering but not urgent.</span></button>
         </header>
-        <div class="kpi-value">2</div>
-        <div class="kpi-sub"><span class="sev sev-error">0</span> error · <span class="sev sev-warning">0</span> warning · <span class="sev sev-info">2</span> advisory</div>
+        <div class="kpi-value">1</div>
+        <div class="kpi-sub"><span class="sev sev-error">0</span> error · <span class="sev sev-warning">0</span> warning · <span class="sev sev-info">1</span> advisory</div>
         <div class="kpi-strip"></div>
       </article>
     </section>
@@ -946,17 +946,25 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
       </text>
     
           
-          <rect x="40.0" y="60" width="10.7" height="40" class="util-seg util-seg--skill"/>
+          <rect x="40.0" y="60" width="1.3" height="40" class="util-seg util-seg--claude-md"/><rect x="41.3" y="60" width="6.7" height="40" class="util-seg util-seg--skill"/>
           <line x1="40" y1="100" x2="940" y2="100" class="util-baseline"/>
         </svg>
       </div>
       <div class="util-legend">
           <div class="leg-row">
+            <span class="leg-swatch leg-swatch--claude-md"></span>
+            <span class="leg-name">claude.md</span>
+            <span class="leg-files">1 files</span>
+            <span class="leg-pct">16.4%</span>
+            <span class="leg-tok">377</span>
+          </div>
+        
+          <div class="leg-row">
             <span class="leg-swatch leg-swatch--skill"></span>
             <span class="leg-name">skill</span>
-            <span class="leg-files">70 files</span>
-            <span class="leg-pct">100.0%</span>
-            <span class="leg-tok">3,066</span>
+            <span class="leg-files">44 files</span>
+            <span class="leg-pct">83.6%</span>
+            <span class="leg-tok">1,927</span>
           </div>
         </div>
     </section>
@@ -981,16 +989,29 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
         <tbody>
           <tr>
             <td class="t-cat">
+              <span class="leg-swatch leg-swatch--claude-md"></span>
+              claude.md
+            </td>
+            <td class="t-num">1</td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--claude-md" style="width:0.5%"></span>
+            </td>
+            <td class="t-num t-num-tok">377</td>
+            <td class="t-num t-num-tok"><span class="t-num-dim">—</span></td>
+            <td class="t-num t-num-tok">377</td>
+          </tr>
+          <tr>
+            <td class="t-cat">
               <span class="leg-swatch leg-swatch--skill"></span>
               skill
             </td>
-            <td class="t-num">70</td>
+            <td class="t-num">44</td>
             <td class="t-bar">
               <span class="row-bar row-bar--skill" style="width:100.0%"></span>
             </td>
-            <td class="t-num t-num-tok">3,066</td>
-            <td class="t-num t-num-tok">108,214</td>
-            <td class="t-num t-num-tok">111,280</td>
+            <td class="t-num t-num-tok">1,927</td>
+            <td class="t-num t-num-tok">79,944</td>
+            <td class="t-num t-num-tok">81,871</td>
           </tr></tbody>
       </table>
     </section>
@@ -1000,7 +1021,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
       <header class="panel-h">
         <h2>Top consumers<button class="info" type="button" aria-label="The single files costing you the most tokens, sorted largest to smallest. These are usually the best places to start when you need to claw context space back — even on-demand files fire often enough to matter." data-info="top_consumers"><span class="info-mark" aria-hidden="true">?</span><span class="info-tip" role="tooltip">The single files costing you the most tokens, sorted largest to smallest. These are usually the best places to start when you need to claw context space back — even on-demand files fire often enough to matter.</span></button></h2>
         <span class="panel-sub">
-          largest files by estimated token cost · 70 file(s) total
+          largest files by estimated token cost · 45 file(s) total
         </span>
       </header>
       <table class="dt dt--files">
@@ -1025,7 +1046,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
             <td class="t-bar">
               <span class="row-bar row-bar--skill" style="width:100.0%"></span>
             </td>
-            <td class="t-num t-num-tok">15,089</td>
+            <td class="t-num t-num-tok">15,125</td>
           </tr>
           <tr>
             <td class="t-rank">002</td>
@@ -1034,9 +1055,9 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
               <span class="cat-tag cat-tag--skill">skill</span>
             </td>
             <td class="t-bar">
-              <span class="row-bar row-bar--skill" style="width:37.5%"></span>
+              <span class="row-bar row-bar--skill" style="width:39.3%"></span>
             </td>
-            <td class="t-num t-num-tok">5,653</td>
+            <td class="t-num t-num-tok">5,949</td>
           </tr>
           <tr>
             <td class="t-rank">003</td>
@@ -1045,9 +1066,9 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
               <span class="cat-tag cat-tag--skill">skill</span>
             </td>
             <td class="t-bar">
-              <span class="row-bar row-bar--skill" style="width:35.7%"></span>
+              <span class="row-bar row-bar--skill" style="width:35.8%"></span>
             </td>
-            <td class="t-num t-num-tok">5,386</td>
+            <td class="t-num t-num-tok">5,422</td>
           </tr>
           <tr>
             <td class="t-rank">004</td>
@@ -1056,9 +1077,9 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
               <span class="cat-tag cat-tag--skill">skill</span>
             </td>
             <td class="t-bar">
-              <span class="row-bar row-bar--skill" style="width:20.0%"></span>
+              <span class="row-bar row-bar--skill" style="width:20.2%"></span>
             </td>
-            <td class="t-num t-num-tok">3,025</td>
+            <td class="t-num t-num-tok">3,061</td>
           </tr>
           <tr>
             <td class="t-rank">005</td>
@@ -1067,78 +1088,67 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
               <span class="cat-tag cat-tag--skill">skill</span>
             </td>
             <td class="t-bar">
-              <span class="row-bar row-bar--skill" style="width:19.9%"></span>
+              <span class="row-bar row-bar--skill" style="width:20.2%"></span>
             </td>
-            <td class="t-num t-num-tok">2,996</td>
+            <td class="t-num t-num-tok">3,050</td>
           </tr>
           <tr>
             <td class="t-rank">006</td>
-            <td class="t-path"><code>.claude/skills/bmad-cis-innovation-strategy/SKILL.md</code></td>
+            <td class="t-path"><code>.claude/skills/bmad-prd/SKILL.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--skill">skill</span>
             </td>
             <td class="t-bar">
               <span class="row-bar row-bar--skill" style="width:19.0%"></span>
             </td>
-            <td class="t-num t-num-tok">2,866</td>
+            <td class="t-num t-num-tok">2,880</td>
           </tr>
           <tr>
             <td class="t-rank">007</td>
-            <td class="t-path"><code>.claude/skills/bmad-cis-storytelling/SKILL.md</code></td>
-            <td class="t-cat-small">
-              <span class="cat-tag cat-tag--skill">skill</span>
-            </td>
-            <td class="t-bar">
-              <span class="row-bar row-bar--skill" style="width:18.9%"></span>
-            </td>
-            <td class="t-num t-num-tok">2,849</td>
-          </tr>
-          <tr>
-            <td class="t-rank">008</td>
-            <td class="t-path"><code>.claude/skills/bmad-prd/SKILL.md</code></td>
-            <td class="t-cat-small">
-              <span class="cat-tag cat-tag--skill">skill</span>
-            </td>
-            <td class="t-bar">
-              <span class="row-bar row-bar--skill" style="width:18.4%"></span>
-            </td>
-            <td class="t-num t-num-tok">2,770</td>
-          </tr>
-          <tr>
-            <td class="t-rank">009</td>
-            <td class="t-path"><code>.claude/skills/bmad-cis-problem-solving/SKILL.md</code></td>
-            <td class="t-cat-small">
-              <span class="cat-tag cat-tag--skill">skill</span>
-            </td>
-            <td class="t-bar">
-              <span class="row-bar row-bar--skill" style="width:18.3%"></span>
-            </td>
-            <td class="t-num t-num-tok">2,761</td>
-          </tr>
-          <tr>
-            <td class="t-rank">010</td>
             <td class="t-path"><code>.claude/skills/bmad-sprint-planning/SKILL.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--skill">skill</span>
             </td>
             <td class="t-bar">
-              <span class="row-bar row-bar--skill" style="width:17.7%"></span>
+              <span class="row-bar row-bar--skill" style="width:18.0%"></span>
             </td>
-            <td class="t-num t-num-tok">2,669</td>
+            <td class="t-num t-num-tok">2,723</td>
           </tr>
           <tr>
-            <td class="t-rank">011</td>
+            <td class="t-rank">008</td>
+            <td class="t-path"><code>.claude/skills/bmad-spec/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:17.2%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,602</td>
+          </tr>
+          <tr>
+            <td class="t-rank">009</td>
             <td class="t-path"><code>.claude/skills/bmad-investigate/SKILL.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--skill">skill</span>
             </td>
             <td class="t-bar">
-              <span class="row-bar row-bar--skill" style="width:16.3%"></span>
+              <span class="row-bar row-bar--skill" style="width:16.6%"></span>
             </td>
-            <td class="t-num t-num-tok">2,461</td>
+            <td class="t-num t-num-tok">2,506</td>
           </tr>
           <tr>
-            <td class="t-rank">012</td>
+            <td class="t-rank">010</td>
+            <td class="t-path"><code>.claude/skills/bmad-product-brief/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:15.7%"></span>
+            </td>
+            <td class="t-num t-num-tok">2,371</td>
+          </tr>
+          <tr>
+            <td class="t-rank">011</td>
             <td class="t-path"><code>.claude/skills/bmad-editorial-review-structure/SKILL.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--skill">skill</span>
@@ -1149,100 +1159,111 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
             <td class="t-num t-num-tok">2,316</td>
           </tr>
           <tr>
-            <td class="t-rank">013</td>
-            <td class="t-path"><code>.claude/skills/bmad-product-brief/SKILL.md</code></td>
+            <td class="t-rank">012</td>
+            <td class="t-path"><code>.claude/skills/bmad-ux/SKILL.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--skill">skill</span>
             </td>
             <td class="t-bar">
               <span class="row-bar row-bar--skill" style="width:15.3%"></span>
             </td>
-            <td class="t-num t-num-tok">2,302</td>
+            <td class="t-num t-num-tok">2,307</td>
           </tr>
           <tr>
-            <td class="t-rank">014</td>
+            <td class="t-rank">013</td>
             <td class="t-path"><code>.claude/skills/bmad-prfaq/SKILL.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--skill">skill</span>
             </td>
             <td class="t-bar">
-              <span class="row-bar row-bar--skill" style="width:14.9%"></span>
+              <span class="row-bar row-bar--skill" style="width:15.1%"></span>
             </td>
-            <td class="t-num t-num-tok">2,245</td>
+            <td class="t-num t-num-tok">2,283</td>
           </tr>
           <tr>
-            <td class="t-rank">015</td>
-            <td class="t-path"><code>.claude/skills/bmad-cis-design-thinking/SKILL.md</code></td>
-            <td class="t-cat-small">
-              <span class="cat-tag cat-tag--skill">skill</span>
-            </td>
-            <td class="t-bar">
-              <span class="row-bar row-bar--skill" style="width:14.4%"></span>
-            </td>
-            <td class="t-num t-num-tok">2,173</td>
-          </tr>
-          <tr>
-            <td class="t-rank">016</td>
-            <td class="t-path"><code>.claude/skills/bmad-distillator/SKILL.md</code></td>
-            <td class="t-cat-small">
-              <span class="cat-tag cat-tag--skill">skill</span>
-            </td>
-            <td class="t-bar">
-              <span class="row-bar row-bar--skill" style="width:13.7%"></span>
-            </td>
-            <td class="t-num t-num-tok">2,061</td>
-          </tr>
-          <tr>
-            <td class="t-rank">017</td>
+            <td class="t-rank">014</td>
             <td class="t-path"><code>.claude/skills/bmad-party-mode/SKILL.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--skill">skill</span>
             </td>
             <td class="t-bar">
-              <span class="row-bar row-bar--skill" style="width:12.7%"></span>
+              <span class="row-bar row-bar--skill" style="width:12.6%"></span>
             </td>
             <td class="t-num t-num-tok">1,910</td>
           </tr>
           <tr>
-            <td class="t-rank">018</td>
-            <td class="t-path"><code>.claude/skills/bmad-eval-runner/SKILL.md</code></td>
+            <td class="t-rank">015</td>
+            <td class="t-path"><code>.claude/skills/bmad-customize/SKILL.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--skill">skill</span>
             </td>
             <td class="t-bar">
-              <span class="row-bar row-bar--skill" style="width:11.8%"></span>
+              <span class="row-bar row-bar--skill" style="width:10.7%"></span>
             </td>
-            <td class="t-num t-num-tok">1,773</td>
+            <td class="t-num t-num-tok">1,614</td>
+          </tr>
+          <tr>
+            <td class="t-rank">016</td>
+            <td class="t-path"><code>.claude/skills/bmad-advanced-elicitation/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:9.3%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,402</td>
+          </tr>
+          <tr>
+            <td class="t-rank">017</td>
+            <td class="t-path"><code>.claude/skills/bmad-qa-generate-e2e-tests/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:8.6%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,306</td>
+          </tr>
+          <tr>
+            <td class="t-rank">018</td>
+            <td class="t-path"><code>.claude/skills/bmad-quick-dev/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:8.1%"></span>
+            </td>
+            <td class="t-num t-num-tok">1,226</td>
           </tr>
           <tr>
             <td class="t-rank">019</td>
-            <td class="t-path"><code>.claude/skills/bmad-module-builder/assets/setup-skill-template/SKILL.md</code></td>
+            <td class="t-path"><code>.claude/skills/bmad-editorial-review-prose/SKILL.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--skill">skill</span>
             </td>
             <td class="t-bar">
-              <span class="row-bar row-bar--skill" style="width:11.1%"></span>
+              <span class="row-bar row-bar--skill" style="width:7.4%"></span>
             </td>
-            <td class="t-num t-num-tok">1,673</td>
+            <td class="t-num t-num-tok">1,115</td>
           </tr>
           <tr>
             <td class="t-rank">020</td>
-            <td class="t-path"><code>.claude/skills/bmad-bmb-setup/SKILL.md</code></td>
+            <td class="t-path"><code>.claude/skills/bmad-create-epics-and-stories/SKILL.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--skill">skill</span>
             </td>
             <td class="t-bar">
-              <span class="row-bar row-bar--skill" style="width:11.0%"></span>
+              <span class="row-bar row-bar--skill" style="width:7.3%"></span>
             </td>
-            <td class="t-num t-num-tok">1,664</td>
+            <td class="t-num t-num-tok">1,109</td>
           </tr></tbody>
       </table>
       
           <details class="expand">
             <summary class="expand-summary">
               <span class="expand-toggle" aria-hidden="true"></span>
-              <span class="expand-label">Show remaining 50 file(s)</span>
-              <span class="expand-hint">70 total</span>
+              <span class="expand-label">Show remaining 25 file(s)</span>
+              <span class="expand-hint">45 total</span>
             </summary>
             <table class="dt dt--files dt--continuation">
               
@@ -1259,149 +1280,116 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
               <tbody>
           <tr>
             <td class="t-rank">021</td>
-            <td class="t-path"><code>.claude/skills/bmad-customize/SKILL.md</code></td>
+            <td class="t-path"><code>.claude/skills/bmad-check-implementation-readiness/SKILL.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--skill">skill</span>
             </td>
             <td class="t-bar">
-              <span class="row-bar row-bar--skill" style="width:10.7%"></span>
+              <span class="row-bar row-bar--skill" style="width:7.2%"></span>
             </td>
-            <td class="t-num t-num-tok">1,614</td>
+            <td class="t-num t-num-tok">1,086</td>
           </tr>
           <tr>
             <td class="t-rank">022</td>
-            <td class="t-path"><code>.claude/skills/bmad-teach-me-testing/SKILL.md</code></td>
-            <td class="t-cat-small">
-              <span class="cat-tag cat-tag--skill">skill</span>
-            </td>
-            <td class="t-bar">
-              <span class="row-bar row-bar--skill" style="width:10.0%"></span>
-            </td>
-            <td class="t-num t-num-tok">1,507</td>
-          </tr>
-          <tr>
-            <td class="t-rank">023</td>
-            <td class="t-path"><code>.claude/skills/bmad-advanced-elicitation/SKILL.md</code></td>
-            <td class="t-cat-small">
-              <span class="cat-tag cat-tag--skill">skill</span>
-            </td>
-            <td class="t-bar">
-              <span class="row-bar row-bar--skill" style="width:9.3%"></span>
-            </td>
-            <td class="t-num t-num-tok">1,402</td>
-          </tr>
-          <tr>
-            <td class="t-rank">024</td>
-            <td class="t-path"><code>.claude/skills/bmad-qa-generate-e2e-tests/SKILL.md</code></td>
-            <td class="t-cat-small">
-              <span class="cat-tag cat-tag--skill">skill</span>
-            </td>
-            <td class="t-bar">
-              <span class="row-bar row-bar--skill" style="width:8.4%"></span>
-            </td>
-            <td class="t-num t-num-tok">1,270</td>
-          </tr>
-          <tr>
-            <td class="t-rank">025</td>
-            <td class="t-path"><code>.claude/skills/bmad-quick-dev/SKILL.md</code></td>
-            <td class="t-cat-small">
-              <span class="cat-tag cat-tag--skill">skill</span>
-            </td>
-            <td class="t-bar">
-              <span class="row-bar row-bar--skill" style="width:7.9%"></span>
-            </td>
-            <td class="t-num t-num-tok">1,190</td>
-          </tr>
-          <tr>
-            <td class="t-rank">026</td>
-            <td class="t-path"><code>.claude/skills/bmad-editorial-review-prose/SKILL.md</code></td>
-            <td class="t-cat-small">
-              <span class="cat-tag cat-tag--skill">skill</span>
-            </td>
-            <td class="t-bar">
-              <span class="row-bar row-bar--skill" style="width:7.4%"></span>
-            </td>
-            <td class="t-num t-num-tok">1,115</td>
-          </tr>
-          <tr>
-            <td class="t-rank">027</td>
-            <td class="t-path"><code>.claude/skills/bmad-create-epics-and-stories/SKILL.md</code></td>
+            <td class="t-path"><code>.claude/skills/bmad-technical-research/SKILL.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--skill">skill</span>
             </td>
             <td class="t-bar">
               <span class="row-bar row-bar--skill" style="width:7.1%"></span>
             </td>
-            <td class="t-num t-num-tok">1,073</td>
+            <td class="t-num t-num-tok">1,069</td>
           </tr>
           <tr>
-            <td class="t-rank">028</td>
-            <td class="t-path"><code>.claude/skills/bmad-check-implementation-readiness/SKILL.md</code></td>
+            <td class="t-rank">023</td>
+            <td class="t-path"><code>.claude/skills/bmad-domain-research/SKILL.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--skill">skill</span>
             </td>
             <td class="t-bar">
               <span class="row-bar row-bar--skill" style="width:7.0%"></span>
             </td>
-            <td class="t-num t-num-tok">1,050</td>
+            <td class="t-num t-num-tok">1,060</td>
           </tr>
           <tr>
-            <td class="t-rank">029</td>
-            <td class="t-path"><code>.claude/skills/bmad-agent-builder/SKILL.md</code></td>
-            <td class="t-cat-small">
-              <span class="cat-tag cat-tag--skill">skill</span>
-            </td>
-            <td class="t-bar">
-              <span class="row-bar row-bar--skill" style="width:6.9%"></span>
-            </td>
-            <td class="t-num t-num-tok">1,042</td>
-          </tr>
-          <tr>
-            <td class="t-rank">030</td>
-            <td class="t-path"><code>.claude/skills/bmad-tea/SKILL.md</code></td>
-            <td class="t-cat-small">
-              <span class="cat-tag cat-tag--skill">skill</span>
-            </td>
-            <td class="t-bar">
-              <span class="row-bar row-bar--skill" style="width:6.9%"></span>
-            </td>
-            <td class="t-num t-num-tok">1,038</td>
-          </tr>
-          <tr>
-            <td class="t-rank">031</td>
-            <td class="t-path"><code>.claude/skills/bmad-technical-research/SKILL.md</code></td>
-            <td class="t-cat-small">
-              <span class="cat-tag cat-tag--skill">skill</span>
-            </td>
-            <td class="t-bar">
-              <span class="row-bar row-bar--skill" style="width:6.8%"></span>
-            </td>
-            <td class="t-num t-num-tok">1,033</td>
-          </tr>
-          <tr>
-            <td class="t-rank">032</td>
-            <td class="t-path"><code>.claude/skills/bmad-domain-research/SKILL.md</code></td>
-            <td class="t-cat-small">
-              <span class="cat-tag cat-tag--skill">skill</span>
-            </td>
-            <td class="t-bar">
-              <span class="row-bar row-bar--skill" style="width:6.8%"></span>
-            </td>
-            <td class="t-num t-num-tok">1,024</td>
-          </tr>
-          <tr>
-            <td class="t-rank">033</td>
+            <td class="t-rank">024</td>
             <td class="t-path"><code>.claude/skills/bmad-market-research/SKILL.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--skill">skill</span>
             </td>
             <td class="t-bar">
-              <span class="row-bar row-bar--skill" style="width:6.7%"></span>
+              <span class="row-bar row-bar--skill" style="width:6.9%"></span>
             </td>
-            <td class="t-num t-num-tok">1,014</td>
+            <td class="t-num t-num-tok">1,050</td>
           </tr>
           <tr>
-            <td class="t-rank">034</td>
+            <td class="t-rank">025</td>
+            <td class="t-path"><code>.claude/skills/bmad-agent-tech-writer/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:6.6%"></span>
+            </td>
+            <td class="t-num t-num-tok">998</td>
+          </tr>
+          <tr>
+            <td class="t-rank">026</td>
+            <td class="t-path"><code>.claude/skills/bmad-agent-dev/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:6.5%"></span>
+            </td>
+            <td class="t-num t-num-tok">986</td>
+          </tr>
+          <tr>
+            <td class="t-rank">027</td>
+            <td class="t-path"><code>.claude/skills/bmad-agent-ux-designer/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:6.5%"></span>
+            </td>
+            <td class="t-num t-num-tok">985</td>
+          </tr>
+          <tr>
+            <td class="t-rank">028</td>
+            <td class="t-path"><code>.claude/skills/bmad-agent-pm/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:6.5%"></span>
+            </td>
+            <td class="t-num t-num-tok">980</td>
+          </tr>
+          <tr>
+            <td class="t-rank">029</td>
+            <td class="t-path"><code>.claude/skills/bmad-agent-analyst/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:6.5%"></span>
+            </td>
+            <td class="t-num t-num-tok">979</td>
+          </tr>
+          <tr>
+            <td class="t-rank">030</td>
+            <td class="t-path"><code>.claude/skills/bmad-agent-architect/SKILL.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--skill">skill</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--skill" style="width:6.4%"></span>
+            </td>
+            <td class="t-num t-num-tok">974</td>
+          </tr>
+          <tr>
+            <td class="t-rank">031</td>
             <td class="t-path"><code>.claude/skills/bmad-help/SKILL.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--skill">skill</span>
@@ -1412,172 +1400,29 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
             <td class="t-num t-num-tok">969</td>
           </tr>
           <tr>
-            <td class="t-rank">035</td>
-            <td class="t-path"><code>.claude/skills/bmad-cis-agent-presentation-master/SKILL.md</code></td>
-            <td class="t-cat-small">
-              <span class="cat-tag cat-tag--skill">skill</span>
-            </td>
-            <td class="t-bar">
-              <span class="row-bar row-bar--skill" style="width:6.3%"></span>
-            </td>
-            <td class="t-num t-num-tok">958</td>
-          </tr>
-          <tr>
-            <td class="t-rank">036</td>
-            <td class="t-path"><code>.claude/skills/bmad-cis-agent-creative-problem-solver/SKILL.md</code></td>
-            <td class="t-cat-small">
-              <span class="cat-tag cat-tag--skill">skill</span>
-            </td>
-            <td class="t-bar">
-              <span class="row-bar row-bar--skill" style="width:6.3%"></span>
-            </td>
-            <td class="t-num t-num-tok">954</td>
-          </tr>
-          <tr>
-            <td class="t-rank">037</td>
-            <td class="t-path"><code>.claude/skills/bmad-agent-tech-writer/SKILL.md</code></td>
-            <td class="t-cat-small">
-              <span class="cat-tag cat-tag--skill">skill</span>
-            </td>
-            <td class="t-bar">
-              <span class="row-bar row-bar--skill" style="width:6.3%"></span>
-            </td>
-            <td class="t-num t-num-tok">953</td>
-          </tr>
-          <tr>
-            <td class="t-rank">038</td>
-            <td class="t-path"><code>.claude/skills/bmad-cis-agent-brainstorming-coach/SKILL.md</code></td>
-            <td class="t-cat-small">
-              <span class="cat-tag cat-tag--skill">skill</span>
-            </td>
-            <td class="t-bar">
-              <span class="row-bar row-bar--skill" style="width:6.3%"></span>
-            </td>
-            <td class="t-num t-num-tok">944</td>
-          </tr>
-          <tr>
-            <td class="t-rank">039</td>
-            <td class="t-path"><code>.claude/skills/bmad-agent-dev/SKILL.md</code></td>
-            <td class="t-cat-small">
-              <span class="cat-tag cat-tag--skill">skill</span>
-            </td>
-            <td class="t-bar">
-              <span class="row-bar row-bar--skill" style="width:6.2%"></span>
-            </td>
-            <td class="t-num t-num-tok">941</td>
-          </tr>
-          <tr>
-            <td class="t-rank">040</td>
-            <td class="t-path"><code>.claude/skills/bmad-cis-agent-innovation-strategist/SKILL.md</code></td>
-            <td class="t-cat-small">
-              <span class="cat-tag cat-tag--skill">skill</span>
-            </td>
-            <td class="t-bar">
-              <span class="row-bar row-bar--skill" style="width:6.2%"></span>
-            </td>
-            <td class="t-num t-num-tok">941</td>
-          </tr>
-          <tr>
-            <td class="t-rank">041</td>
-            <td class="t-path"><code>.claude/skills/bmad-agent-ux-designer/SKILL.md</code></td>
-            <td class="t-cat-small">
-              <span class="cat-tag cat-tag--skill">skill</span>
-            </td>
-            <td class="t-bar">
-              <span class="row-bar row-bar--skill" style="width:6.2%"></span>
-            </td>
-            <td class="t-num t-num-tok">940</td>
-          </tr>
-          <tr>
-            <td class="t-rank">042</td>
-            <td class="t-path"><code>.claude/skills/bmad-agent-pm/SKILL.md</code></td>
-            <td class="t-cat-small">
-              <span class="cat-tag cat-tag--skill">skill</span>
-            </td>
-            <td class="t-bar">
-              <span class="row-bar row-bar--skill" style="width:6.2%"></span>
-            </td>
-            <td class="t-num t-num-tok">935</td>
-          </tr>
-          <tr>
-            <td class="t-rank">043</td>
-            <td class="t-path"><code>.claude/skills/bmad-agent-analyst/SKILL.md</code></td>
-            <td class="t-cat-small">
-              <span class="cat-tag cat-tag--skill">skill</span>
-            </td>
-            <td class="t-bar">
-              <span class="row-bar row-bar--skill" style="width:6.2%"></span>
-            </td>
-            <td class="t-num t-num-tok">934</td>
-          </tr>
-          <tr>
-            <td class="t-rank">044</td>
-            <td class="t-path"><code>.claude/skills/bmad-cis-agent-storyteller/SKILL.md</code></td>
-            <td class="t-cat-small">
-              <span class="cat-tag cat-tag--skill">skill</span>
-            </td>
-            <td class="t-bar">
-              <span class="row-bar row-bar--skill" style="width:6.2%"></span>
-            </td>
-            <td class="t-num t-num-tok">934</td>
-          </tr>
-          <tr>
-            <td class="t-rank">045</td>
-            <td class="t-path"><code>.claude/skills/bmad-cis-agent-design-thinking-coach/SKILL.md</code></td>
-            <td class="t-cat-small">
-              <span class="cat-tag cat-tag--skill">skill</span>
-            </td>
-            <td class="t-bar">
-              <span class="row-bar row-bar--skill" style="width:6.2%"></span>
-            </td>
-            <td class="t-num t-num-tok">933</td>
-          </tr>
-          <tr>
-            <td class="t-rank">046</td>
+            <td class="t-rank">032</td>
             <td class="t-path"><code>.claude/skills/bmad-shard-doc/SKILL.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--skill">skill</span>
             </td>
             <td class="t-bar">
-              <span class="row-bar row-bar--skill" style="width:6.2%"></span>
+              <span class="row-bar row-bar--skill" style="width:6.1%"></span>
             </td>
             <td class="t-num t-num-tok">930</td>
           </tr>
           <tr>
-            <td class="t-rank">047</td>
-            <td class="t-path"><code>.claude/skills/bmad-agent-architect/SKILL.md</code></td>
-            <td class="t-cat-small">
-              <span class="cat-tag cat-tag--skill">skill</span>
-            </td>
-            <td class="t-bar">
-              <span class="row-bar row-bar--skill" style="width:6.2%"></span>
-            </td>
-            <td class="t-num t-num-tok">929</td>
-          </tr>
-          <tr>
-            <td class="t-rank">048</td>
+            <td class="t-rank">033</td>
             <td class="t-path"><code>.claude/skills/bmad-code-review/SKILL.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--skill">skill</span>
             </td>
             <td class="t-bar">
-              <span class="row-bar row-bar--skill" style="width:5.9%"></span>
+              <span class="row-bar row-bar--skill" style="width:6.1%"></span>
             </td>
-            <td class="t-num t-num-tok">893</td>
+            <td class="t-num t-num-tok">929</td>
           </tr>
           <tr>
-            <td class="t-rank">049</td>
-            <td class="t-path"><code>.claude/skills/bmad-testarch-trace/SKILL.md</code></td>
-            <td class="t-cat-small">
-              <span class="cat-tag cat-tag--skill">skill</span>
-            </td>
-            <td class="t-bar">
-              <span class="row-bar row-bar--skill" style="width:5.9%"></span>
-            </td>
-            <td class="t-num t-num-tok">893</td>
-          </tr>
-          <tr>
-            <td class="t-rank">050</td>
+            <td class="t-rank">034</td>
             <td class="t-path"><code>.claude/skills/bmad-review-edge-case-hunter/SKILL.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--skill">skill</span>
@@ -1588,117 +1433,40 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
             <td class="t-num t-num-tok">849</td>
           </tr>
           <tr>
-            <td class="t-rank">051</td>
-            <td class="t-path"><code>.claude/skills/bmad-testarch-test-design/SKILL.md</code></td>
-            <td class="t-cat-small">
-              <span class="cat-tag cat-tag--skill">skill</span>
-            </td>
-            <td class="t-bar">
-              <span class="row-bar row-bar--skill" style="width:5.6%"></span>
-            </td>
-            <td class="t-num t-num-tok">848</td>
-          </tr>
-          <tr>
-            <td class="t-rank">052</td>
-            <td class="t-path"><code>.claude/skills/bmad-testarch-nfr/SKILL.md</code></td>
-            <td class="t-cat-small">
-              <span class="cat-tag cat-tag--skill">skill</span>
-            </td>
-            <td class="t-bar">
-              <span class="row-bar row-bar--skill" style="width:5.5%"></span>
-            </td>
-            <td class="t-num t-num-tok">833</td>
-          </tr>
-          <tr>
-            <td class="t-rank">053</td>
-            <td class="t-path"><code>.claude/skills/bmad-testarch-atdd/SKILL.md</code></td>
-            <td class="t-cat-small">
-              <span class="cat-tag cat-tag--skill">skill</span>
-            </td>
-            <td class="t-bar">
-              <span class="row-bar row-bar--skill" style="width:5.5%"></span>
-            </td>
-            <td class="t-num t-num-tok">827</td>
-          </tr>
-          <tr>
-            <td class="t-rank">054</td>
-            <td class="t-path"><code>.claude/skills/bmad-testarch-ci/SKILL.md</code></td>
-            <td class="t-cat-small">
-              <span class="cat-tag cat-tag--skill">skill</span>
-            </td>
-            <td class="t-bar">
-              <span class="row-bar row-bar--skill" style="width:5.4%"></span>
-            </td>
-            <td class="t-num t-num-tok">818</td>
-          </tr>
-          <tr>
-            <td class="t-rank">055</td>
-            <td class="t-path"><code>.claude/skills/bmad-testarch-framework/SKILL.md</code></td>
-            <td class="t-cat-small">
-              <span class="cat-tag cat-tag--skill">skill</span>
-            </td>
-            <td class="t-bar">
-              <span class="row-bar row-bar--skill" style="width:5.4%"></span>
-            </td>
-            <td class="t-num t-num-tok">817</td>
-          </tr>
-          <tr>
-            <td class="t-rank">056</td>
-            <td class="t-path"><code>.claude/skills/bmad-testarch-automate/SKILL.md</code></td>
-            <td class="t-cat-small">
-              <span class="cat-tag cat-tag--skill">skill</span>
-            </td>
-            <td class="t-bar">
-              <span class="row-bar row-bar--skill" style="width:5.4%"></span>
-            </td>
-            <td class="t-num t-num-tok">815</td>
-          </tr>
-          <tr>
-            <td class="t-rank">057</td>
-            <td class="t-path"><code>.claude/skills/bmad-testarch-test-review/SKILL.md</code></td>
-            <td class="t-cat-small">
-              <span class="cat-tag cat-tag--skill">skill</span>
-            </td>
-            <td class="t-bar">
-              <span class="row-bar row-bar--skill" style="width:5.3%"></span>
-            </td>
-            <td class="t-num t-num-tok">807</td>
-          </tr>
-          <tr>
-            <td class="t-rank">058</td>
+            <td class="t-rank">035</td>
             <td class="t-path"><code>.claude/skills/bmad-generate-project-context/SKILL.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--skill">skill</span>
             </td>
             <td class="t-bar">
-              <span class="row-bar row-bar--skill" style="width:5.2%"></span>
+              <span class="row-bar row-bar--skill" style="width:5.5%"></span>
             </td>
-            <td class="t-num t-num-tok">790</td>
+            <td class="t-num t-num-tok">826</td>
           </tr>
           <tr>
-            <td class="t-rank">059</td>
-            <td class="t-path"><code>.claude/skills/bmad-workflow-builder/SKILL.md</code></td>
+            <td class="t-rank">036</td>
+            <td class="t-path"><code>.claude/skills/bmad-create-architecture/SKILL.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--skill">skill</span>
             </td>
             <td class="t-bar">
               <span class="row-bar row-bar--skill" style="width:5.0%"></span>
             </td>
-            <td class="t-num t-num-tok">755</td>
+            <td class="t-num t-num-tok">761</td>
           </tr>
           <tr>
-            <td class="t-rank">060</td>
-            <td class="t-path"><code>.claude/skills/bmad-create-architecture/SKILL.md</code></td>
+            <td class="t-rank">037</td>
+            <td class="t-path"><code>.claude/skills/bmad-checkpoint-preview/SKILL.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--skill">skill</span>
             </td>
             <td class="t-bar">
-              <span class="row-bar row-bar--skill" style="width:4.8%"></span>
+              <span class="row-bar row-bar--skill" style="width:4.7%"></span>
             </td>
-            <td class="t-num t-num-tok">725</td>
+            <td class="t-num t-num-tok">718</td>
           </tr>
           <tr>
-            <td class="t-rank">061</td>
+            <td class="t-rank">038</td>
             <td class="t-path"><code>.claude/skills/bmad-edit-prd/SKILL.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--skill">skill</span>
@@ -1709,18 +1477,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
             <td class="t-num t-num-tok">708</td>
           </tr>
           <tr>
-            <td class="t-rank">062</td>
-            <td class="t-path"><code>.claude/skills/bmad-create-ux-design/SKILL.md</code></td>
-            <td class="t-cat-small">
-              <span class="cat-tag cat-tag--skill">skill</span>
-            </td>
-            <td class="t-bar">
-              <span class="row-bar row-bar--skill" style="width:4.7%"></span>
-            </td>
-            <td class="t-num t-num-tok">705</td>
-          </tr>
-          <tr>
-            <td class="t-rank">063</td>
+            <td class="t-rank">039</td>
             <td class="t-path"><code>.claude/skills/bmad-validate-prd/SKILL.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--skill">skill</span>
@@ -1731,7 +1488,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
             <td class="t-num t-num-tok">704</td>
           </tr>
           <tr>
-            <td class="t-rank">064</td>
+            <td class="t-rank">040</td>
             <td class="t-path"><code>.claude/skills/bmad-create-prd/SKILL.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--skill">skill</span>
@@ -1742,40 +1499,18 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
             <td class="t-num t-num-tok">696</td>
           </tr>
           <tr>
-            <td class="t-rank">065</td>
-            <td class="t-path"><code>.claude/skills/bmad-checkpoint-preview/SKILL.md</code></td>
-            <td class="t-cat-small">
-              <span class="cat-tag cat-tag--skill">skill</span>
-            </td>
-            <td class="t-bar">
-              <span class="row-bar row-bar--skill" style="width:4.5%"></span>
-            </td>
-            <td class="t-num t-num-tok">682</td>
-          </tr>
-          <tr>
-            <td class="t-rank">066</td>
-            <td class="t-path"><code>.claude/skills/bmad-module-builder/SKILL.md</code></td>
-            <td class="t-cat-small">
-              <span class="cat-tag cat-tag--skill">skill</span>
-            </td>
-            <td class="t-bar">
-              <span class="row-bar row-bar--skill" style="width:4.0%"></span>
-            </td>
-            <td class="t-num t-num-tok">605</td>
-          </tr>
-          <tr>
-            <td class="t-rank">067</td>
+            <td class="t-rank">041</td>
             <td class="t-path"><code>.claude/skills/bmad-document-project/SKILL.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--skill">skill</span>
             </td>
             <td class="t-bar">
-              <span class="row-bar row-bar--skill" style="width:3.7%"></span>
+              <span class="row-bar row-bar--skill" style="width:3.9%"></span>
             </td>
-            <td class="t-num t-num-tok">552</td>
+            <td class="t-num t-num-tok">588</td>
           </tr>
           <tr>
-            <td class="t-rank">068</td>
+            <td class="t-rank">042</td>
             <td class="t-path"><code>.claude/skills/bmad-index-docs/SKILL.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--skill">skill</span>
@@ -1786,7 +1521,18 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
             <td class="t-num t-num-tok">381</td>
           </tr>
           <tr>
-            <td class="t-rank">069</td>
+            <td class="t-rank">043</td>
+            <td class="t-path"><code>CLAUDE.md</code></td>
+            <td class="t-cat-small">
+              <span class="cat-tag cat-tag--claude-md">claude.md</span>
+            </td>
+            <td class="t-bar">
+              <span class="row-bar row-bar--claude-md" style="width:2.5%"></span>
+            </td>
+            <td class="t-num t-num-tok">377</td>
+          </tr>
+          <tr>
+            <td class="t-rank">044</td>
             <td class="t-path"><code>.claude/skills/bmad-review-adversarial-general/SKILL.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--skill">skill</span>
@@ -1797,7 +1543,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
             <td class="t-num t-num-tok">316</td>
           </tr>
           <tr>
-            <td class="t-rank">070</td>
+            <td class="t-rank">045</td>
             <td class="t-path"><code>.claude/skills/bmad-brainstorming/SKILL.md</code></td>
             <td class="t-cat-small">
               <span class="cat-tag cat-tag--skill">skill</span>
@@ -1817,7 +1563,7 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
       <header class="panel-h">
         <h2>Findings<button class="info" type="button" aria-label="Quality issues the auditor detected, grouped by severity. Each finding has a stable code (AGT001, SKL002, HLT003, etc.) so you can grep for it or look it up later." data-info="findings"><span class="info-mark" aria-hidden="true">?</span><span class="info-tip" role="tooltip">Quality issues the auditor detected, grouped by severity. Each finding has a stable code (AGT001, SKL002, HLT003, etc.) so you can grep for it or look it up later.</span></button></h2>
         <span class="panel-sub">
-          0 error · 0 warning · 2 advisory
+          0 error · 0 warning · 1 advisory
         </span>
       </header>
       
@@ -1826,25 +1572,16 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
               <span class="f-group-sev sev sev-info">info</span>
               <span class="f-group-title">Advisories</span>
               <span class="f-group-blurb">things to consider but not urgent</span>
-              <span class="f-group-count">2</span>
+              <span class="f-group-count">1</span>
             </div>
             <ul class="f-list">
-              <li class="f f--info">
-                <div class="f-bullet" aria-hidden="true"></div>
-                <div class="f-code"><code>HLT005</code></div>
-                <div class="f-body">
-                  <div class="f-msg">agents/skills present but no CLAUDE.md</div>
-                  <span class="f-path f-path--none">project-wide</span>
-                  <div class="f-hint">This looks like a BMAD-style install where no project CLAUDE.md is by design. You can ignore this if the framework&#x27;s defaults match your project, or add a thin CLAUDE.md for project-specific rules — both are valid.</div>
-                </div>
-              </li>
               <li class="f f--info">
                 <div class="f-bullet" aria-hidden="true"></div>
                 <div class="f-code"><code>HLT007</code></div>
                 <div class="f-body">
                   <div class="f-msg">detected BMAD-style install at this target</div>
                   <span class="f-path f-path--none">project-wide</span>
-                  <div class="f-hint">Evidence: _bmad/ runtime directory present; 70 skill(s) in .claude/skills/.</div>
+                  <div class="f-hint">Evidence: _bmad/ runtime directory present; 44 skill(s) in .claude/skills/.</div>
                 </div>
               </li></ul>
           </div>
@@ -1858,12 +1595,12 @@ th.t-num, th.t-num-pct, th.t-num-tok { text-align: right; }
       <div class="colophon-row"><dt>Report ID</dt><dd>DAAC7721</dd></div>
     </div>
     <div class="colophon-block">
-      <div class="colophon-row"><dt>Generated</dt><dd>2026-05-21 · 16:42</dd></div>
+      <div class="colophon-row"><dt>Generated</dt><dd>2026-05-26 · 18:40</dd></div>
       <div class="colophon-row"><dt>Tokenizer</dt><dd>tiktoken-cl100k_base</dd></div>
     </div>
     <p class="colophon-note">
       <span class="ro">Read-only</span>
-      Estimated using tiktoken `cl100k_base` (OpenAI GPT-4 tokenizer). Anthropic does not publish the Claude tokenizer; this is a close-but-not-exact proxy. Treat numbers as ±5-10% on Markdown/YAML. No files in the audited target were modified.
+      Estimated using tiktoken `cl100k_base` (OpenAI GPT-4 tokenizer). Anthropic does not publish the Claude tokenizer; this is a close-but-not-exact proxy. Treat numbers as ±5-10% on Markdown/YAML. Pass --accurate (and set ANTHROPIC_API_KEY) for ground-truth counts. No files in the audited target were modified.
     </p>
   </footer>
 

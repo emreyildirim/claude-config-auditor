@@ -16,19 +16,18 @@ The ecosystem has a lot of "session handoff" and "state management" tools. It do
 - "Are two of my agents describing the same job?" (Anthropic's docs say agents are selected based on their description; the exact ranking algorithm isn't published, but overlapping descriptions create routing ambiguity in practice.)
 - "Is my SKILL.md description too vague for Claude to ever invoke it?"
 
-## Cost snapshot — six popular frameworks
+## Cost snapshot — five popular frameworks
 
-The headline `claude-audit --html` numbers from a clean May 2026
-install of six popular Claude Code frameworks:
+The headline `claude-audit --html` numbers from a clean install of
+five popular Claude Code frameworks, audited with `--semantic` on:
 
 | Framework                  | Always loaded | Window  | Files | Findings |
 |----------------------------|--------------:|--------:|------:|---------:|
-| SuperClaude                |   591 tok     | 0.3%    |  51   | 3        |
-| wshobson                   | 1,275 tok     | 0.6%    |  29   | 1        |
-| BMAD                       | 3,066 tok     | 1.5%    |  70   | 2        |
-| claude-flow                | 7,474 tok     | 3.7%    | 217   | 33       |
-| VoltAgent                  | 10,010 tok    | 5.0%    | 145   | 1        |
-| Claude-Code-Game-Studios   | 17,858 tok    | 8.9%    | 138   | 3        |
+| BMAD                       | 2,304 tok     | 1.2%    |  45   | 0        |
+| wshobson (4 plugins)       | 2,378 tok     | 1.2%    |  41   | 0        |
+| claude-flow (now ruflo)    | 3,631 tok     | 1.8%    | 194   | 4 warn   |
+| SuperClaude                | 3,725 tok     | 1.9%    |  52   | 0        |
+| Claude-Code-Game-Studios   | 17,267 tok    | 8.6%    | 138   | 0        |
 
 **"Always loaded"** is what Claude actually pulls into the main
 session at startup — full `CLAUDE.md` + full `rules/` + only the YAML
@@ -37,7 +36,7 @@ expressed as a percentage of a 200k reference context window.
 **"Findings"** is the count of agent / skill / health issues the
 auditor flagged.
 
-The 0.3% → 8.9% spread is informative on its own. A lean framework
+The 1.2% → 8.6% spread is informative on its own. A lean framework
 audits quietly; a heavy one flags exactly where to thin down. Full
 HTML reports — open in any browser, no network — live under
 [`case-studies/`](case-studies/).
@@ -50,7 +49,7 @@ claude-audit ~/your-project --html report.html
 ```
 
 Open `report.html` in any browser. No network calls, nothing
-modified — just your numbers next to the six above.
+modified — just your numbers next to the five above.
 
 ## What it does
 
@@ -339,11 +338,11 @@ Slash commands appear with `~0` eager weight because Claude Code does not pull `
 
 ## Case studies
 
-Six real audits against popular Claude Code frameworks
-(BMAD, claude-flow, SuperClaude, VoltAgent, wshobson,
+Five real audits against popular Claude Code frameworks
+(BMAD, claude-flow / ruflo, SuperClaude, wshobson,
 Claude-Code-Game-Studios) live under
 [`case-studies/`](case-studies/). Each file is the raw HTML report
-`claude-audit --html` produced on a clean install in May 2026 — same
+`claude-audit --html --semantic` produced on a fresh install — same
 metric tuning the rest of the README refers to. Use them as a baseline
 when re-running the auditor against a new release of one of these
 frameworks, or as a sanity check that the tool produces sensible
