@@ -1,6 +1,9 @@
 # claude-config-auditor
 
+[![PyPI](https://img.shields.io/pypi/v/claude-config-auditor.svg)](https://pypi.org/project/claude-config-auditor/)
+[![Python](https://img.shields.io/pypi/pyversions/claude-config-auditor.svg)](https://pypi.org/project/claude-config-auditor/)
 [![tests](https://github.com/emreyildirim/claude-config-auditor/actions/workflows/tests.yml/badge.svg)](https://github.com/emreyildirim/claude-config-auditor/actions/workflows/tests.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A **non-destructive** linter and cost auditor for `.claude/` and `CLAUDE.md` — *we annotate, we don't rewrite*. Measures the **token cost** your Claude Code config pays on every session, and audits **agent / skill quality** (missing descriptions, overlapping routes, broken YAML).
 
@@ -135,8 +138,14 @@ which project venv you happen to have active.
 brew install pipx        # macOS
 # or:  python3 -m pip install --user pipx  &&  pipx ensurepath
 
-# Install the auditor (tiktoken comes with it as a hard dependency).
-pipx install git+https://github.com/emreyildirim/claude-config-auditor.git
+# Install the auditor from PyPI (tiktoken comes with it as a hard dependency).
+pipx install claude-config-auditor
+```
+
+Or via plain pip if you prefer:
+
+```bash
+pip install claude-config-auditor
 ```
 
 After that, `claude-audit --help` works from any project directory.
@@ -165,7 +174,7 @@ project's `.pre-commit-config.yaml`:
 ```yaml
 repos:
   - repo: https://github.com/emreyildirim/claude-config-auditor
-    rev: main   # pin to a tag or SHA in real usage
+    rev: v0.1.0   # pin to a tag or SHA in real usage
     hooks:
       - id: claude-audit
         args: [--fail-on, error]
